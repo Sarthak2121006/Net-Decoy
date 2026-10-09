@@ -1,0 +1,12 @@
+# NetDecoy Core & Intelligence Requirements
+# Intelligence engine runs with Python 3.9+ standard library out-of-the-box.
+
+# Backend (FastAPI proposed stack)
+fastapi>=0.100.0
+uvicorn>=0.23.0
+pydantic>=2.0.0
+
+# Optional AI & Developer Tools
+google-genai>=0.1.0
+requests>=2.31.0
+pytest>=7.4.0

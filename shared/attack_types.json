@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "NetDecoyAttackTypes",
+  "description": "Standardized attack types, default risk weights, severities, and associated attack stages for NetDecoy.",
+  "attack_types": {
+    "BRUTE_FORCE": {
+      "name": "Brute Force Authentication",
+      "category": "Credential Access",
+      "severity": "HIGH",
+      "base_weight": 20,
+      "mapped_stage": "CREDENTIAL_ACCESS",
+      "description": "Repeated failed authentication attempts against authentication decoys in a short time frame."
+    },
+    "SCANNING": {
+      "name": "Reconnaissance / Endpoint Scanning",
+      "category": "Discovery",
+      "severity": "MEDIUM",
+      "base_weight": 20,
+      "mapped_stage": "SCANNING",
+      "description": "Probing multiple distinct decoy endpoints or administrative paths to map application structure."
+    },
+    "SQL_INJECTION": {
+      "name": "SQL Injection Pattern",
+      "category": "Exploitation / Privilege Escalation",
+      "severity": "HIGH",
+      "base_weight": 30,
+      "mapped_stage": "PRIVILEGE_ESCALATION",
+      "description": "Controlled detection of structured SQL syntax patterns (auth bypass, UNION operators, comments) in decoy inputs."
+    },
+    "PATH_TRAVERSAL": {
+      "name": "Directory Path Traversal",
+      "category": "Exploitation / File Access",
+      "severity": "HIGH",
+      "base_weight": 30,
+      "mapped_stage": "DATA_ACCESS",
+      "description": "Controlled detection of directory escape sequences (e.g., ../, ..\\, encoded separators) in search or file decoys."
+    },
+    "SENSITIVE_ACCESS": {
+      "name": "Sensitive Resource Enumeration",
+      "category": "Data Access",
+      "severity": "HIGH",
+      "base_weight": 20,
+      "mapped_stage": "DATA_ACCESS",
+      "description": "Direct interaction with decoy sensitive backup archives, configuration dumps, or synthetic proprietary databases."
+    },
+    "REPEATED_SUSPICIOUS": {
+      "name": "Repeated Suspicious Behavior",
+      "category": "Multi-stage Progression",
+      "severity": "HIGH",
+      "base_weight": 10,
+      "mapped_stage": "PRIVILEGE_ESCALATION",
+      "description": "Persistent, multi-vector suspicious activity observed across the session timeline."
+    }
+  },
+  "stage_progression": [
+    "RECONNAISSANCE",
+    "SCANNING",
+    "CREDENTIAL_ACCESS",
+    "RESOURCE_DISCOVERY",
+    "PRIVILEGE_ESCALATION",
+    "DATA_ACCESS"
+  ]
+}

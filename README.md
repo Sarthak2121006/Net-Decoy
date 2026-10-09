@@ -424,7 +424,7 @@ Estimated next stage: Privilege Escalation
 ```
 
 Show a **pattern confidence** value only if the implementation defines
-and documents how it is calculated. Do not invent percentages or
+and documents how it is calculated. Pattern confidence comes from a predefined transition table plus a depth heuristic, not a trained model. Do not invent percentages or
 describe a heuristic score as a calibrated probability. This is an
 estimate, not a guarantee.
 
