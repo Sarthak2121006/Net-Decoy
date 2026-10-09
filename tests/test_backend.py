@@ -356,3 +356,52 @@ def test_frontend_and_traps_serving(client):
     assert res_company.status_code == 200
     assert b"Apex Global" in res_company.data
 
+
+def test_report_endpoint(client):
+    """Verify GET /api/report returns a complete executive forensic incident dossier."""
+    # Seed events across diverse attack vectors
+    client.post("/api/events", json={
+        "session_id": "sess_report_99",
+        "page": "login",
+        "action": "sql_injection",
+        "event_type": "exploitation",
+        "severity": "CRITICAL",
+        "source_ip": "185.220.101.45",
+        "payload": {"input": "admin' OR 1=1--", "vector": "SQLi"}
+    })
+    client.post("/api/events", json={
+        "session_id": "sess_report_99",
+        "page": "admin",
+        "action": "failed_login",
+        "event_type": "authentication",
+        "severity": "HIGH",
+        "source_ip": "185.220.101.45",
+        "payload": {"username": "root", "attempt": 3}
+    })
+
+    # Query report for specific session
+    res = client.get("/api/report?session_id=sess_report_99")
+    assert res.status_code == 200
+    report = res.json
+    assert report["status"] == "success"
+    assert report["session_id"] == "sess_report_99"
+    assert "incident_reference_id" in report
+    assert report["incident_reference_id"].startswith("INC-")
+    assert "report_timestamp" in report
+    assert "risk_assessment" in report
+    assert "score" in report["risk_assessment"]
+    assert "severity_level" in report["risk_assessment"]
+    assert "mitre_attack_framework" in report
+    assert len(report["mitre_attack_framework"]) > 0
+    assert "forensic_timeline" in report
+    assert len(report["forensic_timeline"]) >= 2
+    assert "raw_payload_evidence" in report
+    assert len(report["raw_payload_evidence"]) >= 1
+    assert "ai_threat_synthesis" in report
+    assert "containment_directives" in report["ai_threat_synthesis"]
+
+    # Query general report (all sessions)
+    res_gen = client.get("/api/report")
+    assert res_gen.status_code == 200
+    assert res_gen.json["status"] == "success"
+

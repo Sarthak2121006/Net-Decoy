@@ -59,6 +59,10 @@
           <span id="clock-display">00:00:00 UTC</span>
         </div>
 
+        <button class="btn btn-primary btn-report" id="btn-export-report" onclick="openForensicReportModal()" title="Export Print-Ready Executive SOC Forensic Report">
+          <i class="fa-solid fa-file-shield"></i> Export Executive SOC Report
+        </button>
+
         <button class="btn btn-secondary" id="btn-demo-panel">
           <i class="fa-solid fa-sliders"></i> Simulation Tools
         </button>
@@ -325,6 +329,184 @@
       <div>NetDecoy Security Operations Center</div>
       <div>Active Telemetry Monitoring &bull; Real-time Deception System</div>
     </footer>
+  </div>
+
+  <!-- Executive Forensic Incident Report Modal (Print & PDF Ready) -->
+  <div class="report-modal-overlay hidden" id="reportModalOverlay">
+    <div class="report-modal-container">
+      
+      <!-- Modal Action Bar (Hidden on Print) -->
+      <div class="report-modal-toolbar">
+        <div class="toolbar-title">
+          <i class="fa-solid fa-file-invoice-dollar" style="color:var(--accent-primary);"></i>
+          <span>Official Executive SOC Forensic Report</span>
+        </div>
+        <div class="toolbar-actions">
+          <button class="btn btn-secondary" onclick="downloadReportJson()">
+            <i class="fa-solid fa-download"></i> Download JSON
+          </button>
+          <button class="btn btn-primary" onclick="printReportDocument()">
+            <i class="fa-solid fa-print"></i> Print / Save as PDF
+          </button>
+          <button class="btn-close-modal" onclick="closeForensicReportModal()" title="Close Dossier">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Printable Report Document Content -->
+      <div class="printable-document" id="printableDossier">
+        
+        <!-- Document Header / Official Seal -->
+        <div class="doc-header">
+          <div class="doc-brand">
+            <div class="doc-logo"><i class="fa-solid fa-shield-halved"></i></div>
+            <div>
+              <h1 class="doc-org-title">NetDecoy Autonomous Cyber Defense</h1>
+              <div class="doc-org-sub">Security Operations Center &bull; Deception Intelligence Division</div>
+            </div>
+          </div>
+          <div class="doc-meta-box">
+            <div class="doc-badge-restricted">RESTRICTED // LAW ENFORCEMENT & SOC USE ONLY</div>
+            <div class="doc-meta-item"><strong>Incident ID:</strong> <span id="rep-incident-id">INC-2026-9812</span></div>
+            <div class="doc-meta-item"><strong>Timestamp:</strong> <span id="rep-timestamp">2026-10-09 00:00:00 UTC</span></div>
+            <div class="doc-meta-item"><strong>Session ID:</strong> <code id="rep-session-id">sess_alpha</code></div>
+          </div>
+        </div>
+
+        <hr class="doc-divider">
+
+        <!-- Executive Summary & Threat Actor Profile -->
+        <div class="doc-section">
+          <h2 class="doc-section-title"><i class="fa-solid fa-user-secret"></i> 1. Executive Incident Summary & Threat Classification</h2>
+          <div class="doc-grid-2">
+            <div class="doc-card">
+              <span class="doc-label">Threat Actor Behavioral Profile</span>
+              <div class="doc-val-large" id="rep-threat-profile" style="color:#b91c1c;">Automated Exploitation Script</div>
+              <p class="doc-p" id="rep-summary-text">Adversary initiated reconnaissance and credential exploitation against enterprise decoy honeypots.</p>
+            </div>
+            <div class="doc-card">
+              <span class="doc-label">Overall Risk Index & Target Geolocation</span>
+              <div style="display:flex; align-items:center; gap:12px; margin-top:4px;">
+                <div class="doc-risk-score" id="rep-risk-score">87/100</div>
+                <div>
+                  <span class="badge-chip chip-critical" id="rep-risk-level">CRITICAL</span>
+                  <div style="font-size:12px; color:#475569; margin-top:4px;">
+                    <strong>Attacker IP:</strong> <code id="rep-attacker-ip">185.220.101.5</code>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MITRE ATT&CK Matrix Mapping -->
+        <div class="doc-section">
+          <h2 class="doc-section-title"><i class="fa-solid fa-network-wired"></i> 2. MITRE ATT&CK® Framework Mapping</h2>
+          <table class="doc-table" id="rep-mitre-table">
+            <thead>
+              <tr>
+                <th style="width:15%;">Technique ID</th>
+                <th style="width:25%;">Technique Name</th>
+                <th style="width:20%;">Tactic</th>
+                <th style="width:40%;">Observed Adversary Behavior</th>
+              </tr>
+            </thead>
+            <tbody id="rep-mitre-body">
+              <tr>
+                <td><code>T1190</code></td>
+                <td><strong>Exploit Public-Facing Application</strong></td>
+                <td>Initial Access / Execution</td>
+                <td>SQL injection syntax submitted to bypass authentication on database workbench.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Chronological Forensics Timeline -->
+        <div class="doc-section">
+          <h2 class="doc-section-title"><i class="fa-solid fa-timeline"></i> 3. Chronological Forensics Journey Timeline</h2>
+          <table class="doc-table">
+            <thead>
+              <tr>
+                <th style="width:10%;">Step</th>
+                <th style="width:15%;">Time (UTC)</th>
+                <th style="width:20%;">Trap Endpoint</th>
+                <th style="width:30%;">Observed Action</th>
+                <th style="width:12%;">Severity</th>
+                <th style="width:13%;">Source IP</th>
+              </tr>
+            </thead>
+            <tbody id="rep-timeline-body">
+              <tr>
+                <td>01</td>
+                <td>14:31:04</td>
+                <td><span class="endpoint-chip">/login</span></td>
+                <td>Failed Authentication</td>
+                <td><span class="chip-sev chip-high">HIGH</span></td>
+                <td>185.220.101.5</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Raw Payload Evidence -->
+        <div class="doc-section">
+          <h2 class="doc-section-title"><i class="fa-solid fa-code"></i> 4. Exact Raw Telemetry & Payload Evidence</h2>
+          <div class="doc-evidence-box" id="rep-evidence-container">
+            <div class="evidence-item">
+              <span class="ev-ts">[14:31:13 UTC]</span>
+              <span class="ev-target">POST /database</span>
+              <span class="chip-sev chip-critical">CRITICAL</span>
+              <code class="ev-code">SELECT * FROM users WHERE username = 'admin' OR '1'='1'; --</code>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actionable Containment Directives -->
+        <div class="doc-section">
+          <h2 class="doc-section-title"><i class="fa-solid fa-list-check"></i> 5. Actionable SOC Incident Containment Directives</h2>
+          <div class="doc-directives-box">
+            <ul class="doc-checklist" id="rep-directives-list">
+              <li><i class="fa-solid fa-square-check" style="color:#10b981;"></i> Apply immediate perimeter firewall drop rule for attacking IP.</li>
+              <li><i class="fa-solid fa-square-check" style="color:#10b981;"></i> Invalidate and rotate all active session tokens and administrative credentials.</li>
+              <li><i class="fa-solid fa-square-check" style="color:#10b981;"></i> Audit database query parameterization and deploy honeypot tarpit.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Predictive Threat Trajectory -->
+        <div class="doc-section">
+          <h2 class="doc-section-title"><i class="fa-solid fa-bullseye"></i> 6. Predictive Threat Trajectory Assessment</h2>
+          <div class="doc-card" style="background:#f8fafc; border-left:4px solid var(--accent-primary);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <strong style="font-size:14px; color:#0f172a;">Estimated Next Attack Stage: <span id="rep-predict-stage" style="color:var(--accent-primary);">PRIVILEGE ESCALATION</span></strong>
+              <span class="badge-chip chip-high" id="rep-predict-conf">86% Pattern Confidence</span>
+            </div>
+            <p class="doc-p" id="rep-predict-basis">Sequence modeling indicates adversary will proceed from credential probing to administrative role forging.</p>
+          </div>
+        </div>
+
+        <!-- Official Certification Footer -->
+        <div class="doc-footer">
+          <div class="seal-container">
+            <div class="official-seal">
+              <i class="fa-solid fa-certificate" style="font-size:24px; color:var(--accent-primary);"></i>
+              <div>
+                <div style="font-weight:800; font-size:11px; color:#0f172a;">AUTONOMOUS SOC VERIFIED</div>
+                <div style="font-size:9px; color:#64748b;">ISO/IEC 27001 &bull; NIST CSF 2.0 Aligned</div>
+              </div>
+            </div>
+          </div>
+          <div style="text-align:right; font-size:10px; color:#64748b;">
+            Generated by NetDecoy Cyber Deception Platform<br>
+            Document Reference: <span id="rep-doc-ref">NETDECOY-SOC-2026</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
   </div>
 
   <!-- Leaflet JS -->

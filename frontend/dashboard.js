@@ -720,3 +720,174 @@ async function handleResetSession() {
 
   renderAllComponents();
 }
+
+// ==========================================
+// EXECUTIVE FORENSIC SOC REPORT CONTROLLER
+// ==========================================
+let activeReportDossier = null;
+
+async function openForensicReportModal() {
+  const modal = document.getElementById('reportModalOverlay');
+  if (!modal) return;
+
+  try {
+    const res = await fetch(`${CONFIG.apiBaseUrl}/api/report`);
+    if (res.ok) {
+      activeReportDossier = await res.json();
+    }
+  } catch (err) {
+    console.debug('Failed fetching /api/report, compiling from state:', err);
+  }
+
+  // If backend was offline or empty, build fallback dossier from current state
+  if (!activeReportDossier || !activeReportDossier.incident_reference_id) {
+    const sessId = (state.events[0] && state.events[0].session_id) || 'sess_demo_alpha';
+    activeReportDossier = {
+      incident_reference_id: 'INC-2026-' + Math.floor(1000 + Math.random() * 9000),
+      report_timestamp: new Date().toUTCString(),
+      session_id: sessId,
+      primary_attacker_ip: (state.events[0] && state.events[0].source_ip) || '185.220.101.5',
+      threat_actor_classification: state.risk.score > 60 ? 'Advanced Exploitation Script' : 'Reconnaissance Bot',
+      risk_assessment: {
+        score: state.risk.score,
+        severity_level: state.risk.label || 'HIGH',
+        signal_breakdown: state.risk.breakdown
+      },
+      mitre_attack_framework: [
+        { id: 'T1190', name: 'Exploit Public-Facing Application (SQLi)', tactic: 'Initial Access', description: 'SQL injection payload evaluated against database console.' },
+        { id: 'T1110.003', name: 'Password Spraying / Brute Force', tactic: 'Credential Access', description: 'Rapid failed authentications observed on SSO login gateway.' },
+        { id: 'T1083', name: 'File & Directory Discovery (Traversal)', tactic: 'Discovery', description: 'Directory traversal sequence tested on backup archive portal.' }
+      ],
+      forensic_timeline: state.events.map((e, idx) => ({
+        step: idx + 1,
+        timestamp: e.timestamp,
+        endpoint: `/${e.page}`,
+        action: e.action,
+        severity: e.severity,
+        source_ip: e.source_ip || '185.220.101.5'
+      })),
+      raw_payload_evidence: state.events.filter(e => e.severity === 'CRITICAL' || e.severity === 'HIGH').map(e => ({
+        timestamp: e.timestamp,
+        target_route: `/${e.page}`,
+        attack_type: e.event_type || 'Exploit Payload',
+        payload_snippet: typeof e.payload === 'object' ? JSON.stringify(e.payload) : (e.action || 'Payload match'),
+        severity: e.severity
+      })),
+      ai_threat_synthesis: {
+        summary: state.aiAnalysis.summary || 'Adversary activity detected across multiple deception honeypots.',
+        evidence_bullets: state.aiAnalysis.evidence || [],
+        containment_directives: state.aiAnalysis.recommendations || [
+          'Apply perimeter firewall block rule for attacking IP',
+          'Invalidate and cycle active session authentication tokens',
+          'Deploy honeypot SQL tarpit to exhaust automated scanner'
+        ]
+      },
+      predictive_forecasting: {
+        estimated_next_stage: state.prediction.stage || 'PRIVILEGE ESCALATION',
+        pattern_confidence: state.prediction.confidence || 86,
+        basis: state.prediction.basis || 'Kill-chain trajectory matches credential probing followed by administrative escalation.'
+      }
+    };
+  }
+
+  // Populate Document Fields
+  document.getElementById('rep-incident-id').textContent = activeReportDossier.incident_reference_id;
+  document.getElementById('rep-timestamp').textContent = activeReportDossier.report_timestamp;
+  document.getElementById('rep-session-id').textContent = activeReportDossier.session_id;
+  document.getElementById('rep-threat-profile').textContent = activeReportDossier.threat_actor_classification;
+  document.getElementById('rep-summary-text').textContent = activeReportDossier.ai_threat_synthesis.summary;
+  document.getElementById('rep-risk-score').textContent = `${activeReportDossier.risk_assessment.score}/100`;
+  
+  const riskLvlEl = document.getElementById('rep-risk-level');
+  riskLvlEl.textContent = activeReportDossier.risk_assessment.severity_level;
+  riskLvlEl.className = `badge-chip chip-${(activeReportDossier.risk_assessment.severity_level || 'low').toLowerCase()}`;
+  document.getElementById('rep-attacker-ip').textContent = activeReportDossier.primary_attacker_ip;
+
+  // Populate MITRE Table
+  const mitreBody = document.getElementById('rep-mitre-body');
+  if (mitreBody) {
+    const mitreList = activeReportDossier.mitre_attack_framework || [];
+    mitreBody.innerHTML = mitreList.map(m => `
+      <tr>
+        <td><code style="color:var(--accent-primary); font-weight:700;">${m.id}</code></td>
+        <td><strong>${m.name}</strong></td>
+        <td><span class="badge-chip chip-medium">${m.tactic}</span></td>
+        <td style="color:#475569;">${m.description}</td>
+      </tr>
+    `).join('') || `<tr><td colspan="4" style="text-align:center; color:#94a3b8;">No specific MITRE techniques matched.</td></tr>`;
+  }
+
+  // Populate Forensic Timeline Table
+  const timeBody = document.getElementById('rep-timeline-body');
+  if (timeBody) {
+    const timeline = activeReportDossier.forensic_timeline || [];
+    timeBody.innerHTML = timeline.slice(0, 15).map(t => `
+      <tr>
+        <td style="font-family:var(--font-mono); font-weight:700;">#0${t.step}</td>
+        <td>${t.timestamp}</td>
+        <td><span class="endpoint-chip">${t.endpoint}</span></td>
+        <td style="font-weight:600; color:#0f172a;">${t.action}</td>
+        <td><span class="chip-sev chip-${(t.severity || 'low').toLowerCase()}">${t.severity || 'LOW'}</span></td>
+        <td style="font-family:var(--font-mono);">${t.source_ip}</td>
+      </tr>
+    `).join('') || `<tr><td colspan="6" style="text-align:center; color:#94a3b8;">Awaiting session interactions.</td></tr>`;
+  }
+
+  // Populate Raw Payload Evidence Box
+  const evBox = document.getElementById('rep-evidence-container');
+  if (evBox) {
+    const evList = activeReportDossier.raw_payload_evidence || [];
+    if (evList.length === 0) {
+      evBox.innerHTML = `<div style="color:#64748b; font-size:12px; font-style:italic;">No critical/high severity payload signatures flagged in this session.</div>`;
+    } else {
+      evBox.innerHTML = evList.map(e => `
+        <div class="evidence-item">
+          <div class="ev-header">
+            <span class="ev-ts">[${e.timestamp}]</span>
+            <span class="ev-target">${e.target_route}</span>
+            <span class="chip-sev chip-${(e.severity || 'low').toLowerCase()}">${e.severity || 'HIGH'}</span>
+            <span style="color:#f59e0b; font-weight:600;">[${e.attack_type}]</span>
+          </div>
+          <code class="ev-code">${e.payload_snippet}</code>
+        </div>
+      `).join('');
+    }
+  }
+
+  // Populate Containment Directives List
+  const dirList = document.getElementById('rep-directives-list');
+  if (dirList) {
+    const directives = activeReportDossier.ai_threat_synthesis.containment_directives || [];
+    dirList.innerHTML = directives.map(d => `
+      <li><i class="fa-solid fa-square-check" style="color:#10b981; margin-right:6px;"></i> ${d}</li>
+    `).join('') || `<li><i class="fa-solid fa-circle-check" style="color:#10b981;"></i> System operational. No emergency containment required.</li>`;
+  }
+
+  // Populate Prediction Section
+  document.getElementById('rep-predict-stage').textContent = (activeReportDossier.predictive_forecasting.estimated_next_stage || 'RECONNAISSANCE').toUpperCase();
+  document.getElementById('rep-predict-conf').textContent = `${activeReportDossier.predictive_forecasting.pattern_confidence || 75}% Pattern Confidence`;
+  document.getElementById('rep-predict-basis').textContent = activeReportDossier.predictive_forecasting.basis;
+
+  // Show modal
+  modal.classList.remove('hidden');
+}
+
+function closeForensicReportModal() {
+  const modal = document.getElementById('reportModalOverlay');
+  if (modal) modal.classList.add('hidden');
+}
+
+function printReportDocument() {
+  window.print();
+}
+
+function downloadReportJson() {
+  if (!activeReportDossier) return;
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(activeReportDossier, null, 2));
+  const downloadAnchor = document.createElement('a');
+  downloadAnchor.setAttribute("href", dataStr);
+  downloadAnchor.setAttribute("download", `${activeReportDossier.incident_reference_id}_SOC_Forensic_Dossier.json`);
+  document.body.appendChild(downloadAnchor);
+  downloadAnchor.click();
+  downloadAnchor.remove();
+}
