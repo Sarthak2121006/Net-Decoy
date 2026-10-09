@@ -213,9 +213,60 @@ Base URL: `http://localhost:5000` (or configured port)
 
 ---
 
-### 1.9 Reset Demo State
+### 1.9 Real-Time SOC Alerts
+- **Endpoint**: `GET /api/alerts`
+- **Query Parameters**:
+  - `limit` (optional, integer, default: 20)
+- **Response (200 OK)**:
+  ```json
+  {
+    "status": "success",
+    "count": 1,
+    "alerts": [
+      {
+        "alert_id": "alt_evt_1712660000_a1b2c3",
+        "timestamp": "2026-10-09T03:59:00Z",
+        "session_id": "sess_demo_101",
+        "source_ip": "192.168.1.50",
+        "trap_page": "login",
+        "severity": "CRITICAL",
+        "title": "Critical Threat: Sql Injection",
+        "message": "High-risk action 'sql_injection' executed on trap 'login' by IP 192.168.1.50.",
+        "action_required": "Immediate Subnet Quarantine & Token Invalidation"
+      }
+    ]
+  }
+  ```
+
+---
+
+### 1.10 Session Listing & Deep Dive
+- **Endpoints**: 
+  - `GET /api/sessions` — List all tracked attacker sessions
+  - `GET /api/sessions/<session_id>` — Detailed session journey, risk breakdown, and AI analysis
+
+---
+
+### 1.11 Telemetry Metrics & Visual Breakdown
+- **Endpoint**: `GET /api/metrics`
+- **Response (200 OK)**:
+  ```json
+  {
+    "status": "success",
+    "metrics": {
+      "top_traps": [{"page": "login", "count": 12}, {"page": "env_leak", "count": 8}],
+      "top_ips": [{"ip": "198.51.100.42", "count": 20}],
+      "severity_distribution": {"LOW": 10, "MEDIUM": 5, "CRITICAL": 3},
+      "event_type_distribution": {"authentication": 10, "reconnaissance": 8}
+    }
+  }
+  ```
+
+---
+
+### 1.12 Reset Demo State
 - **Endpoint**: `POST /api/reset`
-- **Description**: Clears demo events, reset session tracking, and restores clean database state for demo repeatability.
+- **Description**: Clears demo events, resets session tracking, and restores clean database state for demo repeatability.
 - **Response (200 OK)**:
   ```json
   {

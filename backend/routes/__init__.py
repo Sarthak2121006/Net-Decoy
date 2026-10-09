@@ -9,6 +9,8 @@ from backend.routes.analysis import analysis_bp
 from backend.routes.prediction import prediction_bp
 from backend.routes.geo import geo_bp
 from backend.routes.reset import reset_bp
+from backend.routes.alerts import alerts_bp
+from backend.routes.sessions import sessions_bp
 
 def register_routes(app):
     """Register all API route blueprints to the Flask application."""
@@ -20,3 +22,5 @@ def register_routes(app):
     app.register_blueprint(prediction_bp)
     app.register_blueprint(geo_bp)
     app.register_blueprint(reset_bp)
+    app.register_blueprint(alerts_bp)
+    app.register_blueprint(sessions_bp)

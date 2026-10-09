@@ -264,3 +264,32 @@ def test_metrics_endpoint(client):
     assert "severity_distribution" in metrics
     assert "event_type_distribution" in metrics
     assert metrics["severity_distribution"]["CRITICAL"] >= 1
+
+def test_alerts_endpoint(client):
+    """Verify GET /api/alerts returns high-severity SOC alerts."""
+    client.post("/api/events", json={"session_id": "sess_alert", "page": "db_console", "action": "sql_injection", "event_type": "exploitation", "severity": "CRITICAL"})
+    res = client.get("/api/alerts")
+    assert res.status_code == 200
+    data = res.json
+    assert data["status"] == "success"
+    assert data["count"] >= 1
+    assert data["alerts"][0]["severity"] == "CRITICAL"
+
+def test_sessions_endpoints(client):
+    """Verify GET /api/sessions and GET /api/sessions/<id>."""
+    client.post("/api/events", json={"session_id": "sess_audit_99", "page": "login", "action": "failed_login", "event_type": "authentication"})
+    
+    # List sessions
+    res_list = client.get("/api/sessions")
+    assert res_list.status_code == 200
+    assert res_list.json["count"] >= 1
+    
+    # Session detail
+    res_det = client.get("/api/sessions/sess_audit_99")
+    assert res_det.status_code == 200
+    sess = res_det.json["session"]
+    assert sess["session_id"] == "sess_audit_99"
+    assert "journey" in sess
+    assert "risk" in sess
+    assert "prediction" in sess
+    assert "analysis" in sess
