@@ -3,7 +3,14 @@ NetDecoy Central Backend Application
 Connects Trap Pages -> Event Collector -> Intelligence Engine -> Dashboard
 """
 import os
+import sys
 import logging
+
+# Ensure project root is in sys.path when running 'python backend/app.py' directly
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
 from flask import Flask, jsonify
 from flask_cors import CORS
 from backend.database.db import init_db
