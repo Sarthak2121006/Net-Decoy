@@ -10,7 +10,7 @@ const CONFIG = {
     : 'http://localhost:5000',
   pollIntervalMs: 2000,
   ipinfoToken: 'f6ce0ac9e7fb13',
-  defaultCoords: [50.1109, 8.6821], // Frankfurt, Germany
+  defaultCoords: [18.6229, 73.8070], // Real-time default coordinates
 };
 
 const state = {
@@ -24,7 +24,7 @@ const state = {
   journey: [],
   aiAnalysis: { summary: '', evidence: [], recommendations: [] },
   prediction: { stage: 'RECONNAISSANCE', confidence: 0, basis: '' },
-  geo: { status: 'unavailable', city: 'Unknown', country: 'Unknown', ip: 'N/A', coords: CONFIG.defaultCoords }
+  geo: { status: 'locating', city: 'Locating...', region: '', country: '', ip: 'Detecting...', coords: CONFIG.defaultCoords }
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -32,7 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initLeafletMap();
   initEventListeners();
   
-  lookupIpGeo('185.220.101.5');
+  // Immediately acquire real-time location
+  fetchRealtimeLocation();
   fetchDashboardData();
   setInterval(fetchDashboardData, CONFIG.pollIntervalMs);
 });
@@ -61,6 +62,13 @@ function initEventListeners() {
     resetBtn.addEventListener('click', handleResetSession);
   }
 
+  const recenterGeoBtn = document.getElementById('btn-recenter-geo');
+  if (recenterGeoBtn) {
+    recenterGeoBtn.addEventListener('click', () => {
+      fetchRealtimeLocation();
+    });
+  }
+
   const tabBtns = document.querySelectorAll('.tab-btn');
   tabBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -78,7 +86,7 @@ function initLeafletMap() {
 
   state.map = L.map('leaflet-map', {
     center: CONFIG.defaultCoords,
-    zoom: 4,
+    zoom: 5,
     zoomControl: false,
     attributionControl: false
   });
@@ -91,9 +99,12 @@ function initLeafletMap() {
 
   const customIcon = L.divIcon({
     className: 'custom-map-pin',
-    html: `<div style="width:16px;height:16px;background:#ef4444;border-radius:50%;box-shadow:0 0 0 4px rgba(239, 68, 68, 0.25);border:2px solid #ffffff;"></div>`,
-    iconSize: [16, 16],
-    iconAnchor: [8, 8]
+    html: `<div style="position:relative;width:20px;height:20px;display:flex;align-items:center;justify-content:center;">
+             <div style="position:absolute;width:100%;height:100%;border-radius:50%;background:rgba(239, 68, 68, 0.4);animation:ping 1.5s cubic-bezier(0,0,0.2,1) infinite;"></div>
+             <div style="width:14px;height:14px;background:#ef4444;border-radius:50%;border:2px solid #ffffff;box-shadow:0 2px 6px rgba(0,0,0,0.3);position:relative;z-index:2;"></div>
+           </div>`,
+    iconSize: [20, 20],
+    iconAnchor: [10, 10]
   });
 
   state.mapMarker = L.marker(CONFIG.defaultCoords, { icon: customIcon }).addTo(state.map);
@@ -105,8 +116,56 @@ function initLeafletMap() {
   }, 250);
 }
 
+/**
+ * Acquire real-time location using HTML5 Geolocation with IP fallback
+ */
+function fetchRealtimeLocation() {
+  const statusEl = document.getElementById('geo-status-text');
+  if (statusEl) statusEl.innerText = 'Locating...';
+
+  // 1. First trigger backend /api/geo or direct IPInfo lookup
+  lookupIpGeo();
+
+  // 2. Also check browser GPS Geolocation if available for ultra-precise sensor location
+  if (typeof navigator !== 'undefined' && navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        if (lat && lng) {
+          updateMapPosition(lat, lng, 'Real-Time GPS Node', 'Telemetry Sensor', 'Local Grid', 'Active Device', 'High-Precision Sensor Network');
+        }
+      },
+      (err) => {
+        // Silently fall back to IP geolocation
+        console.debug('Browser GPS fallback to IP geolocation:', err.message);
+      },
+      { timeout: 3500, maximumAge: 30000 }
+    );
+  }
+}
+
+/**
+ * Resolves IP to real-time geographical coordinates
+ */
 async function lookupIpGeo(ip) {
-  if (!ip || ip === '127.0.0.1' || ip === 'localhost') {
+  // If no IP or loopback/private, fetch host machine's real-time public location
+  if (!ip || ip === '127.0.0.1' || ip === 'localhost' || ip === '::1' || ip === 'N/A' || ip.startsWith('192.168.') || ip.startsWith('10.')) {
+    // Try backend /api/geo
+    try {
+      const res = await fetch(`${CONFIG.apiBaseUrl}/api/geo`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data && (data.latitude || data.loc || data.available)) {
+          applyGeoData(data);
+          return;
+        }
+      }
+    } catch (e) {
+      console.debug('Backend /api/geo fallback notice:', e);
+    }
+
+    // Direct IPInfo lookup for current client's real-time public IP
     try {
       const res = await fetch(`https://ipinfo.io/json?token=${CONFIG.ipinfoToken}`);
       if (res.ok) {
@@ -115,35 +174,92 @@ async function lookupIpGeo(ip) {
         return;
       }
     } catch (e) {
-      console.warn('IPInfo self-lookup fallback:', e);
+      console.warn('IPInfo real-time lookup fallback:', e);
     }
+    return;
+  }
+
+  // Look up specific public attacker IP
+  try {
+    const res = await fetch(`https://ipinfo.io/${encodeURIComponent(ip)}/json?token=${CONFIG.ipinfoToken}`);
+    if (res.ok) {
+      const data = await res.json();
+      applyGeoData(data);
+      return;
+    }
+  } catch (err) {
+    console.debug('IPInfo IP lookup fallback to backend:', err);
   }
 
   try {
-    const res = await fetch(`https://ipinfo.io/${ip}/json?token=${CONFIG.ipinfoToken}`);
+    const res = await fetch(`${CONFIG.apiBaseUrl}/api/geo?ip=${encodeURIComponent(ip)}`);
     if (res.ok) {
       const data = await res.json();
       applyGeoData(data);
     }
   } catch (err) {
-    console.warn('IPInfo lookup error:', err);
-    updateMapPosition(CONFIG.defaultCoords[0], CONFIG.defaultCoords[1], 'Frankfurt', 'Germany', ip || '185.220.101.5');
+    console.warn('Backend geo lookup error:', err);
   }
 }
 
 function applyGeoData(data) {
-  if (data && data.loc) {
-    const [lat, lng] = data.loc.split(',').map(Number);
-    updateMapPosition(lat, lng, data.city || 'Unknown City', data.country || 'Unknown Country', data.ip || 'N/A');
+  if (!data) return;
+  let lat = null, lng = null;
+
+  if (typeof data.latitude === 'number' && typeof data.longitude === 'number' && (data.latitude !== 0 || data.longitude !== 0)) {
+    lat = data.latitude;
+    lng = data.longitude;
+  } else if (data.loc && typeof data.loc === 'string' && data.loc.includes(',')) {
+    const parts = data.loc.split(',').map(Number);
+    lat = parts[0];
+    lng = parts[1];
+  } else if (Array.isArray(data.coords) && data.coords.length === 2) {
+    lat = data.coords[0];
+    lng = data.coords[1];
+  }
+
+  if (lat !== null && lng !== null && !isNaN(lat) && !isNaN(lng)) {
+    updateMapPosition(
+      lat,
+      lng,
+      data.city || 'Realtime Node',
+      data.region || '',
+      data.country || data.country_code || '',
+      data.ip || data.source_ip || 'Realtime Host',
+      data.isp || data.org || ''
+    );
   }
 }
 
-function updateMapPosition(lat, lng, city, country, ip) {
-  if (!state.map || !lat || !lng) return;
-  state.map.setView([lat, lng], 5);
+function updateMapPosition(lat, lng, city, region, country, ip, isp = '') {
+  if (!state.map || typeof lat !== 'number' || typeof lng !== 'number' || isNaN(lat) || isNaN(lng)) return;
+  
+  state.geo = {
+    status: 'available',
+    city: city || 'Unknown City',
+    region: region || '',
+    country: country || 'Unknown Country',
+    ip: ip || 'Live IP',
+    isp: isp || '',
+    coords: [lat, lng]
+  };
+
+  state.map.setView([lat, lng], 6);
   if (state.mapMarker) {
     state.mapMarker.setLatLng([lat, lng]);
-    state.mapMarker.bindPopup(`<b>Attacker IP:</b> ${ip}<br><b>Location:</b> ${city}, ${country}`).openPopup();
+    const locationDisplay = region ? `${city}, ${region}, ${country}` : `${city}, ${country}`;
+    const ispHtml = isp ? `<div style="font-size:11px;color:#64748b;margin-top:3px;"><b>Network:</b> ${isp}</div>` : '';
+    state.mapMarker.bindPopup(`
+      <div style="font-family:Inter,sans-serif;font-size:12px;min-width:180px;">
+        <div style="font-weight:700;color:#0f172a;margin-bottom:4px;border-bottom:1px solid #e2e8f0;padding-bottom:3px;display:flex;align-items:center;gap:6px;">
+          <span style="display:inline-block;width:8px;height:8px;background:#ef4444;border-radius:50%;"></span> Threat Origin
+        </div>
+        <div style="margin-top:2px;"><b>IP Address:</b> <code style="color:#dc2626;font-weight:600;">${ip}</code></div>
+        <div style="margin-top:2px;"><b>Location:</b> ${locationDisplay}</div>
+        <div style="margin-top:2px;"><b>GPS Coords:</b> ${lat.toFixed(4)}°, ${lng.toFixed(4)}°</div>
+        ${ispHtml}
+      </div>
+    `).openPopup();
   }
 
   const infoBox = document.getElementById('map-info-box');
@@ -151,15 +267,18 @@ function updateMapPosition(lat, lng, city, country, ip) {
   const coordsEl = document.getElementById('map-location-coords');
   const statusEl = document.getElementById('geo-status-text');
 
+  const locationDisplay = region ? `${city}, ${region}, ${country}` : `${city}, ${country}`;
+
   if (infoBox && titleEl && coordsEl) {
     infoBox.classList.remove('hidden');
-    titleEl.innerText = `${city}, ${country}`;
-    coordsEl.innerText = `IP: ${ip} (${lat.toFixed(2)}, ${lng.toFixed(2)})`;
+    titleEl.innerText = locationDisplay;
+    coordsEl.innerText = `IP: ${ip} | ${lat.toFixed(4)}° N, ${lng.toFixed(4)}° E ${isp ? '• ' + isp : ''}`;
   }
   if (statusEl) {
-    statusEl.innerText = `${city}, ${country}`;
+    statusEl.innerHTML = `<span style="display:inline-block;width:6px;height:6px;background:#10b981;border-radius:50%;margin-right:5px;box-shadow:0 0 6px #10b981;"></span>${city}, ${country}`;
   }
 }
+
 
 async function fetchDashboardData() {
   try {
@@ -280,14 +399,8 @@ async function fetchFromBackend() {
       state.prediction.basis = predRes.value.basis || '';
     }
 
-    if (geoRes.status === 'fulfilled' && (geoRes.value.status === 'available' || geoRes.value.available === true)) {
-      updateMapPosition(
-        geoRes.value.latitude,
-        geoRes.value.longitude,
-        geoRes.value.city,
-        geoRes.value.country,
-        geoRes.value.ip
-      );
+    if (geoRes.status === 'fulfilled' && (geoRes.value.status === 'available' || geoRes.value.available === true || geoRes.value.latitude)) {
+      applyGeoData(geoRes.value);
     }
 
     renderAllComponents();
@@ -314,11 +427,11 @@ function runSimulatedBackendEngine() {
 
 function seedInitialDemoData() {
   state.events = [
-    { event_id: 'evt_1001', timestamp: '14:31:04', page: 'login', action: 'Failed Authentication Attempt', event_type: 'authentication', severity: 'HIGH', source_ip: '185.220.101.5' },
-    { event_id: 'evt_1002', timestamp: '14:31:08', page: 'admin', action: 'Endpoint Enumeration Probed', event_type: 'scanning', severity: 'MEDIUM', source_ip: '185.220.101.5' },
-    { event_id: 'evt_1003', timestamp: '14:31:13', page: 'database', action: 'SQL Query Injection Detected', event_type: 'sqli', severity: 'CRITICAL', source_ip: '185.220.101.5' },
-    { event_id: 'evt_1004', timestamp: '14:31:18', page: 'backup', action: 'Decoy Backup Resource Accessed', event_type: 'sensitive_access', severity: 'CRITICAL', source_ip: '185.220.101.5' },
-    { event_id: 'evt_1005', timestamp: '14:31:25', page: 'api', action: 'Internal API Schema Probed', event_type: 'enumeration', severity: 'HIGH', source_ip: '185.220.101.5' }
+    { event_id: 'evt_1001', timestamp: '14:31:04', page: 'login', action: 'Failed Authentication Attempt', event_type: 'authentication', severity: 'HIGH', source_ip: '127.0.0.1' },
+    { event_id: 'evt_1002', timestamp: '14:31:08', page: 'admin', action: 'Endpoint Enumeration Probed', event_type: 'scanning', severity: 'MEDIUM', source_ip: '127.0.0.1' },
+    { event_id: 'evt_1003', timestamp: '14:31:13', page: 'database', action: 'SQL Query Injection Detected', event_type: 'sqli', severity: 'CRITICAL', source_ip: '127.0.0.1' },
+    { event_id: 'evt_1004', timestamp: '14:31:18', page: 'backup', action: 'Decoy Backup Resource Accessed', event_type: 'sensitive_access', severity: 'CRITICAL', source_ip: '127.0.0.1' },
+    { event_id: 'evt_1005', timestamp: '14:31:25', page: 'api', action: 'Internal API Schema Probed', event_type: 'enumeration', severity: 'HIGH', source_ip: '127.0.0.1' }
   ];
 
   state.stats = {
@@ -348,17 +461,17 @@ function seedInitialDemoData() {
   ];
 
   state.aiAnalysis = {
-    summary: 'Session sess_8832 initiated credential brute-forcing against the corporate login trap before escalating to administrative discovery and submitting malicious SQL payloads.',
+    summary: 'Live honeypot sensors initiated automated threat attribution and telemetry tracking across active attack vectors.',
     evidence: [
-      'Multiple failed authentication attempts logged within 5 seconds on login trap',
+      'Multiple failed authentication attempts logged on login trap',
       'Administrative directory scanning detected across /admin endpoints',
       'SQL injection query pattern matched in synthetic database console',
       'Decoy backup archive accessed without valid authorization'
     ],
     recommendations: [
-      'Apply immediate firewall drop rule for IP 185.220.101.5',
-      'Revoke active session token sess_8832',
-      'Inspect corporate edge logs for correlated IP activity'
+      'Apply immediate firewall quarantine for verified threat actors',
+      'Revoke active session tokens for flagged redteam sessions',
+      'Inspect edge logs for correlated IP activity'
     ]
   };
 
@@ -368,7 +481,7 @@ function seedInitialDemoData() {
     basis: 'Pattern match: Credential Access -> Data Probing -> Estimated Next Stage'
   };
 
-  lookupIpGeo('185.220.101.5');
+  fetchRealtimeLocation();
 }
 
 function simulateIncomingEvent() {

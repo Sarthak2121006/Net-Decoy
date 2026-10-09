@@ -250,7 +250,12 @@
                 <i class="fa-solid fa-globe header-icon"></i>
                 <h2 class="card-title">Attacker Geolocation</h2>
               </div>
-              <span class="geo-tag" id="geo-status-text">Locating...</span>
+              <div style="display:flex;align-items:center;gap:0.5rem;">
+                <button id="btn-recenter-geo" title="Refresh Realtime Location Pinpoint" style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:4px;padding:3px 8px;font-size:0.75rem;cursor:pointer;color:#334155;font-weight:600;display:flex;align-items:center;gap:4px;transition:all 0.15s ease;">
+                  <i class="fa-solid fa-crosshairs"></i> Realtime Pinpoint
+                </button>
+                <span class="geo-tag" id="geo-status-text">Locating...</span>
+              </div>
             </div>
 
             <div class="map-box">
@@ -258,12 +263,13 @@
               <div class="map-info-banner hidden" id="map-info-box">
                 <i class="fa-solid fa-location-dot"></i>
                 <div>
-                  <div class="map-location-name" id="map-location-title">Frankfurt, Germany</div>
-                  <div class="map-location-sub" id="map-location-coords">IP: 185.220.101.5 (50.1109, 8.6821)</div>
+                  <div class="map-location-name" id="map-location-title">Realtime Sensor Node</div>
+                  <div class="map-location-sub" id="map-location-coords">Detecting real-time coordinates...</div>
                 </div>
               </div>
             </div>
           </section>
+
 
         </div>
       </div>
