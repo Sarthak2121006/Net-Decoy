@@ -1,5 +1,5 @@
 /**
- * NetDecoy — SOC Dashboard JavaScript Engine (Clean Light Theme)
+ * NetDecoy — SOC Dashboard JavaScript Engine (Modern Enterprise Light Theme)
  * Integrated with IPInfo Geolocation API (Token: f6ce0ac9e7fb13)
  * Author: M2 - Frontend & SOC Dashboard Lead
  */
@@ -8,7 +8,7 @@ const CONFIG = {
   apiBaseUrl: 'http://127.0.0.1:8000',
   pollIntervalMs: 2000,
   ipinfoToken: 'f6ce0ac9e7fb13',
-  defaultCoords: [50.1109, 8.6821], // Default: Frankfurt, Germany
+  defaultCoords: [50.1109, 8.6821], // Frankfurt, Germany
 };
 
 const state = {
@@ -30,9 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initLeafletMap();
   initEventListeners();
   
-  // Initial Geolocation lookup via IPInfo Token
   lookupIpGeo('185.220.101.5');
-  
   fetchDashboardData();
   setInterval(fetchDashboardData, CONFIG.pollIntervalMs);
 });
@@ -53,7 +51,7 @@ function initEventListeners() {
     panel.classList.toggle('hidden');
   });
 
-  document.getElementById('btn-reset').addEventListener('click', handleResetDemo);
+  document.getElementById('btn-reset').addEventListener('click', handleResetSession);
 
   const tabBtns = document.querySelectorAll('.tab-btn');
   tabBtns.forEach(btn => {
@@ -77,27 +75,30 @@ function initLeafletMap() {
     attributionControl: false
   });
 
-  // Clean Light CartoDB Tiles
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    maxZoom: 19
+  // OpenStreetMap Tiles
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    subdomains: ['a', 'b', 'c']
   }).addTo(state.map);
 
   const customIcon = L.divIcon({
     className: 'custom-map-pin',
-    html: `<div style="width:14px;height:14px;background:#ef4444;border-radius:50%;box-shadow:0 0 0 4px rgba(239, 68, 68, 0.2);border:2px solid #ffffff;"></div>`,
-    iconSize: [14, 14]
+    html: `<div style="width:16px;height:16px;background:#ef4444;border-radius:50%;box-shadow:0 0 0 4px rgba(239, 68, 68, 0.25);border:2px solid #ffffff;"></div>`,
+    iconSize: [16, 16],
+    iconAnchor: [8, 8]
   });
 
   state.mapMarker = L.marker(CONFIG.defaultCoords, { icon: customIcon }).addTo(state.map);
+
+  setTimeout(() => {
+    if (state.map) {
+      state.map.invalidateSize();
+    }
+  }, 250);
 }
 
-/**
- * IPInfo Geolocation API Lookup
- * Uses Token: f6ce0ac9e7fb13
- */
 async function lookupIpGeo(ip) {
   if (!ip || ip === '127.0.0.1' || ip === 'localhost') {
-    // If local IP, query client public IP via IPInfo API
     try {
       const res = await fetch(`https://ipinfo.io/json?token=${CONFIG.ipinfoToken}`);
       if (res.ok) {
@@ -169,14 +170,8 @@ async function fetchDashboardData() {
 function setBackendConnectedStatus(isConnected) {
   state.isBackendConnected = isConnected;
   const dot = document.getElementById('status-dot');
-  const text = document.getElementById('status-text');
-  
-  if (isConnected) {
-    dot.className = 'status-dot pulse';
-    text.innerText = 'API Connected';
-  } else {
-    dot.className = 'status-dot offline';
-    text.innerText = 'Demo Simulation Engine';
+  if (dot) {
+    dot.className = 'status-dot-active';
   }
 }
 
@@ -329,7 +324,7 @@ function simulateIncomingEvent() {
   const timeStr = new Date().toTimeString().split(' ')[0];
 
   state.events.unshift({
-    event_id: 'evt_' + Math.floor(1000 + Math.random() * 9000),
+    event_id: 'evt_sim_' + Math.floor(1000 + Math.random() * 9000),
     timestamp: timeStr,
     page: choice.page,
     action: choice.action,
@@ -424,7 +419,7 @@ function renderJourney() {
   if (!container) return;
 
   if (!state.journey || state.journey.length === 0) {
-    container.innerHTML = `<div class="journey-empty">Awaiting attacker session movement...</div>`;
+    container.innerHTML = `<div class="journey-empty">Awaiting session activity...</div>`;
     return;
   }
 
@@ -450,7 +445,7 @@ function renderAiAnalysis() {
   const evidenceEl = document.getElementById('ai-evidence-list');
   const recommendEl = document.getElementById('ai-recommend-list');
 
-  if (summaryEl) summaryEl.innerText = state.aiAnalysis.summary || 'Awaiting telemetry evidence for synthesis...';
+  if (summaryEl) summaryEl.innerText = state.aiAnalysis.summary || 'Awaiting telemetry evidence...';
 
   if (evidenceEl) {
     if (!state.aiAnalysis.evidence || state.aiAnalysis.evidence.length === 0) {
@@ -462,7 +457,7 @@ function renderAiAnalysis() {
 
   if (recommendEl) {
     if (!state.aiAnalysis.recommendations || state.aiAnalysis.recommendations.length === 0) {
-      recommendEl.innerHTML = `<li>Monitoring active session...</li>`;
+      recommendEl.innerHTML = `<li>No action required.</li>`;
     } else {
       recommendEl.innerHTML = state.aiAnalysis.recommendations.map(item => `<li>${item}</li>`).join('');
     }
@@ -478,7 +473,7 @@ function renderPrediction() {
   if (stageEl) stageEl.innerText = (state.prediction.stage || 'RECONNAISSANCE').toUpperCase();
   if (confValEl) confValEl.innerText = `${state.prediction.confidence || 0}%`;
   if (confBarEl) confBarEl.style.width = `${state.prediction.confidence || 0}%`;
-  if (basisEl) basisEl.innerText = state.prediction.basis || 'Pattern-based estimation active...';
+  if (basisEl) basisEl.innerText = state.prediction.basis || 'Pattern trajectory matching active.';
 }
 
 function triggerSimulatedAttack(type) {
@@ -530,7 +525,7 @@ function triggerSimulatedAttack(type) {
   renderAllComponents();
 }
 
-async function handleResetDemo() {
+async function handleResetSession() {
   if (state.isBackendConnected) {
     try {
       await fetch(`${CONFIG.apiBaseUrl}/api/reset`, { method: 'POST' });
