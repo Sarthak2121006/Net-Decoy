@@ -21,7 +21,8 @@
       <li><a href="database.html">SQL Workbench</a></li>
       <li><a href="api.html">API Explorer</a></li>
       <li><a href="search.html">Document Search</a></li>
-      <li><span class="nav-badge">SuperAdmin</span></li>
+      <li><a href="demo_runner.html">Demo Runner</a></li>
+      <li><span class="nav-badge"><span class="pulse-dot"></span> SuperAdmin</span></li>
     </ul>
   </nav>
 
@@ -31,25 +32,24 @@
         <h1 class="page-title">Internal Administrative Console</h1>
         <p class="page-subtitle">User directory, access roles, and platform infrastructure settings.</p>
       </div>
-      <div>
-        <button class="btn btn-secondary" id="refreshUsersBtn">Refresh Directory</button>
-      </div>
+      <button class="btn btn-secondary" id="refreshUsersBtn">Refresh Directory</button>
     </div>
 
-    <!-- Navigation Tabs -->
     <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
-      <button class="btn tab-btn" data-tab="users" style="padding: 0.5rem 1rem; font-size: 0.85rem;">Users</button>
+      <button class="btn tab-btn" data-tab="users" style="padding: 0.5rem 1rem; font-size: 0.85rem;">Users (4)</button>
       <button class="btn btn-secondary tab-btn" data-tab="status" style="padding: 0.5rem 1rem; font-size: 0.85rem;">System Status</button>
       <button class="btn btn-secondary tab-btn" data-tab="reports" style="padding: 0.5rem 1rem; font-size: 0.85rem;">Reports</button>
       <button class="btn btn-secondary tab-btn" data-tab="settings" style="padding: 0.5rem 1rem; font-size: 0.85rem;">Settings</button>
       <button class="btn btn-secondary tab-btn" data-tab="backup" style="padding: 0.5rem 1rem; font-size: 0.85rem;">Backup Vault</button>
     </div>
 
-    <!-- Section 1: Users Table -->
     <div id="usersSection" class="card">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-        <h3 style="font-size: 1.1rem;">Enterprise User Accounts</h3>
-        <input type="text" id="userFilter" class="form-input" placeholder="Search accounts..." style="width: 240px; padding: 0.4rem 0.75rem; font-size: 0.85rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <div>
+          <h3 style="font-size: 1.1rem; margin-bottom: 0.2rem;">Enterprise Accounts Directory</h3>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Active LDAP Sync Node: ldap-dc01.apexglobal.internal</span>
+        </div>
+        <input type="text" id="userFilter" class="form-input" placeholder="Search accounts by username or role..." style="width: 260px; padding: 0.45rem 0.85rem; font-size: 0.85rem;">
       </div>
       <div class="table-responsive">
         <table class="data-table">
@@ -70,7 +70,7 @@
               <td><span class="badge badge-danger">Global Admin</span></td>
               <td><span class="badge badge-success">Active</span></td>
               <td>2 mins ago</td>
-              <td><button class="btn btn-secondary inspect-user-btn" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Inspect</button></td>
+              <td><button class="btn btn-secondary inspect-user-btn" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Inspect Account</button></td>
             </tr>
             <tr data-username="john.doe">
               <td><strong>john.doe</strong></td>
@@ -78,7 +78,7 @@
               <td><span class="badge badge-info">IT Specialist</span></td>
               <td><span class="badge badge-success">Active</span></td>
               <td>1 hour ago</td>
-              <td><button class="btn btn-secondary inspect-user-btn" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Inspect</button></td>
+              <td><button class="btn btn-secondary inspect-user-btn" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Inspect Account</button></td>
             </tr>
             <tr data-username="finance_user">
               <td><strong>finance_user</strong></td>
@@ -86,7 +86,7 @@
               <td><span class="badge badge-warning">Finance Analyst</span></td>
               <td><span class="badge badge-success">Active</span></td>
               <td>Yesterday</td>
-              <td><button class="btn btn-secondary inspect-user-btn" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Inspect</button></td>
+              <td><button class="btn btn-secondary inspect-user-btn" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Inspect Account</button></td>
             </tr>
             <tr data-username="backup_admin">
               <td><strong>backup_admin</strong></td>
@@ -94,16 +94,18 @@
               <td><span class="badge badge-info">Vault Custodian</span></td>
               <td><span class="badge badge-success">Active</span></td>
               <td>3 days ago</td>
-              <td><button class="btn btn-secondary inspect-user-btn" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Inspect</button></td>
+              <td><button class="btn btn-secondary inspect-user-btn" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Inspect Account</button></td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- Section 2: Details Modal / Panel -->
     <div id="detailsCard" class="card" style="display: none;">
-      <h3 id="detailsTitle" style="font-size: 1.1rem; margin-bottom: 0.5rem;">Resource Information</h3>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <h3 id="detailsTitle" style="font-size: 1.1rem;">Resource Information</h3>
+        <span class="badge badge-info">Decoy Telemetry Captured</span>
+      </div>
       <p id="detailsText" style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5;"></p>
     </div>
   </main>
@@ -114,7 +116,6 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // 1. Log Admin Page Access
       logDecoyEvent({
         page: 'admin',
         action: 'admin_access',
@@ -130,7 +131,6 @@
       const userFilter = document.getElementById('userFilter');
       const refreshUsersBtn = document.getElementById('refreshUsersBtn');
 
-      // 2. Tab Exploration telemetry
       tabBtns.forEach(btn => {
         btn.addEventListener('click', () => {
           tabBtns.forEach(b => {
@@ -154,7 +154,6 @@
         });
       });
 
-      // 3. User Enumeration telemetry
       inspectBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
           const row = e.target.closest('tr');
@@ -173,7 +172,13 @@
       });
 
       userFilter.addEventListener('input', (e) => {
-        const val = e.target.value.trim();
+        const val = e.target.value.toLowerCase().trim();
+        const rows = document.querySelectorAll('#userTableBody tr');
+        rows.forEach(row => {
+          const text = row.textContent.toLowerCase();
+          row.style.display = text.includes(val) ? '' : 'none';
+        });
+
         if (val.length > 1) {
           logDecoyEvent({
             page: 'admin',

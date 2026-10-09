@@ -1,6 +1,6 @@
 /**
- * NetDecoy - Deception Trap Event Logger (M4)
- * Silent, robust event collector client helper.
+ * NetDecoy - Deception Trap Event Logger (M4 Enhanced)
+ * Silent, robust event collector client helper with live session telemetry widget.
  */
 
 (function () {
@@ -29,16 +29,23 @@
       payload: payload
     };
 
+    let count = 0;
+
     // 1. Always store locally for offline/demo resilience
     try {
       const existing = JSON.parse(localStorage.getItem('netdecoy_events') || '[]');
       existing.push(event);
       localStorage.setItem('netdecoy_events', JSON.stringify(existing));
-      // Dispatch custom DOM event for live local listening if needed
+      count = existing.length;
+
+      // Dispatch custom DOM event for live local listening
       window.dispatchEvent(new CustomEvent('netdecoy_event_logged', { detail: event }));
     } catch (e) {
       // Silent catch
     }
+
+    // Update floating telemetry bar
+    updateTelemetryWidget(action, count);
 
     // 2. Transmit to Central Event Collector API
     try {
@@ -59,7 +66,51 @@
   window.resetDecoySession = function () {
     const newId = 'sess_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now().toString(36);
     sessionStorage.setItem('netdecoy_session_id', newId);
+    sessionStorage.removeItem('decoy_failed_logins');
     window.NetDecoySessionId = newId;
+    updateTelemetryWidget('session_reset', 0);
     return newId;
   };
+
+  function updateTelemetryWidget(lastAction = 'ready', count = null) {
+    const actionElem = document.getElementById('telemetryLastAction');
+    const countElem = document.getElementById('telemetryCount');
+    const sessElem = document.getElementById('telemetrySessId');
+
+    if (count === null) {
+      try {
+        const existing = JSON.parse(localStorage.getItem('netdecoy_events') || '[]');
+        count = existing.length;
+      } catch(e) { count = 0; }
+    }
+
+    if (actionElem) actionElem.textContent = lastAction;
+    if (countElem) countElem.textContent = count;
+    if (sessElem) sessElem.textContent = window.NetDecoySessionId;
+  }
+
+  // Inject Floating Telemetry Bar into page on DOM load
+  document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('netdecoyTelemetryWidget')) return;
+
+    const widget = document.createElement('div');
+    widget.id = 'netdecoyTelemetryWidget';
+    widget.className = 'telemetry-bar';
+    widget.innerHTML = `
+      <div class="telemetry-status">
+        <span class="pulse-dot"></span>
+        <span>NetDecoy Telemetry Engine: <strong style="color:#fff;">Active</strong></span>
+        <span style="opacity: 0.4;">|</span>
+        <span>Session: <code id="telemetrySessId" style="color:#38bdf8;">${window.NetDecoySessionId}</code></span>
+      </div>
+      <div class="telemetry-status">
+        <span>Captured Events: <span id="telemetryCount" class="telemetry-counter">0</span></span>
+        <span style="opacity: 0.4;">|</span>
+        <span>Last Action: <code id="telemetryLastAction" style="color:#f59e0b;">initialized</code></span>
+        <button onclick="resetDecoySession()" style="background:rgba(255,255,255,0.08); border:1px solid #334155; color:#94a3b8; border-radius:4px; padding:2px 8px; font-size:0.75rem; cursor:pointer; margin-left:8px;">Reset Session</button>
+      </div>
+    `;
+    document.body.appendChild(widget);
+    updateTelemetryWidget('ready');
+  });
 })();
