@@ -1,12 +1,14 @@
 /**
  * NetDecoy — SOC Dashboard JavaScript Engine (Clean Light Theme)
+ * Integrated with IPInfo Geolocation API (Token: f6ce0ac9e7fb13)
  * Author: M2 - Frontend & SOC Dashboard Lead
  */
 
 const CONFIG = {
   apiBaseUrl: 'http://127.0.0.1:8000',
   pollIntervalMs: 2000,
-  leafletDefaultCoords: [50.1109, 8.6821], // Frankfurt, Germany
+  ipinfoToken: 'f6ce0ac9e7fb13',
+  defaultCoords: [50.1109, 8.6821], // Default: Frankfurt, Germany
 };
 
 const state = {
@@ -20,13 +22,16 @@ const state = {
   journey: [],
   aiAnalysis: { summary: '', evidence: [], recommendations: [] },
   prediction: { stage: 'RECONNAISSANCE', confidence: 0, basis: '' },
-  geo: { status: 'unavailable', city: 'Unknown', country: 'Unknown', ip: 'N/A', coords: CONFIG.leafletDefaultCoords }
+  geo: { status: 'unavailable', city: 'Unknown', country: 'Unknown', ip: 'N/A', coords: CONFIG.defaultCoords }
 };
 
 document.addEventListener('DOMContentLoaded', () => {
   initClock();
   initLeafletMap();
   initEventListeners();
+  
+  // Initial Geolocation lookup via IPInfo Token
+  lookupIpGeo('185.220.101.5');
   
   fetchDashboardData();
   setInterval(fetchDashboardData, CONFIG.pollIntervalMs);
@@ -66,7 +71,7 @@ function initLeafletMap() {
   if (!mapContainer || typeof L === 'undefined') return;
 
   state.map = L.map('leaflet-map', {
-    center: CONFIG.leafletDefaultCoords,
+    center: CONFIG.defaultCoords,
     zoom: 4,
     zoomControl: false,
     attributionControl: false
@@ -83,7 +88,45 @@ function initLeafletMap() {
     iconSize: [14, 14]
   });
 
-  state.mapMarker = L.marker(CONFIG.leafletDefaultCoords, { icon: customIcon }).addTo(state.map);
+  state.mapMarker = L.marker(CONFIG.defaultCoords, { icon: customIcon }).addTo(state.map);
+}
+
+/**
+ * IPInfo Geolocation API Lookup
+ * Uses Token: f6ce0ac9e7fb13
+ */
+async function lookupIpGeo(ip) {
+  if (!ip || ip === '127.0.0.1' || ip === 'localhost') {
+    // If local IP, query client public IP via IPInfo API
+    try {
+      const res = await fetch(`https://ipinfo.io/json?token=${CONFIG.ipinfoToken}`);
+      if (res.ok) {
+        const data = await res.json();
+        applyGeoData(data);
+        return;
+      }
+    } catch (e) {
+      console.warn('IPInfo self-lookup fallback:', e);
+    }
+  }
+
+  try {
+    const res = await fetch(`https://ipinfo.io/${ip}/json?token=${CONFIG.ipinfoToken}`);
+    if (res.ok) {
+      const data = await res.json();
+      applyGeoData(data);
+    }
+  } catch (err) {
+    console.warn('IPInfo lookup error:', err);
+    updateMapPosition(CONFIG.defaultCoords[0], CONFIG.defaultCoords[1], 'Frankfurt', 'Germany', ip || '185.220.101.5');
+  }
+}
+
+function applyGeoData(data) {
+  if (data && data.loc) {
+    const [lat, lng] = data.loc.split(',').map(Number);
+    updateMapPosition(lat, lng, data.city || 'Unknown City', data.country || 'Unknown Country', data.ip || 'N/A');
+  }
 }
 
 function updateMapPosition(lat, lng, city, country, ip) {
@@ -158,6 +201,9 @@ async function fetchFromBackend() {
 
     if (eventsRes.status === 'fulfilled' && Array.isArray(eventsRes.value)) {
       state.events = eventsRes.value;
+      if (eventsRes.value.length > 0 && eventsRes.value[0].source_ip) {
+        lookupIpGeo(eventsRes.value[0].source_ip);
+      }
     }
 
     if (riskRes.status === 'fulfilled') {
@@ -270,7 +316,7 @@ function seedInitialDemoData() {
     basis: 'Pattern match: Credential Access -> Data Probing -> Estimated Next Stage'
   };
 
-  updateMapPosition(50.1109, 8.6821, 'Frankfurt', 'Germany', '185.220.101.5');
+  lookupIpGeo('185.220.101.5');
 }
 
 function simulateIncomingEvent() {
