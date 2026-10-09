@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "NetDecoyEvent",
+  "description": "Standardized schema for all events emitted by NetDecoy deception resources and processed by intelligence engine.",
+  "type": "object",
+  "required": [
+    "event_id",
+    "session_id",
+    "timestamp",
+    "source_ip",
+    "page",
+    "action",
+    "event_type"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "description": "Unique identifier for this specific event (e.g. evt_001)."
+    },
+    "session_id": {
+      "type": "string",
+      "description": "Identifier grouping related attacker interactions into a single session."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 formatted timestamp of when interaction occurred."
+    },
+    "source_ip": {
+      "type": "string",
+      "description": "Client IP address observed by the deception trap."
+    },
+    "page": {
+      "type": "string",
+      "enum": ["login", "admin", "backup", "database", "api", "search"],
+      "description": "Simulated resource or decoy endpoint where the interaction took place."
+    },
+    "action": {
+      "type": "string",
+      "description": "Specific action performed (e.g. failed_login, endpoint_probe, query_submit, file_download, traversal_attempt)."
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "authentication",
+        "navigation",
+        "database_query",
+        "file_access",
+        "api_call",
+        "input_submission"
+      ],
+      "description": "Broad category describing the nature of the event."
+    },
+    "payload": {
+      "type": "object",
+      "description": "Contextual details associated with the interaction (e.g. usernames, query strings, requested paths). Must never contain real credentials.",
+      "default": {}
+    }
+  },
+  "additionalProperties": true
+}
