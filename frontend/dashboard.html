@@ -16,7 +16,7 @@
   <!-- Leaflet CSS for Geolocation Map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   
-  <!-- Dashboard Style -->
+  <!-- Bento Dashboard Styles -->
   <link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
@@ -35,7 +35,6 @@
       </div>
 
       <div class="header-actions">
-        <!-- Minimal Operational Dot Indicator (No Standalone Engine label) -->
         <div class="status-indicator-pill" title="System Operational">
           <span class="status-dot-active" id="status-dot"></span>
           <span class="status-label-active">Operational</span>
@@ -77,53 +76,53 @@
       </div>
     </section>
 
-    <!-- Main Content Workspace -->
-    <main class="dashboard-content">
+    <!-- Bento Grid Container -->
+    <main class="bento-container">
       
-      <!-- Key Metric KPI Cards -->
-      <section class="metrics-grid">
-        <div class="metric-card">
-          <div class="metric-top">
-            <span class="metric-label">Total Telemetry Events</span>
-            <div class="metric-icon icon-slate"><i class="fa-solid fa-chart-simple"></i></div>
+      <!-- Top Row KPI Bento Items -->
+      <div class="bento-kpi-row">
+        <div class="bento-card kpi-card">
+          <div class="kpi-top">
+            <span class="kpi-label">Total Telemetry Events</span>
+            <div class="kpi-icon icon-slate"><i class="fa-solid fa-chart-simple"></i></div>
           </div>
-          <span class="metric-val" id="stat-total-events">0</span>
+          <span class="kpi-val" id="stat-total-events">0</span>
         </div>
 
-        <div class="metric-card">
-          <div class="metric-top">
-            <span class="metric-label">Threat Patterns Flagged</span>
-            <div class="metric-icon icon-amber"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div class="bento-card kpi-card">
+          <div class="kpi-top">
+            <span class="kpi-label">Threat Patterns Flagged</span>
+            <div class="kpi-icon icon-amber"><i class="fa-solid fa-triangle-exclamation"></i></div>
           </div>
-          <span class="metric-val text-amber" id="stat-threats">0</span>
+          <span class="kpi-val text-amber" id="stat-threats">0</span>
         </div>
 
-        <div class="metric-card">
-          <div class="metric-top">
-            <span class="metric-label">High Risk Sessions</span>
-            <div class="metric-icon icon-rose"><i class="fa-solid fa-shield-virus"></i></div>
+        <div class="bento-card kpi-card">
+          <div class="kpi-top">
+            <span class="kpi-label">High Risk Sessions</span>
+            <div class="kpi-icon icon-rose"><i class="fa-solid fa-shield-virus"></i></div>
           </div>
-          <span class="metric-val text-rose" id="stat-high-risk">0</span>
+          <span class="kpi-val text-rose" id="stat-high-risk">0</span>
         </div>
 
-        <div class="metric-card">
-          <div class="metric-top">
-            <span class="metric-label">Monitored Sessions</span>
-            <div class="metric-icon icon-emerald"><i class="fa-solid fa-network-wired"></i></div>
+        <div class="bento-card kpi-card">
+          <div class="kpi-top">
+            <span class="kpi-label">Monitored Sessions</span>
+            <div class="kpi-icon icon-emerald"><i class="fa-solid fa-network-wired"></i></div>
           </div>
-          <span class="metric-val text-emerald" id="stat-active-sessions">0</span>
+          <span class="kpi-val text-emerald" id="stat-active-sessions">0</span>
         </div>
-      </section>
+      </div>
 
-      <!-- Main Middle Grid Layout -->
-      <div class="middle-grid">
+      <!-- Main Bento Grid Layout (12 Column Architecture) -->
+      <div class="bento-grid">
         
-        <!-- Live Event Stream Card -->
-        <section class="card event-feed-card">
-          <div class="card-header-bar">
-            <div class="card-header-title">
+        <!-- Bento Block 1: Live Telemetry Stream (Span 7 Cols) -->
+        <section class="bento-card bento-col-7 event-feed-bento">
+          <div class="bento-card-header">
+            <div class="header-title-group">
               <i class="fa-solid fa-wave-square header-icon"></i>
-              <h2 class="card-title">Live Telemetry Stream</h2>
+              <h2 class="bento-card-title">Live Telemetry Stream</h2>
             </div>
             
             <div class="feed-tabs">
@@ -155,72 +154,63 @@
           </div>
         </section>
 
-        <!-- Right Side Stack: Risk Assessment + Geolocation Map -->
-        <div class="right-col-stack">
-          
-          <!-- Threat Risk Assessment Card -->
-          <section class="card risk-card">
-            <div class="card-header-bar">
-              <div class="card-header-title">
-                <i class="fa-solid fa-gauge-high header-icon"></i>
-                <h2 class="card-title">Threat Risk Index</h2>
-              </div>
-              <span class="badge-chip" id="risk-severity-tag">LOW</span>
+        <!-- Bento Block 2: Threat Risk Index (Span 5 Cols) -->
+        <section class="bento-card bento-col-5 risk-bento">
+          <div class="bento-card-header">
+            <div class="header-title-group">
+              <i class="fa-solid fa-gauge-high header-icon"></i>
+              <h2 class="bento-card-title">Threat Risk Index</h2>
             </div>
+            <span class="badge-chip" id="risk-severity-tag">LOW</span>
+          </div>
 
-            <div class="risk-widget">
-              <div class="risk-meter-box">
-                <div class="risk-circle-gauge" id="risk-circle">
-                  <div class="risk-circle-inner">
-                    <span class="risk-number" id="risk-score-val">0</span>
-                    <span class="risk-denom">/ 100</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="risk-breakdown-panel">
-                <h4 class="section-label">Contributing Signals</h4>
-                <ul class="signal-list" id="risk-breakdown-list">
-                  <li class="signal-empty">No active risk signals.</li>
-                </ul>
-              </div>
-            </div>
-          </section>
-
-          <!-- Geolocation Map Card -->
-          <section class="card map-card">
-            <div class="card-header-bar">
-              <div class="card-header-title">
-                <i class="fa-solid fa-globe header-icon"></i>
-                <h2 class="card-title">Attacker Geolocation</h2>
-              </div>
-              <span class="geo-tag" id="geo-status-text">Locating...</span>
-            </div>
-
-            <div class="map-box">
-              <div id="leaflet-map"></div>
-              <div class="map-info-banner hidden" id="map-info-box">
-                <i class="fa-solid fa-location-dot"></i>
-                <div>
-                  <div class="map-location-name" id="map-location-title">Frankfurt, Germany</div>
-                  <div class="map-location-sub" id="map-location-coords">IP: 185.220.101.5 (50.1109, 8.6821)</div>
+          <div class="risk-widget">
+            <div class="risk-meter-box">
+              <div class="risk-circle-gauge" id="risk-circle">
+                <div class="risk-circle-inner">
+                  <span class="risk-number" id="risk-score-val">0</span>
+                  <span class="risk-denom">/ 100</span>
                 </div>
               </div>
             </div>
-          </section>
 
-        </div>
-      </div>
+            <div class="risk-breakdown-panel">
+              <h4 class="section-label">Contributing Signals</h4>
+              <ul class="signal-list" id="risk-breakdown-list">
+                <li class="signal-empty">No active risk signals.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
 
-      <!-- Attacker Journey Flow & Intelligence Grid -->
-      <div class="bottom-grid">
-        
-        <!-- Attacker Chronological Journey Card -->
-        <section class="card journey-card">
-          <div class="card-header-bar">
-            <div class="card-header-title">
+        <!-- Bento Block 3: Attacker Geolocation (Span 5 Cols) -->
+        <section class="bento-card bento-col-5 map-bento">
+          <div class="bento-card-header">
+            <div class="header-title-group">
+              <i class="fa-solid fa-globe header-icon"></i>
+              <h2 class="bento-card-title">Attacker Geolocation</h2>
+            </div>
+            <span class="geo-tag" id="geo-status-text">Locating...</span>
+          </div>
+
+          <div class="map-box">
+            <div id="leaflet-map"></div>
+            <div class="map-info-banner hidden" id="map-info-box">
+              <i class="fa-solid fa-location-dot"></i>
+              <div>
+                <div class="map-location-name" id="map-location-title">Frankfurt, Germany</div>
+                <div class="map-location-sub" id="map-location-coords">IP: 185.220.101.5 (50.1109, 8.6821)</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Bento Block 4: Attacker Trajectory Journey (Span 7 Cols) -->
+        <section class="bento-card bento-col-7 journey-bento">
+          <div class="bento-card-header">
+            <div class="header-title-group">
               <i class="fa-solid fa-route header-icon"></i>
-              <h2 class="card-title">Attacker Trajectory Journey</h2>
+              <h2 class="bento-card-title">Attacker Trajectory Journey</h2>
             </div>
           </div>
 
@@ -229,64 +219,60 @@
           </div>
         </section>
 
-        <!-- AI Analysis & Next Stage Prediction Combined -->
-        <div class="intelligence-stack">
-          
-          <!-- AI Threat Analysis Card -->
-          <section class="card ai-card">
-            <div class="card-header-bar">
-              <div class="card-header-title">
-                <i class="fa-solid fa-brain header-icon icon-purple"></i>
-                <h2 class="card-title">AI Threat Synthesis</h2>
-              </div>
-              <span class="ai-chip"><i class="fa-solid fa-microchip"></i> Engine Active</span>
+        <!-- Bento Block 5: AI Threat Synthesis (Span 7 Cols) -->
+        <section class="bento-card bento-col-7 ai-bento">
+          <div class="bento-card-header">
+            <div class="header-title-group">
+              <i class="fa-solid fa-brain header-icon icon-purple"></i>
+              <h2 class="bento-card-title">AI Threat Synthesis</h2>
             </div>
+            <span class="ai-chip"><i class="fa-solid fa-microchip"></i> Engine Active</span>
+          </div>
 
-            <div class="ai-body">
-              <p class="ai-summary-paragraph" id="ai-summary-text">
-                Analyzing session telemetry...
-              </p>
+          <div class="ai-body">
+            <p class="ai-summary-paragraph" id="ai-summary-text">
+              Analyzing session telemetry...
+            </p>
 
-              <div class="ai-details-row">
-                <div class="ai-sub-card">
-                  <h4 class="section-label"><i class="fa-solid fa-magnifying-glass"></i> Telemetry Evidence</h4>
-                  <ul class="sub-list" id="ai-evidence-list">
-                    <li>Awaiting telemetry evidence...</li>
-                  </ul>
-                </div>
+            <div class="ai-details-row">
+              <div class="ai-sub-card">
+                <h4 class="section-label"><i class="fa-solid fa-magnifying-glass"></i> Telemetry Evidence</h4>
+                <ul class="sub-list" id="ai-evidence-list">
+                  <li>Awaiting telemetry evidence...</li>
+                </ul>
+              </div>
 
-                <div class="ai-sub-card">
-                  <h4 class="section-label"><i class="fa-solid fa-shield-halved"></i> Recommended Response</h4>
-                  <ul class="sub-list recommend-style" id="ai-recommend-list">
-                    <li>No action required.</li>
-                  </ul>
-                </div>
+              <div class="ai-sub-card">
+                <h4 class="section-label"><i class="fa-solid fa-shield-halved"></i> Recommended Response</h4>
+                <ul class="sub-list recommend-style" id="ai-recommend-list">
+                  <li>No action required.</li>
+                </ul>
               </div>
             </div>
-          </section>
+          </div>
+        </section>
 
-          <!-- Next Stage Prediction Card -->
-          <section class="card prediction-card">
-            <div class="card-header-bar">
-              <div class="card-header-title">
-                <i class="fa-solid fa-bullseye header-icon"></i>
-                <h2 class="card-title">Next Attack Stage Estimate</h2>
-              </div>
-              <span class="confidence-percentage" id="predict-confidence-val">0%</span>
+        <!-- Bento Block 6: Next Stage Prediction (Span 5 Cols) -->
+        <section class="bento-card bento-col-5 prediction-bento">
+          <div class="bento-card-header">
+            <div class="header-title-group">
+              <i class="fa-solid fa-bullseye header-icon"></i>
+              <h2 class="bento-card-title">Next Stage Estimate</h2>
             </div>
+            <span class="confidence-percentage" id="predict-confidence-val">0%</span>
+          </div>
 
-            <div class="prediction-body">
-              <div class="pred-stage-row">
-                <span class="pred-stage-name" id="predict-stage-name">RECONNAISSANCE</span>
-              </div>
-              <div class="progress-track">
-                <div class="progress-bar" id="predict-confidence-bar" style="width: 0%;"></div>
-              </div>
-              <p class="basis-note" id="predict-basis-text">Pattern trajectory matching active.</p>
+          <div class="prediction-body">
+            <div class="pred-stage-row">
+              <span class="pred-stage-name" id="predict-stage-name">RECONNAISSANCE</span>
             </div>
-          </section>
+            <div class="progress-track">
+              <div class="progress-bar" id="predict-confidence-bar" style="width: 0%;"></div>
+            </div>
+            <p class="basis-note" id="predict-basis-text">Pattern trajectory matching active.</p>
+          </div>
+        </section>
 
-        </div>
       </div>
 
     </main>
