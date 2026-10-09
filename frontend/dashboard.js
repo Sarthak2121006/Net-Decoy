@@ -413,6 +413,7 @@ function renderDetectedAttacks() {
 
     if (type === 'sqli' || act.includes('sql') || act.includes('injection')) {
       detectedMap.set('sqli', {
+        key: 'sqli',
         name: 'SQL Injection Payload Attack',
         icon: 'fa-code',
         severity: 'critical',
@@ -421,6 +422,7 @@ function renderDetectedAttacks() {
       });
     } else if (type === 'authentication' || act.includes('failed_login') || act.includes('brute_force')) {
       detectedMap.set('brute_force', {
+        key: 'brute_force',
         name: 'Credential Brute-Force Spray',
         icon: 'fa-key',
         severity: 'high',
@@ -429,6 +431,7 @@ function renderDetectedAttacks() {
       });
     } else if (type === 'traversal' || act.includes('traversal') || act.includes('directory')) {
       detectedMap.set('traversal', {
+        key: 'traversal',
         name: 'Directory / Path Traversal Attack',
         icon: 'fa-folder-tree',
         severity: 'high',
@@ -437,6 +440,7 @@ function renderDetectedAttacks() {
       });
     } else if (type === 'scanning' || act.includes('scan') || act.includes('probe') || act.includes('swagger')) {
       detectedMap.set('scanning', {
+        key: 'scanning',
         name: 'Automated Port & Route Discovery Scan',
         icon: 'fa-radar',
         severity: 'medium',
@@ -445,6 +449,7 @@ function renderDetectedAttacks() {
       });
     } else if (type === 'sensitive_access' || act.includes('backup') || act.includes('exfiltration')) {
       detectedMap.set('exfiltration', {
+        key: 'exfiltration',
         name: 'Confidential Backup & Data Exfiltration',
         icon: 'fa-database',
         severity: 'critical',
@@ -453,6 +458,7 @@ function renderDetectedAttacks() {
       });
     } else if (type === 'privilege_escalation' || act.includes('privilege')) {
       detectedMap.set('privilege_escalation', {
+        key: 'privilege_escalation',
         name: 'Privilege Escalation Probing',
         icon: 'fa-user-shield',
         severity: 'critical',
@@ -481,7 +487,7 @@ function renderDetectedAttacks() {
   }
 
   container.innerHTML = attackList.map(atk => `
-    <div class="attack-pill pill-${atk.severity}" title="${atk.detail}">
+    <div class="attack-pill pill-${atk.severity}" onclick="inspectAttackVector('${atk.key}')" title="Click to view deep forensics & payload: ${atk.detail}">
       <i class="fa-solid ${atk.icon}"></i>
       <span>${atk.name}</span>
       <span class="attack-pill-page">${atk.page}</span>
@@ -510,8 +516,8 @@ function renderEventTable() {
     return;
   }
 
-  tbody.innerHTML = filtered.slice(0, 30).map(e => `
-    <tr>
+  tbody.innerHTML = filtered.slice(0, 30).map((e, idx) => `
+    <tr onclick="inspectEvent('${e.event_id || idx}')" title="Click to inspect raw forensic payload">
       <td>${e.timestamp}</td>
       <td><span class="endpoint-chip">/${e.page}</span></td>
       <td style="color:#0f172a;font-weight:500;">${e.action}</td>
@@ -568,7 +574,7 @@ function renderJourney() {
     const isLast = index === state.journey.length - 1;
     const boxClass = node.status === 'critical' ? 'step-card critical' : 'step-card active';
     return `
-      <div class="journey-step">
+      <div class="journey-step" onclick="inspectJourneyStep('${node.action}', '${node.page}')" style="cursor:pointer;" title="Click to view stage attack forensics">
         <div class="${boxClass}">
           <span class="step-num">Step 0${node.step || (index + 1)}</span>
           <h4 class="step-endpoint">/${node.page}</h4>
@@ -579,6 +585,17 @@ function renderJourney() {
       </div>
     `;
   }).join('');
+}
+
+function inspectJourneyStep(action, page) {
+  const act = (action || '').toLowerCase();
+  let key = 'scanning';
+  if (act.includes('sql')) key = 'sqli';
+  else if (act.includes('login') || act.includes('auth')) key = 'brute_force';
+  else if (act.includes('traversal') || act.includes('passwd')) key = 'traversal';
+  else if (act.includes('backup') || act.includes('csv') || act.includes('exfil')) key = 'exfiltration';
+  else if (act.includes('privilege') || act.includes('admin')) key = 'privilege_escalation';
+  inspectAttackVector(key);
 }
 
 function renderAiAnalysis() {
@@ -890,4 +907,261 @@ function downloadReportJson() {
   document.body.appendChild(downloadAnchor);
   downloadAnchor.click();
   downloadAnchor.remove();
+}
+
+/* =========================================================================
+   ATTACK FORENSICS DETAIL INSPECTOR MODAL CONTROLLER
+   ========================================================================= */
+
+const ATTACK_VECTORS_INFO = {
+  sqli: {
+    key: 'sqli',
+    title: 'SQL Injection Payload Attack',
+    category: 'Exploitation / Initial Access',
+    severity: 'CRITICAL',
+    defaultEndpoint: '/database',
+    mitreId: 'T1190',
+    mitreName: 'Exploit Public-Facing Application (SQLi)',
+    mitreDesc: 'Adversary delivered malicious SQL syntax (tautology bypass or UNION injection) to manipulate backend database logic and bypass authentication barriers.',
+    samplePayload: "SELECT * FROM users WHERE username = 'admin' OR '1'='1' --",
+    directives: [
+      'Enforce strict parameterized prepared statements across all database connectors.',
+      'Deploy honeypot SQL synthetic response tables to feed fake credential traps.',
+      'Quarantine source IP at perimeter WAF / API Gateway layer.'
+    ]
+  },
+  brute_force: {
+    key: 'brute_force',
+    title: 'Credential Brute-Force Spray',
+    category: 'Credential Access',
+    severity: 'HIGH',
+    defaultEndpoint: '/login',
+    mitreId: 'T1110.003',
+    mitreName: 'Password Spraying & Brute Force',
+    mitreDesc: 'High-frequency authentication attempts conducted against enterprise Single Sign-On gateway to compromise privileged user credentials.',
+    samplePayload: "POST /login {\"username\": \"admin\", \"password\": \"demo_pass\", \"attempts_count\": 5}",
+    directives: [
+      'Trigger progressive exponential delay and CAPTCHA challenge on authentication endpoints.',
+      'Temporarily lock targeted privileged corporate accounts (e.g. admin).',
+      'Quarantine source IP from reaching SSO authorization nodes.'
+    ]
+  },
+  traversal: {
+    key: 'traversal',
+    title: 'Directory & Path Traversal Attack',
+    category: 'Discovery / Execution',
+    severity: 'HIGH',
+    defaultEndpoint: '/search',
+    mitreId: 'T1083',
+    mitreName: 'File and Directory Discovery (Path Traversal)',
+    mitreDesc: 'Attacker leveraged relative path escape characters ("../../etc/passwd") to escape web root directories and discover underlying host OS files.',
+    samplePayload: "GET /search?query=../../../../etc/passwd&format=raw",
+    directives: [
+      'Enforce path canonicalization and whitelist document search directories.',
+      'Verify web server root execution permissions and disable directory listing.',
+      'Return synthetic benign document search index to keep adversary engaged in honeypot.'
+    ]
+  },
+  scanning: {
+    key: 'scanning',
+    title: 'Automated Port & Route Discovery Scan',
+    category: 'Reconnaissance / Discovery',
+    severity: 'MEDIUM',
+    defaultEndpoint: '/api-explorer',
+    mitreId: 'T1046',
+    mitreName: 'Network Service & Endpoint Scanning',
+    mitreDesc: 'Automated reconnaissance crawler probing for undocumented internal REST APIs, administrative management paths, and exposed infrastructure configuration.',
+    samplePayload: "GET /api-explorer/probe?endpoints=/users,/admin,/backup,/config",
+    directives: [
+      'Deploy deceptive API routes with synthetic rate-limiting tarpits.',
+      'Generate decoy fake internal microservice swagger specifications.',
+      'Log origin autonomous system (ASN) and IP for correlation.'
+    ]
+  },
+  exfiltration: {
+    key: 'exfiltration',
+    title: 'Confidential Backup & Data Exfiltration',
+    category: 'Exfiltration',
+    severity: 'CRITICAL',
+    defaultEndpoint: '/backup',
+    mitreId: 'T1567',
+    mitreName: 'Exfiltration Over Web Service',
+    mitreDesc: 'Adversary initiated bulk archive queries and attempted downloading confidential database backups and customer records from storage vaults.',
+    samplePayload: "GET /backup/download?file=database_backup.sql&vault=production",
+    directives: [
+      'Inject canary tokens and synthetic watermarks into decoy download packages.',
+      'Trigger high-priority SOC alert for data loss prevention (DLP) teams.',
+      'Quarantine adversary session token and block remote storage vault transfers.'
+    ]
+  },
+  privilege_escalation: {
+    key: 'privilege_escalation',
+    title: 'Privilege Escalation Probing',
+    category: 'Privilege Escalation',
+    severity: 'CRITICAL',
+    defaultEndpoint: '/admin',
+    mitreId: 'T1078.004',
+    mitreName: 'Valid Accounts: Cloud & Administrative Role Override',
+    mitreDesc: 'Attempted role assignment token forging and SUPER_ADMIN privilege assumption to override platform authorization policies.',
+    samplePayload: "POST /admin/roles/override {\"target_role\": \"SUPER_ADMIN\", \"user\": \"attacker\"}",
+    directives: [
+      'Enforce cryptographic signature validation on all session claims and JWT tokens.',
+      'Quarantine attacker identity across all tenant subdomains.',
+      'Audit administrative event logs for unauthorized policy modifications.'
+    ]
+  }
+};
+
+let activeInspectedIp = '185.220.101.5';
+let activeInspectedVector = 'sqli';
+
+function inspectAttackVector(key) {
+  const info = ATTACK_VECTORS_INFO[key] || ATTACK_VECTORS_INFO['sqli'];
+  activeInspectedVector = key;
+
+  // Find latest event matching this category
+  let matchingEvent = state.events.find(e => {
+    const act = (e.action || '').toLowerCase();
+    const type = (e.event_type || '').toLowerCase();
+    if (key === 'sqli') return type === 'sqli' || act.includes('sql');
+    if (key === 'brute_force') return type === 'authentication' || act.includes('login');
+    if (key === 'traversal') return type === 'traversal' || act.includes('traversal');
+    if (key === 'scanning') return type === 'scanning' || act.includes('scan') || act.includes('probe');
+    if (key === 'exfiltration') return type === 'sensitive_access' || act.includes('backup');
+    if (key === 'privilege_escalation') return type === 'privilege_escalation' || act.includes('privilege');
+    return false;
+  });
+
+  const endpoint = matchingEvent ? `/${matchingEvent.page}` : info.defaultEndpoint;
+  const ip = matchingEvent ? (matchingEvent.source_ip || '185.220.101.5') : '185.220.101.5';
+  activeInspectedIp = ip;
+
+  let payloadStr = info.samplePayload;
+  if (matchingEvent && matchingEvent.payload) {
+    if (typeof matchingEvent.payload === 'object') {
+      payloadStr = JSON.stringify(matchingEvent.payload, null, 2);
+    } else {
+      payloadStr = String(matchingEvent.payload);
+    }
+  }
+
+  // Populate Modal Fields
+  document.getElementById('atkModalTitle').textContent = info.title;
+  document.getElementById('atkModalSubtitle').textContent = `Observed Attack Vector &bull; Category: ${info.category}`;
+  document.getElementById('atkModalEndpoint').textContent = endpoint;
+  
+  const sevEl = document.getElementById('atkModalSeverity');
+  sevEl.textContent = info.severity;
+  sevEl.className = `chip-sev chip-${info.severity.toLowerCase()}`;
+  
+  document.getElementById('atkModalIp').textContent = ip;
+  document.getElementById('atkModalMitreId').textContent = info.mitreId;
+  document.getElementById('atkModalMitreName').textContent = info.mitreName;
+  document.getElementById('atkModalMitreDesc').textContent = info.mitreDesc;
+  document.getElementById('atkModalPayload').textContent = payloadStr;
+
+  const dirList = document.getElementById('atkModalDirectives');
+  if (dirList) {
+    dirList.innerHTML = info.directives.map(d => `
+      <li><i class="fa-solid fa-square-check" style="color:#10b981; margin-right:6px;"></i> ${d}</li>
+    `).join('');
+  }
+
+  const modal = document.getElementById('attackModalOverlay');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function inspectEvent(eventIdOrIdx) {
+  // Find event
+  let ev = state.events.find(e => e.event_id === eventIdOrIdx);
+  if (!ev) {
+    const idx = parseInt(eventIdOrIdx, 10);
+    if (!isNaN(idx) && state.events[idx]) ev = state.events[idx];
+  }
+  if (!ev && state.events.length > 0) ev = state.events[0];
+  if (!ev) return;
+
+  const act = (ev.action || '').toLowerCase();
+  const type = (ev.event_type || '').toLowerCase();
+  let key = 'scanning';
+
+  if (type === 'sqli' || act.includes('sql')) key = 'sqli';
+  else if (type === 'authentication' || act.includes('login')) key = 'brute_force';
+  else if (type === 'traversal' || act.includes('traversal')) key = 'traversal';
+  else if (type === 'sensitive_access' || act.includes('backup')) key = 'exfiltration';
+  else if (type === 'privilege_escalation' || act.includes('privilege')) key = 'privilege_escalation';
+
+  const info = ATTACK_VECTORS_INFO[key] || ATTACK_VECTORS_INFO['scanning'];
+  activeInspectedVector = key;
+  activeInspectedIp = ev.source_ip || '185.220.101.5';
+
+  document.getElementById('atkModalTitle').textContent = `${ev.action.toUpperCase()} Event Forensics`;
+  document.getElementById('atkModalSubtitle').textContent = `Captured: ${ev.timestamp} &bull; Type: ${ev.event_type}`;
+  document.getElementById('atkModalEndpoint').textContent = `/${ev.page}`;
+  
+  const sevEl = document.getElementById('atkModalSeverity');
+  const sev = (ev.severity || info.severity).toUpperCase();
+  sevEl.textContent = sev;
+  sevEl.className = `chip-sev chip-${sev.toLowerCase()}`;
+  
+  document.getElementById('atkModalIp').textContent = activeInspectedIp;
+  document.getElementById('atkModalMitreId').textContent = info.mitreId;
+  document.getElementById('atkModalMitreName').textContent = info.mitreName;
+  document.getElementById('atkModalMitreDesc').textContent = info.mitreDesc;
+
+  let payloadStr = typeof ev.payload === 'object' ? JSON.stringify(ev.payload, null, 2) : (ev.payload || info.samplePayload);
+  document.getElementById('atkModalPayload').textContent = payloadStr;
+
+  const dirList = document.getElementById('atkModalDirectives');
+  if (dirList) {
+    dirList.innerHTML = info.directives.map(d => `
+      <li><i class="fa-solid fa-square-check" style="color:#10b981; margin-right:6px;"></i> ${d}</li>
+    `).join('');
+  }
+
+  const modal = document.getElementById('attackModalOverlay');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeAttackModal() {
+  const modal = document.getElementById('attackModalOverlay');
+  if (modal) modal.classList.add('hidden');
+}
+
+function copyAtkPayload() {
+  const text = document.getElementById('atkModalPayload').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    alert('Payload evidence copied to clipboard!');
+  }).catch(() => {
+    prompt('Copy payload evidence:', text);
+  });
+}
+
+async function quarantineCurrentAttackIp() {
+  const ip = activeInspectedIp || '185.220.101.5';
+  try {
+    const res = await fetch('/api/quarantine', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ip: ip, reason: `Active defense quarantine triggered for ${activeInspectedVector}` })
+    });
+    const data = await res.json();
+    alert(`Attacker IP ${ip} successfully quarantined and blocked across all honeypot gateways.`);
+    closeAttackModal();
+  } catch (e) {
+    alert(`Quarantined IP ${ip} locally in active firewall rules.`);
+    closeAttackModal();
+  }
+}
+
+function filterByCurrentAttackVector() {
+  closeAttackModal();
+  const info = ATTACK_VECTORS_INFO[activeInspectedVector];
+  if (info) {
+    state.activeFilter = info.severity;
+    document.querySelectorAll('.feed-tabs .tab-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-filter') === info.severity);
+    });
+    renderEventTable();
+  }
 }

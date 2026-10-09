@@ -939,12 +939,21 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 10px;
+  padding: 6px 12px;
   border-radius: 6px;
   font-size: 12px;
   font-weight: 700;
   border: 1px solid transparent;
   animation: fadeIn 0.3s ease;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.attack-pill:hover {
+  transform: translateY(-2px);
+  filter: brightness(0.95);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .attack-pill.pill-critical {
@@ -972,6 +981,119 @@ body {
   background: rgba(0, 0, 0, 0.06);
   padding: 1px 4px;
   border-radius: 3px;
+}
+
+.data-table tbody tr {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.data-table tbody tr:hover {
+  background-color: rgba(37, 99, 235, 0.05);
+}
+
+/* ATTACK FORENSIC DETAIL INSPECTOR MODAL */
+.attack-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+.attack-modal-overlay.hidden {
+  display: none !important;
+}
+
+.attack-modal-container {
+  background: #ffffff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 840px;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  border: 1px solid #cbd5e1;
+  overflow: hidden;
+}
+
+.attack-modal-header {
+  background: #0f172a;
+  color: #ffffff;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #334155;
+}
+
+.attack-modal-body {
+  padding: 24px 28px;
+  overflow-y: auto;
+  color: #1e293b;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.attack-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.attack-detail-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.attack-detail-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.attack-detail-val {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.attack-payload-box {
+  background: #090d16;
+  color: #38bdf8;
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+  border: 1px solid #1e293b;
+  position: relative;
+  overflow-x: auto;
+  word-break: break-all;
+  white-space: pre-wrap;
+}
+
+.attack-modal-footer {
+  background: #f8fafc;
+  padding: 14px 24px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
 }
 
 /* REPORT EXPORT BUTTON IN HEADER */
