@@ -4,6 +4,7 @@ System & Telemetry Statistics Route (GET /api/stats)
 from flask import Blueprint, jsonify
 from backend.database.db import SessionLocal
 from backend.database.models import EventModel, SessionModel
+from backend.services.metrics_service import get_telemetry_metrics
 import logging
 
 logger = logging.getLogger(__name__)
@@ -45,3 +46,18 @@ def get_stats():
         }), 200
     finally:
         db.close()
+
+@stats_bp.route("/api/metrics", methods=["GET"])
+def get_metrics():
+    """
+    Return advanced telemetry distributions (top targets, top IPs, severity breakdowns).
+    """
+    try:
+        metrics = get_telemetry_metrics()
+        return jsonify({
+            "status": "success",
+            "metrics": metrics
+        }), 200
+    except Exception as e:
+        logger.error(f"Error getting metrics: {e}")
+        return jsonify({"status": "error", "message": "Failed to compute metrics"}), 500

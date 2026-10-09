@@ -250,3 +250,17 @@ def test_trap_sdk_client(client):
     )
     assert res["status"] == "success"
     assert res["event"]["page"] == "ssh_trap"
+
+def test_metrics_endpoint(client):
+    """Verify GET /api/metrics computes breakdowns for charts."""
+    client.post("/api/events", json={"session_id": "s1", "page": "login", "action": "failed_login", "event_type": "authentication", "severity": "MEDIUM"})
+    client.post("/api/events", json={"session_id": "s2", "page": "db_console", "action": "sql_injection", "event_type": "exploitation", "severity": "CRITICAL"})
+
+    res = client.get("/api/metrics")
+    assert res.status_code == 200
+    metrics = res.json["metrics"]
+    assert "top_traps" in metrics
+    assert "top_ips" in metrics
+    assert "severity_distribution" in metrics
+    assert "event_type_distribution" in metrics
+    assert metrics["severity_distribution"]["CRITICAL"] >= 1
