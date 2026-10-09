@@ -5,7 +5,9 @@
  */
 
 const CONFIG = {
-  apiBaseUrl: 'http://127.0.0.1:8000',
+  apiBaseUrl: (typeof window !== 'undefined' && window.location.origin && window.location.origin.startsWith('http') && !window.location.origin.includes('5500')) 
+    ? window.location.origin 
+    : 'http://localhost:5000',
   pollIntervalMs: 2000,
   ipinfoToken: 'f6ce0ac9e7fb13',
   defaultCoords: [50.1109, 8.6821], // Frankfurt, Germany
@@ -46,12 +48,18 @@ function initClock() {
 }
 
 function initEventListeners() {
-  document.getElementById('btn-demo-panel').addEventListener('click', () => {
-    const panel = document.getElementById('demo-controller');
-    panel.classList.toggle('hidden');
-  });
+  const demoBtn = document.getElementById('btn-demo-panel');
+  if (demoBtn) {
+    demoBtn.addEventListener('click', () => {
+      const panel = document.getElementById('demo-controller');
+      if (panel) panel.classList.toggle('hidden');
+    });
+  }
 
-  document.getElementById('btn-reset').addEventListener('click', handleResetSession);
+  const resetBtn = document.getElementById('btn-reset');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', handleResetSession);
+  }
 
   const tabBtns = document.querySelectorAll('.tab-btn');
   tabBtns.forEach(btn => {
@@ -155,15 +163,24 @@ function updateMapPosition(lat, lng, city, country, ip) {
 
 async function fetchDashboardData() {
   try {
-    const healthRes = await fetch(`${CONFIG.apiBaseUrl}/health`, { signal: AbortSignal.timeout(1200) });
+    const healthRes = await fetch(`${CONFIG.apiBaseUrl}/api/health`, { signal: AbortSignal.timeout(1500) });
     if (healthRes.ok) {
       setBackendConnectedStatus(true);
       await fetchFromBackend();
       return;
     }
   } catch (err) {
-    setBackendConnectedStatus(false);
-    runSimulatedBackendEngine();
+    try {
+      const healthResFallback = await fetch(`${CONFIG.apiBaseUrl}/health`, { signal: AbortSignal.timeout(1500) });
+      if (healthResFallback.ok) {
+        setBackendConnectedStatus(true);
+        await fetchFromBackend();
+        return;
+      }
+    } catch (err2) {
+      setBackendConnectedStatus(false);
+      runSimulatedBackendEngine();
+    }
   }
 }
 
@@ -171,7 +188,12 @@ function setBackendConnectedStatus(isConnected) {
   state.isBackendConnected = isConnected;
   const dot = document.getElementById('status-dot');
   if (dot) {
-    dot.className = 'status-dot-active';
+    dot.className = isConnected ? 'status-dot-active' : 'status-dot-simulated';
+  }
+  const badge = document.getElementById('system-status-badge');
+  if (badge) {
+    badge.innerText = isConnected ? 'Backend: Live' : 'Backend: Simulation Mode';
+    badge.className = isConnected ? 'badge badge-success' : 'badge badge-warning';
   }
 }
 
@@ -187,43 +209,71 @@ async function fetchFromBackend() {
       fetch(`${CONFIG.apiBaseUrl}/api/geo`).then(r => r.json())
     ]);
 
-    if (statsRes.status === 'fulfilled') {
+    if (statsRes.status === 'fulfilled' && statsRes.value) {
       state.stats.totalEvents = statsRes.value.total_events || 0;
       state.stats.threats = statsRes.value.threats_detected || 0;
-      state.stats.highRisk = statsRes.value.high_risk_sessions || 0;
-      state.stats.activeSessions = statsRes.value.active_sessions || 0;
+      state.stats.highRisk = statsRes.value.high_risk || statsRes.value.high_risk_sessions || 0;
+      state.stats.activeSessions = statsRes.value.total_sessions || statsRes.value.active_sessions || 0;
     }
 
-    if (eventsRes.status === 'fulfilled' && Array.isArray(eventsRes.value)) {
-      state.events = eventsRes.value;
-      if (eventsRes.value.length > 0 && eventsRes.value[0].source_ip) {
-        lookupIpGeo(eventsRes.value[0].source_ip);
+    if (eventsRes.status === 'fulfilled' && eventsRes.value) {
+      const evList = Array.isArray(eventsRes.value) ? eventsRes.value : (eventsRes.value.events || []);
+      state.events = evList;
+      if (evList.length > 0 && evList[0].source_ip) {
+        lookupIpGeo(evList[0].source_ip);
       }
     }
 
-    if (riskRes.status === 'fulfilled') {
+    if (riskRes.status === 'fulfilled' && riskRes.value) {
       state.risk.score = riskRes.value.score || 0;
-      state.risk.label = riskRes.value.severity_label || 'LOW';
-      state.risk.breakdown = riskRes.value.breakdown || [];
+      state.risk.label = riskRes.value.level || riskRes.value.severity_label || 'LOW';
+      const rawBreakdown = riskRes.value.breakdown;
+      if (Array.isArray(rawBreakdown)) {
+        state.risk.breakdown = rawBreakdown;
+      } else if (rawBreakdown && typeof rawBreakdown === 'object') {
+        state.risk.breakdown = Object.entries(rawBreakdown).map(([k, v]) => ({
+          signal: k.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+          points: v
+        }));
+      }
     }
 
-    if (journeyRes.status === 'fulfilled') {
-      state.journey = journeyRes.value.nodes || [];
+    if (journeyRes.status === 'fulfilled' && journeyRes.value) {
+      const journeyData = journeyRes.value;
+      if (Array.isArray(journeyData.nodes)) {
+        state.journey = journeyData.nodes;
+      } else if (Array.isArray(journeyData.stages)) {
+        state.journey = journeyData.stages.map((s, idx) => ({
+          step: idx + 1,
+          page: s.page || s.stage || 'trap',
+          action: s.action || s.description || s.stage || 'interaction',
+          timestamp: s.timestamp ? s.timestamp.substring(11, 19) : '00:00:00',
+          status: (s.severity === 'CRITICAL' || s.severity === 'HIGH') ? 'critical' : 'warning'
+        }));
+      } else if (Array.isArray(journeyData.timeline)) {
+        state.journey = journeyData.timeline.map(t => ({
+          step: t.step || 1,
+          page: t.page || 'trap',
+          action: t.detail || t.action || 'interaction',
+          timestamp: t.timestamp ? t.timestamp.substring(11, 19) : '00:00:00',
+          status: t.detection ? 'critical' : 'warning'
+        }));
+      }
     }
 
-    if (aiRes.status === 'fulfilled') {
-      state.aiAnalysis.summary = aiRes.value.summary || '';
+    if (aiRes.status === 'fulfilled' && aiRes.value) {
+      state.aiAnalysis.summary = aiRes.value.summary || aiRes.value.analysis || '';
       state.aiAnalysis.evidence = aiRes.value.evidence || [];
-      state.aiAnalysis.recommendations = aiRes.value.recommendations || [];
+      state.aiAnalysis.recommendations = aiRes.value.recommendations || aiRes.value.recommended_actions || [];
     }
 
-    if (predRes.status === 'fulfilled') {
+    if (predRes.status === 'fulfilled' && predRes.value) {
       state.prediction.stage = predRes.value.next_stage || 'RECONNAISSANCE';
-      state.prediction.confidence = predRes.value.pattern_confidence || 0;
+      state.prediction.confidence = predRes.value.confidence || predRes.value.pattern_confidence || 0;
       state.prediction.basis = predRes.value.basis || '';
     }
 
-    if (geoRes.status === 'fulfilled' && geoRes.value.status === 'available') {
+    if (geoRes.status === 'fulfilled' && (geoRes.value.status === 'available' || geoRes.value.available === true)) {
       updateMapPosition(
         geoRes.value.latitude,
         geoRes.value.longitude,
@@ -478,8 +528,18 @@ function renderPrediction() {
 
 function triggerSimulatedAttack(type) {
   const timeStr = new Date().toTimeString().split(' ')[0];
+  let simEvent = null;
 
   if (type === 'brute_force') {
+    simEvent = {
+      session_id: 'sess_live_demo',
+      source_ip: '185.220.101.5',
+      page: 'login',
+      action: 'failed_login',
+      event_type: 'authentication',
+      severity: 'HIGH',
+      payload: { username: 'admin', attempt: 'brute_force' }
+    };
     state.events.unshift({
       event_id: 'evt_sim_' + Math.floor(Math.random() * 1000),
       timestamp: timeStr,
@@ -493,6 +553,15 @@ function triggerSimulatedAttack(type) {
     state.risk.breakdown.push({ signal: 'Brute-Force Login Pattern', points: 20 });
     state.stats.threats++;
   } else if (type === 'scanning') {
+    simEvent = {
+      session_id: 'sess_live_demo',
+      source_ip: '185.220.101.5',
+      page: 'admin',
+      action: 'unauthorized_admin_access',
+      event_type: 'scanning',
+      severity: 'MEDIUM',
+      payload: { scan_target: '/admin/users' }
+    };
     state.events.unshift({
       event_id: 'evt_sim_' + Math.floor(Math.random() * 1000),
       timestamp: timeStr,
@@ -505,6 +574,15 @@ function triggerSimulatedAttack(type) {
     state.risk.score = Math.min(100, state.risk.score + 15);
     state.risk.breakdown.push({ signal: 'Endpoint Scanning Activity', points: 15 });
   } else if (type === 'sqli') {
+    simEvent = {
+      session_id: 'sess_live_demo',
+      source_ip: '185.220.101.5',
+      page: 'database',
+      action: 'sql_injection_attempt',
+      event_type: 'sqli',
+      severity: 'CRITICAL',
+      payload: { query: "SELECT * FROM users WHERE user='admin' OR 1=1--" }
+    };
     state.events.unshift({
       event_id: 'evt_sim_' + Math.floor(Math.random() * 1000),
       timestamp: timeStr,
@@ -520,6 +598,14 @@ function triggerSimulatedAttack(type) {
     state.stats.threats++;
   } else if (type === 'full_chain') {
     seedInitialDemoData();
+  }
+
+  if (simEvent && state.isBackendConnected) {
+    fetch(`${CONFIG.apiBaseUrl}/api/events`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(simEvent)
+    }).then(() => fetchDashboardData()).catch(e => console.debug(e));
   }
 
   renderAllComponents();

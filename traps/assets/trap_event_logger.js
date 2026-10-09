@@ -49,7 +49,11 @@
 
     // 2. Transmit to Central Event Collector API
     try {
-      await fetch('/api/events', {
+      const apiEndpoint = (typeof window !== 'undefined' && window.location.origin && window.location.origin.startsWith('http') && window.location.port === '5000')
+        ? '/api/events'
+        : 'http://localhost:5000/api/events';
+
+      await fetch(apiEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(event)

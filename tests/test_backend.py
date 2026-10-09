@@ -315,3 +315,31 @@ def test_quarantine_endpoints(client):
     # Confirm unquarantined
     res_list_after = client.get("/api/quarantine")
     assert res_list_after.json["count"] == 0
+
+def test_frontend_and_traps_serving(client):
+    """Verify backend successfully serves SOC Dashboard and Deception Trap HTML pages."""
+    # Test Dashboard serving
+    res_dash = client.get("/dashboard")
+    assert res_dash.status_code == 200
+    assert b"NetDecoy" in res_dash.data
+
+    res_css = client.get("/dashboard.css")
+    assert res_css.status_code == 200
+
+    res_js = client.get("/dashboard.js")
+    assert res_js.status_code == 200
+
+    # Test Traps serving
+    res_traps = client.get("/traps")
+    assert res_traps.status_code == 200
+    assert b"Apex Global" in res_traps.data
+
+    res_login = client.get("/login")
+    assert res_login.status_code == 200
+
+    res_admin = client.get("/admin")
+    assert res_admin.status_code == 200
+
+    res_demo = client.get("/demo")
+    assert res_demo.status_code == 200
+
