@@ -69,6 +69,25 @@ function initEventListeners() {
     });
   }
 
+  const toggleMapSizeBtn = document.getElementById('btn-toggle-map-size');
+  if (toggleMapSizeBtn) {
+    toggleMapSizeBtn.addEventListener('click', () => {
+      const mapBox = document.querySelector('.map-box');
+      if (mapBox) {
+        mapBox.classList.toggle('expanded');
+        const isExpanded = mapBox.classList.contains('expanded');
+        toggleMapSizeBtn.innerHTML = isExpanded 
+          ? '<i class="fa-solid fa-compress"></i> Compact'
+          : '<i class="fa-solid fa-expand"></i> Expand';
+        setTimeout(() => {
+          if (state.map) {
+            state.map.invalidateSize();
+          }
+        }, 320);
+      }
+    });
+  }
+
   const tabBtns = document.querySelectorAll('.tab-btn');
   tabBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {

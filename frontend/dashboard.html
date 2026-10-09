@@ -251,12 +251,16 @@
                 <h2 class="card-title">Attacker Geolocation</h2>
               </div>
               <div style="display:flex;align-items:center;gap:0.5rem;">
+                <button id="btn-toggle-map-size" class="map-size-btn" title="Toggle Expanded Map View">
+                  <i class="fa-solid fa-expand"></i> Expand
+                </button>
                 <button id="btn-recenter-geo" title="Refresh Realtime Location Pinpoint" style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:4px;padding:3px 8px;font-size:0.75rem;cursor:pointer;color:#334155;font-weight:600;display:flex;align-items:center;gap:4px;transition:all 0.15s ease;">
-                  <i class="fa-solid fa-crosshairs"></i> Realtime Pinpoint
+                  <i class="fa-solid fa-crosshairs"></i> Pinpoint
                 </button>
                 <span class="geo-tag" id="geo-status-text">Locating...</span>
               </div>
             </div>
+
 
             <div class="map-box">
               <div id="leaflet-map"></div>
