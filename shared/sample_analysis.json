@@ -7,10 +7,13 @@
       "detected": true,
       "severity": "HIGH",
       "evidence": [
-        "5 failed login attempts observed in session (threshold: 3)",
+        "[rule_id: RULE_BRUTE_FORCE_01 | threshold: 3 failed attempts in 120s] 5 failed login attempts observed in session (threshold: 3) (matched pattern: Repeated failed authentication (5 attempts))",
         "Targeted usernames: admin, administrator, root"
       ],
       "timestamp": "2026-10-08T14:30:25Z",
+      "rule_id": "RULE_BRUTE_FORCE_01",
+      "threshold": "3 failed attempts in 120s",
+      "matched_pattern": "Repeated failed authentication (5 attempts)",
       "event_id": "evt_demo_006"
     },
     {
@@ -18,10 +21,13 @@
       "detected": true,
       "severity": "HIGH",
       "evidence": [
-        "Probed 6 distinct decoy resource pages: admin, api, backup, database, login, search",
+        "[rule_id: RULE_SCANNING_01 | threshold: 3 distinct decoy pages] Probed 6 distinct decoy resource pages: admin, api, backup, database, login, search (matched pattern: Multi-endpoint enumeration (6 distinct pages))",
         "Endpoints enumerated: /admin/dashboard, /api/v1/users"
       ],
       "timestamp": "2026-10-08T14:32:00Z",
+      "rule_id": "RULE_SCANNING_01",
+      "threshold": "3 distinct decoy pages",
+      "matched_pattern": "Multi-endpoint enumeration (6 distinct pages)",
       "event_id": "evt_demo_011"
     },
     {
@@ -29,12 +35,14 @@
       "detected": true,
       "severity": "HIGH",
       "evidence": [
-        "UNION-based data extraction pattern found in payload field 'query': \"' OR '1'='1' UNION SELECT null, username, password FROM users--\"",
-        "OR-based boolean authentication bypass pattern found in payload field 'query': \"' OR '1'='1' UNION SELECT null, username, password FROM users--\"",
-        "String equality tautology pattern found in payload field 'query': \"' OR '1'='1' UNION SELECT null, username, password FROM users--\"",
-        "SQL comment syntax truncation pattern found in payload field 'query': \"' OR '1'='1' UNION SELECT null, username, password FROM users--\""
+        "[rule_id: RULE_SQLI_01 | threshold: SQL injection syntax signature match] UNION-based data extraction pattern found in payload field 'query': \"' OR '1'='1' UNION SELECT null, username, password FROM users--\" (matched pattern: (?i)\\bunion(?:\\s+|/\\*.*?\\*/)+(?:all(?:\\s+|/\\*.*?\\*/)+)?select\\b)",
+        "[rule_id: RULE_SQLI_01 | threshold: SQL injection syntax signature match] OR-based boolean authentication bypass pattern found in payload field 'query': \"' OR '1'='1' UNION SELECT null, username, password FROM users--\" (matched pattern: (?i)'?\\s*or(?:\\s+|/\\*.*?\\*/)+['\\\"]?\\d+['\\\"]?\\s*=\\s*['\\\"]?\\d+)",
+        "[rule_id: RULE_SQLI_01 | threshold: SQL injection syntax signature match] String equality tautology pattern found in payload field 'query': \"' OR '1'='1' UNION SELECT null, username, password FROM users--\" (matched pattern: (?i)'\\s*or(?:\\s+|/\\*.*?\\*/)+'[^']*'\\s*=\\s*'[^']*')"
       ],
       "timestamp": "2026-10-08T14:31:00Z",
+      "rule_id": "RULE_SQLI_01",
+      "threshold": "SQL injection syntax signature match",
+      "matched_pattern": "UNION-based data extraction pattern; OR-based boolean authentication bypass pattern; String equality tautology pattern",
       "event_id": "evt_demo_009"
     },
     {
@@ -42,12 +50,15 @@
       "detected": true,
       "severity": "HIGH",
       "evidence": [
-        "Direct interaction with decoy backup portal",
+        "[rule_id: RULE_SENSITIVE_ACCESS_01 | threshold: Decoy confidential asset access match] Direct interaction with decoy backup portal (matched pattern: decoy backup endpoint)",
         "Decoy backup file download initiated (action: file_download)",
-        "Attempt to access synthetic SQL database dump: \"customer_data_backup.sql\"",
-        "Targeting simulated confidential enterprise records: \"customer_data_backup.sql\""
+        "[rule_id: RULE_SENSITIVE_ACCESS_01 | threshold: Decoy confidential asset access match] Attempt to access synthetic SQL database dump: \"customer_data_backup.sql\" (matched pattern: (?i)\\.sql(\\.gz)?$)",
+        "[rule_id: RULE_SENSITIVE_ACCESS_01 | threshold: Decoy confidential asset access match] Targeting simulated confidential enterprise records: \"customer_data_backup.sql\" (matched pattern: (?i)(customer|client|user|credit_card|payroll))"
       ],
       "timestamp": "2026-10-08T14:31:45Z",
+      "rule_id": "RULE_SENSITIVE_ACCESS_01",
+      "threshold": "Decoy confidential asset access match",
+      "matched_pattern": "Sensitive backup/credential decoy access",
       "event_id": "evt_demo_010"
     },
     {
@@ -55,10 +66,14 @@
       "detected": true,
       "severity": "HIGH",
       "evidence": [
-        "Directory step-up sequence ('../' or '..\\') found in payload field 'query': \"../../etc/passwd\"",
-        "Targeting Unix sensitive system file found in payload field 'query': \"../../etc/passwd\""
+        "[rule_id: RULE_PATH_TRAVERSAL_01 | threshold: Directory traversal signature match] Directory step-up sequence ('../' or '..\\') found in payload field 'query': \"../../etc/passwd\" (matched pattern: (?:\\.\\.[/\\\\]){2,})",
+        "[rule_id: RULE_PATH_TRAVERSAL_01 | threshold: Directory traversal signature match] Directory step-up sequence ('../' or '..\\') found in payload field 'query': \"../../etc/passwd\" (matched pattern: \\.\\.[/\\\\][a-zA-Z0-9_\\-\\.]+)",
+        "[rule_id: RULE_PATH_TRAVERSAL_01 | threshold: Directory traversal signature match] Targeting Unix sensitive system file found in payload field 'query': \"../../etc/passwd\" (matched pattern: (?i)/etc/(passwd|shadow|hosts))"
       ],
       "timestamp": "2026-10-08T14:32:00Z",
+      "rule_id": "RULE_PATH_TRAVERSAL_01",
+      "threshold": "Directory traversal signature match",
+      "matched_pattern": "Directory step-up sequence ('../' or '..\\'); Targeting Unix sensitive system file",
       "event_id": "evt_demo_011"
     },
     {
@@ -66,9 +81,12 @@
       "detected": true,
       "severity": "HIGH",
       "evidence": [
-        "Session exhibited multiple suspicious attack patterns (BRUTE_FORCE, PATH_TRAVERSAL, SCANNING, SENSITIVE_ACCESS, SQL_INJECTION) across 11 interactions"
+        "[rule_id: RULE_REPEATED_SUSPICIOUS_01 | threshold: >=3 distinct attack types or >=8 events with >=2 types] Session exhibited multiple suspicious attack patterns (BRUTE_FORCE, PATH_TRAVERSAL, SCANNING, SENSITIVE_ACCESS, SQL_INJECTION) across 11 interactions (matched pattern: Multi-vector activity (BRUTE_FORCE, PATH_TRAVERSAL, SCANNING, SENSITIVE_ACCESS, SQL_INJECTION))"
       ],
       "timestamp": "2026-10-08T14:32:00Z",
+      "rule_id": "RULE_REPEATED_SUSPICIOUS_01",
+      "threshold": ">=3 distinct attack types or >=8 events with >=2 types",
+      "matched_pattern": "Multi-vector activity (BRUTE_FORCE, PATH_TRAVERSAL, SCANNING, SENSITIVE_ACCESS, SQL_INJECTION)",
       "event_id": "evt_demo_011"
     }
   ],
@@ -91,6 +109,7 @@
       "path_traversal": 30,
       "repeated_suspicious": 10
     },
+    "capped": true,
     "signals": [
       {
         "signal": "Brute Force",
@@ -98,7 +117,7 @@
         "points": 20,
         "severity": "HIGH",
         "evidence": [
-          "5 failed login attempts observed in session (threshold: 3)",
+          "[rule_id: RULE_BRUTE_FORCE_01 | threshold: 3 failed attempts in 120s] 5 failed login attempts observed in session (threshold: 3) (matched pattern: Repeated failed authentication (5 attempts))",
           "Targeted usernames: admin, administrator, root"
         ]
       },
@@ -108,7 +127,7 @@
         "points": 20,
         "severity": "HIGH",
         "evidence": [
-          "Probed 6 distinct decoy resource pages: admin, api, backup, database, login, search",
+          "[rule_id: RULE_SCANNING_01 | threshold: 3 distinct decoy pages] Probed 6 distinct decoy resource pages: admin, api, backup, database, login, search (matched pattern: Multi-endpoint enumeration (6 distinct pages))",
           "Endpoints enumerated: /admin/dashboard, /api/v1/users"
         ]
       },
@@ -118,10 +137,9 @@
         "points": 30,
         "severity": "HIGH",
         "evidence": [
-          "UNION-based data extraction pattern found in payload field 'query': \"' OR '1'='1' UNION SELECT null, username, password FROM users--\"",
-          "OR-based boolean authentication bypass pattern found in payload field 'query': \"' OR '1'='1' UNION SELECT null, username, password FROM users--\"",
-          "String equality tautology pattern found in payload field 'query': \"' OR '1'='1' UNION SELECT null, username, password FROM users--\"",
-          "SQL comment syntax truncation pattern found in payload field 'query': \"' OR '1'='1' UNION SELECT null, username, password FROM users--\""
+          "[rule_id: RULE_SQLI_01 | threshold: SQL injection syntax signature match] UNION-based data extraction pattern found in payload field 'query': \"' OR '1'='1' UNION SELECT null, username, password FROM users--\" (matched pattern: (?i)\\bunion(?:\\s+|/\\*.*?\\*/)+(?:all(?:\\s+|/\\*.*?\\*/)+)?select\\b)",
+          "[rule_id: RULE_SQLI_01 | threshold: SQL injection syntax signature match] OR-based boolean authentication bypass pattern found in payload field 'query': \"' OR '1'='1' UNION SELECT null, username, password FROM users--\" (matched pattern: (?i)'?\\s*or(?:\\s+|/\\*.*?\\*/)+['\\\"]?\\d+['\\\"]?\\s*=\\s*['\\\"]?\\d+)",
+          "[rule_id: RULE_SQLI_01 | threshold: SQL injection syntax signature match] String equality tautology pattern found in payload field 'query': \"' OR '1'='1' UNION SELECT null, username, password FROM users--\" (matched pattern: (?i)'\\s*or(?:\\s+|/\\*.*?\\*/)+'[^']*'\\s*=\\s*'[^']*')"
         ]
       },
       {
@@ -130,10 +148,10 @@
         "points": 20,
         "severity": "HIGH",
         "evidence": [
-          "Direct interaction with decoy backup portal",
+          "[rule_id: RULE_SENSITIVE_ACCESS_01 | threshold: Decoy confidential asset access match] Direct interaction with decoy backup portal (matched pattern: decoy backup endpoint)",
           "Decoy backup file download initiated (action: file_download)",
-          "Attempt to access synthetic SQL database dump: \"customer_data_backup.sql\"",
-          "Targeting simulated confidential enterprise records: \"customer_data_backup.sql\""
+          "[rule_id: RULE_SENSITIVE_ACCESS_01 | threshold: Decoy confidential asset access match] Attempt to access synthetic SQL database dump: \"customer_data_backup.sql\" (matched pattern: (?i)\\.sql(\\.gz)?$)",
+          "[rule_id: RULE_SENSITIVE_ACCESS_01 | threshold: Decoy confidential asset access match] Targeting simulated confidential enterprise records: \"customer_data_backup.sql\" (matched pattern: (?i)(customer|client|user|credit_card|payroll))"
         ]
       },
       {
@@ -142,8 +160,9 @@
         "points": 30,
         "severity": "HIGH",
         "evidence": [
-          "Directory step-up sequence ('../' or '..\\') found in payload field 'query': \"../../etc/passwd\"",
-          "Targeting Unix sensitive system file found in payload field 'query': \"../../etc/passwd\""
+          "[rule_id: RULE_PATH_TRAVERSAL_01 | threshold: Directory traversal signature match] Directory step-up sequence ('../' or '..\\') found in payload field 'query': \"../../etc/passwd\" (matched pattern: (?:\\.\\.[/\\\\]){2,})",
+          "[rule_id: RULE_PATH_TRAVERSAL_01 | threshold: Directory traversal signature match] Directory step-up sequence ('../' or '..\\') found in payload field 'query': \"../../etc/passwd\" (matched pattern: \\.\\.[/\\\\][a-zA-Z0-9_\\-\\.]+)",
+          "[rule_id: RULE_PATH_TRAVERSAL_01 | threshold: Directory traversal signature match] Targeting Unix sensitive system file found in payload field 'query': \"../../etc/passwd\" (matched pattern: (?i)/etc/(passwd|shadow|hosts))"
         ]
       },
       {
@@ -152,7 +171,7 @@
         "points": 10,
         "severity": "HIGH",
         "evidence": [
-          "Session exhibited multiple suspicious attack patterns (BRUTE_FORCE, PATH_TRAVERSAL, SCANNING, SENSITIVE_ACCESS, SQL_INJECTION) across 11 interactions"
+          "[rule_id: RULE_REPEATED_SUSPICIOUS_01 | threshold: >=3 distinct attack types or >=8 events with >=2 types] Session exhibited multiple suspicious attack patterns (BRUTE_FORCE, PATH_TRAVERSAL, SCANNING, SENSITIVE_ACCESS, SQL_INJECTION) across 11 interactions (matched pattern: Multi-vector activity (BRUTE_FORCE, PATH_TRAVERSAL, SCANNING, SENSITIVE_ACCESS, SQL_INJECTION))"
         ]
       }
     ],
@@ -298,21 +317,21 @@
     "summary": "Session sess_001 triggered 6 suspicious pattern detections (Brute Force, Scanning, Sql Injection, Sensitive Access, Path Traversal, Repeated Suspicious). The session is classified as CRITICAL risk (100/100) based on verified rule evaluations.",
     "likely_intent": "Observed activity suggests a phased intrusion effort targeting credential stuffing or brute-force account compromise; surface enumeration and internal asset discovery; database authorization bypass or unauthorized data querying; host filesystem disclosure and sensitive configuration extraction; exfiltration of synthetic confidential backups or records.",
     "evidence": [
-      "5 failed login attempts observed in session (threshold: 3)",
+      "[rule_id: RULE_BRUTE_FORCE_01 | threshold: 3 failed attempts in 120s] 5 failed login attempts observed in session (threshold: 3) (matched pattern: Repeated failed authentication (5 attempts))",
       "Targeted usernames: admin, administrator, root",
-      "Probed 6 distinct decoy resource pages: admin, api, backup, database, login, search",
+      "[rule_id: RULE_SCANNING_01 | threshold: 3 distinct decoy pages] Probed 6 distinct decoy resource pages: admin, api, backup, database, login, search (matched pattern: Multi-endpoint enumeration (6 distinct pages))",
       "Endpoints enumerated: /admin/dashboard, /api/v1/users",
-      "UNION-based data extraction pattern found in payload field 'query': \"' OR '1'='1' UNION SELECT null, username, password FROM users--\"",
-      "OR-based boolean authentication bypass pattern found in payload field 'query': \"' OR '1'='1' UNION SELECT null, username, password FROM users--\"",
-      "String equality tautology pattern found in payload field 'query': \"' OR '1'='1' UNION SELECT null, username, password FROM users--\"",
-      "SQL comment syntax truncation pattern found in payload field 'query': \"' OR '1'='1' UNION SELECT null, username, password FROM users--\"",
-      "Direct interaction with decoy backup portal",
+      "[rule_id: RULE_SQLI_01 | threshold: SQL injection syntax signature match] UNION-based data extraction pattern found in payload field 'query': \"' OR '1'='1' UNION SELECT null, username, password FROM users--\" (matched pattern: (?i)\\bunion(?:\\s+|/\\*.*?\\*/)+(?:all(?:\\s+|/\\*.*?\\*/)+)?select\\b)",
+      "[rule_id: RULE_SQLI_01 | threshold: SQL injection syntax signature match] OR-based boolean authentication bypass pattern found in payload field 'query': \"' OR '1'='1' UNION SELECT null, username, password FROM users--\" (matched pattern: (?i)'?\\s*or(?:\\s+|/\\*.*?\\*/)+['\\\"]?\\d+['\\\"]?\\s*=\\s*['\\\"]?\\d+)",
+      "[rule_id: RULE_SQLI_01 | threshold: SQL injection syntax signature match] String equality tautology pattern found in payload field 'query': \"' OR '1'='1' UNION SELECT null, username, password FROM users--\" (matched pattern: (?i)'\\s*or(?:\\s+|/\\*.*?\\*/)+'[^']*'\\s*=\\s*'[^']*')",
+      "[rule_id: RULE_SENSITIVE_ACCESS_01 | threshold: Decoy confidential asset access match] Direct interaction with decoy backup portal (matched pattern: decoy backup endpoint)",
       "Decoy backup file download initiated (action: file_download)",
-      "Attempt to access synthetic SQL database dump: \"customer_data_backup.sql\"",
-      "Targeting simulated confidential enterprise records: \"customer_data_backup.sql\"",
-      "Directory step-up sequence ('../' or '..\\') found in payload field 'query': \"../../etc/passwd\"",
-      "Targeting Unix sensitive system file found in payload field 'query': \"../../etc/passwd\"",
-      "Session exhibited multiple suspicious attack patterns (BRUTE_FORCE, PATH_TRAVERSAL, SCANNING, SENSITIVE_ACCESS, SQL_INJECTION) across 11 interactions"
+      "[rule_id: RULE_SENSITIVE_ACCESS_01 | threshold: Decoy confidential asset access match] Attempt to access synthetic SQL database dump: \"customer_data_backup.sql\" (matched pattern: (?i)\\.sql(\\.gz)?$)",
+      "[rule_id: RULE_SENSITIVE_ACCESS_01 | threshold: Decoy confidential asset access match] Targeting simulated confidential enterprise records: \"customer_data_backup.sql\" (matched pattern: (?i)(customer|client|user|credit_card|payroll))",
+      "[rule_id: RULE_PATH_TRAVERSAL_01 | threshold: Directory traversal signature match] Directory step-up sequence ('../' or '..\\') found in payload field 'query': \"../../etc/passwd\" (matched pattern: (?:\\.\\.[/\\\\]){2,})",
+      "[rule_id: RULE_PATH_TRAVERSAL_01 | threshold: Directory traversal signature match] Directory step-up sequence ('../' or '..\\') found in payload field 'query': \"../../etc/passwd\" (matched pattern: \\.\\.[/\\\\][a-zA-Z0-9_\\-\\.]+)",
+      "[rule_id: RULE_PATH_TRAVERSAL_01 | threshold: Directory traversal signature match] Targeting Unix sensitive system file found in payload field 'query': \"../../etc/passwd\" (matched pattern: (?i)/etc/(passwd|shadow|hosts))",
+      "[rule_id: RULE_REPEATED_SUSPICIOUS_01 | threshold: >=3 distinct attack types or >=8 events with >=2 types] Session exhibited multiple suspicious attack patterns (BRUTE_FORCE, PATH_TRAVERSAL, SCANNING, SENSITIVE_ACCESS, SQL_INJECTION) across 11 interactions (matched pattern: Multi-vector activity (BRUTE_FORCE, PATH_TRAVERSAL, SCANNING, SENSITIVE_ACCESS, SQL_INJECTION))"
     ],
     "recommended_actions": [
       "Flag session sess_001 in SOC monitoring console for ongoing correlation",
@@ -324,5 +343,5 @@
     "session_id": "sess_001",
     "is_fallback": true
   },
-  "processed_at": "2026-10-09T04:47:40.075802+00:00"
+  "processed_at": "2026-10-09T04:57:26.064912+00:00"
 }

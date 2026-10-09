@@ -102,6 +102,8 @@ class RiskEngine:
                     "evidence": [f"Session generated {event_count} total interactions"],
                 })
 
+        raw_score = sum(breakdown.values())
+        capped = raw_score > 100
         final_score = min(max(raw_score, 0), 100)
         level = self.calculate_level(final_score)
 
@@ -109,6 +111,7 @@ class RiskEngine:
             "score": final_score,
             "level": level,
             "breakdown": breakdown,
+            "capped": capped,
             "signals": signals,
         }
 

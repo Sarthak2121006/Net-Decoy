@@ -60,6 +60,7 @@ Calculated deterministically by `risk_engine.py`. Strictly bounded between `0` a
     "sql_injection": 30,
     "sensitive_access": 17
   },
+  "capped": false,
   "signals": [
     {
       "signal": "Brute Force Authentication",
