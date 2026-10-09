@@ -9,8 +9,7 @@
 
 **Project:** NetDecoy\
 **Event:** IEEE SYNAPSE 2026\
-**Status:** Prototype / implementation in progress --- update this
-status to reflect the final build.\
+**Status:** M1 Backend & Integration Lead implementation complete (Active API endpoints, SQLite persistence, session tracking, intelligence bridge, and 10/10 test suite passing).\
 **Safety model:** Controlled simulation using synthetic resources and
 data.
 
@@ -622,87 +621,79 @@ geolocation or advanced AI work.
 
 ## Getting Started
 
-> This section is a template until the actual framework, entry point,
-> and dependencies are confirmed. Replace placeholders with tested
-> commands before submission.
-
 ### Prerequisites
 
--   Git
--   Required Python version
--   A supported browser
--   Dependencies from `requirements.txt`
--   Optional server-side AI API key
--   Optional geolocation provider configuration
+- Git
+- Python 3.10+
+- Dependencies from `requirements.txt`
 
-### 1. Clone the repository
+### 1. Clone the repository & switch to the branch
 
-``` bash
-git clone <YOUR_GITHUB_REPOSITORY_URL>
-cd netdecoy
+```bash
+git clone https://github.com/Sarthak2121006/Net-Decoy.git
+cd Net-Decoy
+git checkout M1_BACKEND_INTEGRATION
 ```
-
-Replace the placeholder with the actual repository URL.
 
 ### 2. Create and activate a virtual environment
 
-``` bash
-python -m venv .venv
-```
-
 Windows PowerShell:
-
-``` powershell
-.\\.venv\\Scripts\\Activate.ps1
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
 ```
 
 macOS/Linux:
-
-``` bash
+```bash
+python3 -m venv .venv
 source .venv/bin/activate
 ```
 
 ### 3. Install dependencies
 
-``` bash
+```bash
 pip install -r requirements.txt
 ```
 
-### 4. Configure environment variables
+### 4. Run the Backend Server
 
-If needed, configure variables using the exact names expected by the
-code. These are illustrative placeholders only:
+```bash
+python backend/app.py
+```
+*The backend starts at `http://localhost:5000` with CORS enabled across all origins for dashboard and trap integration.*
 
-``` text
-AI_API_KEY=<your-local-secret>
-GEOLOCATION_API_KEY=<optional-provider-key-if-required>
+### 5. Run the Automated Test Suite
+
+```bash
+python -m pytest tests/test_backend.py -v
 ```
 
-Never commit `.env`, API keys, passwords, or secrets. Add local secret
-files to `.gitignore`.
+### 6. Verify Core API Endpoints
 
-### 5. Run the application
+- **Health check**: `http://localhost:5000/api/health`
+- **Recent events**: `http://localhost:5000/api/events`
+- **Dashboard Stats**: `http://localhost:5000/api/stats`
+- **Risk Assessment**: `http://localhost:5000/api/risk`
+- **Attacker Journey**: `http://localhost:5000/api/journey`
+- **AI Threat Analysis**: `http://localhost:5000/api/analysis`
+- **Next Stage Prediction**: `http://localhost:5000/api/prediction`
+- **IP Geolocation**: `http://localhost:5000/api/geo`
+- **Reset Demo State**: `POST http://localhost:5000/api/reset`
 
-Use the command for the framework and entry point actually implemented.
-For example, a FastAPI app might use:
+### 7. Emitting Events from Trap Pages (M4)
 
-``` bash
-uvicorn backend.app:app --reload
+```python
+from traps.collector_client import TrapCollectorClient
+
+client = TrapCollectorClient(backend_url="http://localhost:5000", trap_name="login_trap")
+client.emit_event(
+    session_id="sess_demo_01",
+    source_ip="192.168.1.15",
+    action="failed_login",
+    event_type="authentication",
+    payload={"username": "admin", "password": "' OR 1=1 --"}
+)
 ```
-
-A Flask app may require a different command. Verify the import path and
-startup instructions before publishing them.
-
-### 6. Open the application
-
--   Health check: `http://127.0.0.1:8000/health` if implemented on that
-    port.
--   API documentation: `http://127.0.0.1:8000/docs` if FastAPI is used
-    and docs are enabled.
--   Dashboard: use the actual route or frontend serving command
-    implemented by the project.
-
-Do not assume these URLs work until tested.
 
 ## Demo Scenario
 
