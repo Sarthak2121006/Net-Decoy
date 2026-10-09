@@ -274,82 +274,106 @@
         </div>
       </div>
 
-      <!-- Attacker Journey Flow & Intelligence Grid -->
-      <div class="bottom-grid">
+      <!-- Full-Width Attacker Chronological Journey Flow -->
+      <section class="card journey-card full-width-card">
+        <div class="card-header-bar">
+          <div class="card-header-title">
+            <i class="fa-solid fa-route header-icon"></i>
+            <h2 class="card-title">Attacker Trajectory Journey</h2>
+          </div>
+          <div class="journey-header-actions">
+            <span class="journey-legend"><span class="legend-dot dot-crit"></span> Critical Exploit</span>
+            <span class="journey-legend"><span class="legend-dot dot-warn"></span> Probe / Discovery</span>
+            <span class="journey-meta-badge" id="journey-step-count">0 Stages</span>
+          </div>
+        </div>
+
+        <div class="journey-flow-wrapper" id="journey-container">
+          <div class="journey-empty">Awaiting session activity...</div>
+        </div>
+      </section>
+
+      <!-- Bottom Intelligence & Predictive Analysis Grid -->
+      <div class="intelligence-grid">
         
-        <!-- Attacker Chronological Journey Card -->
-        <section class="card journey-card">
+        <!-- AI Threat Synthesis Card (Expanded Width & Breathable Evidence Layout) -->
+        <section class="card ai-card">
           <div class="card-header-bar">
             <div class="card-header-title">
-              <i class="fa-solid fa-route header-icon"></i>
-              <h2 class="card-title">Attacker Trajectory Journey</h2>
+              <i class="fa-solid fa-brain header-icon icon-purple"></i>
+              <h2 class="card-title">AI Threat Synthesis &amp; Forensics</h2>
             </div>
+            <span class="ai-chip"><i class="fa-solid fa-microchip"></i> Engine Active</span>
           </div>
 
-          <div class="journey-flow-wrapper" id="journey-container">
-            <div class="journey-empty">Awaiting session activity...</div>
+          <div class="ai-body">
+            <p class="ai-summary-paragraph" id="ai-summary-text">
+              Analyzing session telemetry...
+            </p>
+
+            <div class="ai-details-row">
+              <div class="ai-sub-card">
+                <h4 class="section-label"><i class="fa-solid fa-magnifying-glass"></i> Telemetry Evidence</h4>
+                <ul class="sub-list" id="ai-evidence-list">
+                  <li>Awaiting telemetry evidence...</li>
+                </ul>
+              </div>
+
+              <div class="ai-sub-card">
+                <h4 class="section-label"><i class="fa-solid fa-shield-halved"></i> Recommended Response</h4>
+                <ul class="sub-list recommend-style" id="ai-recommend-list">
+                  <li>No action required.</li>
+                </ul>
+              </div>
+            </div>
           </div>
         </section>
 
-        <!-- AI Analysis & Next Stage Prediction Combined -->
-        <div class="intelligence-stack">
-          
-          <!-- AI Threat Analysis Card -->
-          <section class="card ai-card">
-            <div class="card-header-bar">
-              <div class="card-header-title">
-                <i class="fa-solid fa-brain header-icon icon-purple"></i>
-                <h2 class="card-title">AI Threat Synthesis</h2>
-              </div>
-              <span class="ai-chip"><i class="fa-solid fa-microchip"></i> Engine Active</span>
+        <!-- Next Stage Prediction & Proactive Countermeasures -->
+        <section class="card prediction-card">
+          <div class="card-header-bar">
+            <div class="card-header-title">
+              <i class="fa-solid fa-bullseye header-icon"></i>
+              <h2 class="card-title">Next Attack Stage Estimate</h2>
             </div>
+            <span class="confidence-percentage" id="predict-confidence-val">0%</span>
+          </div>
 
-            <div class="ai-body">
-              <p class="ai-summary-paragraph" id="ai-summary-text">
-                Analyzing session telemetry...
-              </p>
-
-              <div class="ai-details-row">
-                <div class="ai-sub-card">
-                  <h4 class="section-label"><i class="fa-solid fa-magnifying-glass"></i> Telemetry Evidence</h4>
-                  <ul class="sub-list" id="ai-evidence-list">
-                    <li>Awaiting telemetry evidence...</li>
-                  </ul>
-                </div>
-
-                <div class="ai-sub-card">
-                  <h4 class="section-label"><i class="fa-solid fa-shield-halved"></i> Recommended Response</h4>
-                  <ul class="sub-list recommend-style" id="ai-recommend-list">
-                    <li>No action required.</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <!-- Next Stage Prediction Card -->
-          <section class="card prediction-card">
-            <div class="card-header-bar">
-              <div class="card-header-title">
-                <i class="fa-solid fa-bullseye header-icon"></i>
-                <h2 class="card-title">Next Attack Stage Estimate</h2>
-              </div>
-              <span class="confidence-percentage" id="predict-confidence-val">0%</span>
-            </div>
-
-            <div class="prediction-body">
-              <div class="pred-stage-row">
+          <div class="prediction-body">
+            <div class="pred-stage-row">
+              <div class="pred-stage-info">
+                <span class="pred-label">Anticipated Next Phase:</span>
                 <span class="pred-stage-name" id="predict-stage-name">RECONNAISSANCE</span>
+              </div>
+              <span class="pred-badge-indicator badge-normal-risk" id="predict-badge-pill">ACTIVE ESTIMATE</span>
+            </div>
+
+            <div class="progress-track-wrapper">
+              <div class="progress-track-header">
+                <span>Kill-Chain Trajectory Confidence</span>
+                <span id="predict-conf-sub">0% Matched</span>
               </div>
               <div class="progress-track">
                 <div class="progress-bar" id="predict-confidence-bar" style="width: 0%;"></div>
               </div>
+            </div>
+
+            <div class="predict-basis-box">
+              <div class="section-label"><i class="fa-solid fa-chart-line"></i> Trajectory Heuristic Basis</div>
               <p class="basis-note" id="predict-basis-text">Pattern trajectory matching active.</p>
             </div>
-          </section>
 
-        </div>
+            <div class="countermeasure-preview">
+              <div class="section-label"><i class="fa-solid fa-shield-virus"></i> Proactive Decoy Defense</div>
+              <div class="countermeasure-item" id="countermeasure-text">
+                Dynamic honeypot deception trap auto-primed for next anticipated stage.
+              </div>
+            </div>
+          </div>
+        </section>
+
       </div>
+
 
     </main>
 

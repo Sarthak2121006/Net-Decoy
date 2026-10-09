@@ -784,25 +784,45 @@ function renderRiskPanel() {
 
 function renderJourney() {
   const container = document.getElementById('journey-container');
+  const countBadge = document.getElementById('journey-step-count');
   if (!container) return;
 
   if (!state.journey || state.journey.length === 0) {
-    container.innerHTML = `<div class="journey-empty">Awaiting session activity...</div>`;
+    container.innerHTML = `<div class="journey-empty">Awaiting live attacker session telemetry...</div>`;
+    if (countBadge) countBadge.textContent = '0 Stages';
     return;
+  }
+
+  if (countBadge) {
+    countBadge.textContent = `${state.journey.length} Stage${state.journey.length > 1 ? 's' : ''} Logged`;
   }
 
   container.innerHTML = state.journey.map((node, index) => {
     const isLast = index === state.journey.length - 1;
-    const boxClass = node.status === 'critical' ? 'step-card critical' : 'step-card active';
+    const isCrit = node.status === 'critical' || node.severity === 'CRITICAL' || node.severity === 'HIGH';
+    const boxClass = isCrit ? 'step-card critical' : 'step-card active';
+    
+    const stepNum = typeof node.step === 'number' 
+      ? (node.step < 10 ? '0' + node.step : '' + node.step) 
+      : (index + 1 < 10 ? '0' + (index + 1) : '' + (index + 1));
+    
+    const cleanAction = (node.action || 'probe').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    const rawPage = (node.page || 'trap').trim();
+    const cleanEndpoint = rawPage.startsWith('/') ? rawPage : '/' + rawPage;
+
     return `
-      <div class="journey-step" onclick="inspectJourneyStep('${node.action}', '${node.page}')" style="cursor:pointer;" title="Click to view stage attack forensics">
+      <div class="journey-step" onclick="inspectJourneyStep('${node.action}', '${node.page}')" style="cursor:pointer;" title="Click to view stage attack forensics for ${cleanAction}">
         <div class="${boxClass}">
-          <span class="step-num">Step 0${node.step || (index + 1)}</span>
-          <h4 class="step-endpoint">/${node.page}</h4>
-          <span class="step-desc">${node.action}</span>
-          <div class="step-time">${node.timestamp}</div>
+          <div class="step-top-row">
+            <span class="step-badge">STAGE ${stepNum}</span>
+            <span class="step-time"><i class="fa-regular fa-clock"></i> ${node.timestamp || '00:00:00'}</span>
+          </div>
+          <div class="step-endpoint-badge">
+            <code>${cleanEndpoint}</code>
+          </div>
+          <div class="step-desc" title="${cleanAction}">${cleanAction}</div>
         </div>
-        ${!isLast ? `<i class="fa-solid fa-chevron-right step-arrow"></i>` : ''}
+        ${!isLast ? `<div class="step-connector"><i class="fa-solid fa-chevron-right"></i></div>` : ''}
       </div>
     `;
   }).join('');
@@ -828,17 +848,23 @@ function renderAiAnalysis() {
 
   if (evidenceEl) {
     if (!state.aiAnalysis.evidence || state.aiAnalysis.evidence.length === 0) {
-      evidenceEl.innerHTML = `<li>No evidence compiled yet.</li>`;
+      evidenceEl.innerHTML = `<li class="ev-item">Awaiting telemetry evidence compile...</li>`;
     } else {
-      evidenceEl.innerHTML = state.aiAnalysis.evidence.map(item => `<li>${item}</li>`).join('');
+      evidenceEl.innerHTML = state.aiAnalysis.evidence.map(item => {
+        let formatted = item.replace(/\[(\d{2}:\d{2}:\d{2})\]/g, '<span class="ev-ts">[$1]</span>');
+        formatted = formatted.replace(/(\/[\w-]+)/g, '<code class="ev-endpoint">$1</code>');
+        return `<li class="ev-item">${formatted}</li>`;
+      }).join('');
     }
   }
 
   if (recommendEl) {
     if (!state.aiAnalysis.recommendations || state.aiAnalysis.recommendations.length === 0) {
-      recommendEl.innerHTML = `<li>No action required.</li>`;
+      recommendEl.innerHTML = `<li class="rec-item"><i class="fa-solid fa-shield-check rec-icon"></i> <span>No immediate response action required.</span></li>`;
     } else {
-      recommendEl.innerHTML = state.aiAnalysis.recommendations.map(item => `<li>${item}</li>`).join('');
+      recommendEl.innerHTML = state.aiAnalysis.recommendations.map(item => {
+        return `<li class="rec-item"><i class="fa-solid fa-shield-check rec-icon"></i> <span>${item}</span></li>`;
+      }).join('');
     }
   }
 }
@@ -846,13 +872,53 @@ function renderAiAnalysis() {
 function renderPrediction() {
   const stageEl = document.getElementById('predict-stage-name');
   const confValEl = document.getElementById('predict-confidence-val');
+  const confSubEl = document.getElementById('predict-conf-sub');
   const confBarEl = document.getElementById('predict-confidence-bar');
   const basisEl = document.getElementById('predict-basis-text');
+  const badgeEl = document.getElementById('predict-badge-pill');
+  const countermeasureEl = document.getElementById('countermeasure-text');
 
-  if (stageEl) stageEl.innerText = (state.prediction.stage || 'RECONNAISSANCE').toUpperCase();
-  if (confValEl) confValEl.innerText = `${state.prediction.confidence || 0}%`;
-  if (confBarEl) confBarEl.style.width = `${state.prediction.confidence || 0}%`;
+  const stage = (state.prediction.stage || 'RECONNAISSANCE').toUpperCase();
+  const conf = state.prediction.confidence || 0;
+
+  if (stageEl) stageEl.innerText = stage;
+  if (confValEl) confValEl.innerText = `${conf}%`;
+  if (confSubEl) confSubEl.innerText = `${conf}% Trajectory Match`;
+  
+  if (confBarEl) {
+    confBarEl.style.width = `${conf}%`;
+    if (conf >= 75) {
+      confBarEl.style.background = 'linear-gradient(90deg, #f59e0b, #ef4444)';
+    } else if (conf >= 50) {
+      confBarEl.style.background = 'linear-gradient(90deg, #3b82f6, #f59e0b)';
+    } else {
+      confBarEl.style.background = 'linear-gradient(90deg, #10b981, #3b82f6)';
+    }
+  }
+
   if (basisEl) basisEl.innerText = state.prediction.basis || 'Pattern trajectory matching active.';
+
+  if (badgeEl) {
+    if (conf >= 75) {
+      badgeEl.className = 'pred-badge-indicator badge-high-risk';
+      badgeEl.innerText = 'HIGH PROBABILITY';
+    } else {
+      badgeEl.className = 'pred-badge-indicator badge-normal-risk';
+      badgeEl.innerText = 'ACTIVE ESTIMATE';
+    }
+  }
+
+  if (countermeasureEl) {
+    if (stage.includes('EXPLOIT') || stage.includes('INJECTION') || stage.includes('DATABASE')) {
+      countermeasureEl.innerHTML = '<strong>Automated Countermeasure:</strong> Synthetic Database decoy tables armed with canary records & payload delay injection.';
+    } else if (stage.includes('EXFILTRATION') || stage.includes('BACKUP')) {
+      countermeasureEl.innerHTML = '<strong>Automated Countermeasure:</strong> Backup trap armed with honeytoken archives and active cryptographic hash monitor.';
+    } else if (stage.includes('CREDENTIAL') || stage.includes('AUTH') || stage.includes('LOGIN')) {
+      countermeasureEl.innerHTML = '<strong>Automated Countermeasure:</strong> Login trap progressive rate-limiting engaged; synthetic credential response primed.';
+    } else {
+      countermeasureEl.innerHTML = '<strong>Automated Countermeasure:</strong> Dynamic decoy routing configured to guide adversary toward safe honeypot sandboxes.';
+    }
+  }
 }
 
 function triggerSimulatedAttack(type) {
