@@ -151,23 +151,37 @@
       <!-- Main Middle Grid Layout -->
       <div class="middle-grid">
         
-        <!-- Live Event Stream Card -->
+        <!-- Live Event Stream & Attack Clusters Card -->
         <section class="card event-feed-card">
-          <div class="card-header-bar">
+          <div class="card-header-bar" style="flex-wrap: wrap; gap: 8px;">
             <div class="card-header-title">
-              <i class="fa-solid fa-wave-square header-icon"></i>
-              <h2 class="card-title">Live Telemetry Stream</h2>
+              <i class="fa-solid fa-layer-group header-icon"></i>
+              <h2 class="card-title">Telemetry &amp; Attack Grouping</h2>
             </div>
             
-            <div class="feed-tabs">
-              <button class="tab-btn active" data-filter="all">All</button>
-              <button class="tab-btn" data-filter="CRITICAL">Critical</button>
-              <button class="tab-btn" data-filter="HIGH">High</button>
-              <button class="tab-btn" data-filter="MEDIUM">Medium</button>
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+              <!-- View Mode Toggle: Stream vs Clusters -->
+              <div class="view-mode-toggle">
+                <button id="btn-mode-stream" class="mode-btn active" onclick="setTelemetryViewMode('stream')">
+                  <i class="fa-solid fa-list"></i> Raw Stream
+                </button>
+                <button id="btn-mode-clusters" class="mode-btn" onclick="setTelemetryViewMode('clusters')">
+                  <i class="fa-solid fa-object-group"></i> Grouped Attack Clusters (<span id="cluster-count-badge">0</span>)
+                </button>
+              </div>
+
+              <!-- Severity Filter Tabs (Active in stream mode) -->
+              <div class="feed-tabs" id="stream-filter-tabs">
+                <button class="tab-btn active" data-filter="all">All</button>
+                <button class="tab-btn" data-filter="CRITICAL">Critical</button>
+                <button class="tab-btn" data-filter="HIGH">High</button>
+                <button class="tab-btn" data-filter="MEDIUM">Medium</button>
+              </div>
             </div>
           </div>
 
-          <div class="table-container">
+          <!-- Raw Events Table View -->
+          <div class="table-container" id="raw-stream-view">
             <table class="data-table">
               <thead>
                 <tr>
@@ -185,6 +199,15 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          <!-- Grouped Attack Clusters View -->
+          <div class="clusters-container hidden" id="clusters-view">
+            <div class="clusters-grid" id="clusters-grid">
+              <div class="empty-state" style="padding: 24px; text-align: center; color: #64748b;">
+                Awaiting multiple attack events to correlate into clusters...
+              </div>
+            </div>
           </div>
         </section>
 

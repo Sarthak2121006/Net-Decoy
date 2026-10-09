@@ -13,6 +13,7 @@ from backend.routes.alerts import alerts_bp
 from backend.routes.sessions import sessions_bp
 from backend.routes.quarantine import quarantine_bp
 from backend.routes.report import report_bp
+from backend.routes.clusters import clusters_bp
 
 def register_routes(app):
     """Register all API route blueprints to the Flask application."""
@@ -28,3 +29,4 @@ def register_routes(app):
     app.register_blueprint(sessions_bp)
     app.register_blueprint(quarantine_bp)
     app.register_blueprint(report_bp)
+    app.register_blueprint(clusters_bp)

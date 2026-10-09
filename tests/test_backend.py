@@ -405,3 +405,31 @@ def test_report_endpoint(client):
     assert res_gen.status_code == 200
     assert res_gen.json["status"] == "success"
 
+
+def test_clusters_endpoint(client):
+    """Verify GET /api/clusters groups concurrent events into attack campaigns."""
+    # Seed multiple events of the same attack type and different attack types
+    client.post("/api/events", json={"session_id": "sess_cluster", "page": "database", "action": "sql_injection", "event_type": "sqli", "severity": "CRITICAL", "payload": {"query": "' OR 1=1"}})
+    client.post("/api/events", json={"session_id": "sess_cluster", "page": "database", "action": "sql_union", "event_type": "sqli", "severity": "CRITICAL", "payload": {"query": "UNION SELECT"}})
+    client.post("/api/events", json={"session_id": "sess_cluster", "page": "login", "action": "failed_login", "event_type": "authentication", "severity": "HIGH", "payload": {"user": "admin"}})
+    client.post("/api/events", json={"session_id": "sess_cluster", "page": "login", "action": "failed_login", "event_type": "authentication", "severity": "HIGH", "payload": {"user": "root"}})
+
+    res = client.get("/api/clusters?session_id=sess_cluster")
+    assert res.status_code == 200
+    data = res.json
+    assert data["status"] == "success"
+    assert data["total_events"] >= 4
+    assert data["cluster_count"] >= 2
+
+    # Verify cluster structure
+    cluster_types = [c["attack_type"] for c in data["clusters"]]
+    assert "sql_injection" in cluster_types
+    assert "brute_force" in cluster_types
+
+    sqli_cluster = next(c for c in data["clusters"] if c["attack_type"] == "sql_injection")
+    assert sqli_cluster["event_count"] >= 2
+    assert sqli_cluster["severity"] == "CRITICAL"
+    assert "/database" in sqli_cluster["target_endpoints"]
+    assert "mitre_technique" in sqli_cluster
+    assert "containment_directive" in sqli_cluster
+

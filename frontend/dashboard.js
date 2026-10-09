@@ -199,15 +199,22 @@ function setBackendConnectedStatus(isConnected) {
 
 async function fetchFromBackend() {
   try {
-    const [statsRes, eventsRes, riskRes, journeyRes, aiRes, predRes, geoRes] = await Promise.allSettled([
+    const [statsRes, eventsRes, riskRes, journeyRes, aiRes, predRes, geoRes, clustersRes] = await Promise.allSettled([
       fetch(`${CONFIG.apiBaseUrl}/api/stats`).then(r => r.json()),
       fetch(`${CONFIG.apiBaseUrl}/api/events`).then(r => r.json()),
       fetch(`${CONFIG.apiBaseUrl}/api/risk`).then(r => r.json()),
       fetch(`${CONFIG.apiBaseUrl}/api/journey`).then(r => r.json()),
       fetch(`${CONFIG.apiBaseUrl}/api/analysis`).then(r => r.json()),
       fetch(`${CONFIG.apiBaseUrl}/api/prediction`).then(r => r.json()),
-      fetch(`${CONFIG.apiBaseUrl}/api/geo`).then(r => r.json())
+      fetch(`${CONFIG.apiBaseUrl}/api/geo`).then(r => r.json()),
+      fetch(`${CONFIG.apiBaseUrl}/api/clusters`).then(r => r.json())
     ]);
+
+    if (clustersRes.status === 'fulfilled' && clustersRes.value && clustersRes.value.clusters) {
+      state.clusters = clustersRes.value.clusters;
+      const countEl = document.getElementById('cluster-count-badge');
+      if (countEl) countEl.textContent = state.clusters.length;
+    }
 
     if (statsRes.status === 'fulfilled' && statsRes.value) {
       state.stats.totalEvents = statsRes.value.total_events || 0;
@@ -393,10 +400,107 @@ function renderAllComponents() {
   renderStatsCards();
   renderDetectedAttacks();
   renderEventTable();
+  renderClusters();
   renderRiskPanel();
   renderJourney();
   renderAiAnalysis();
   renderPrediction();
+}
+
+function setTelemetryViewMode(mode) {
+  state.telemetryViewMode = mode;
+  const btnStream = document.getElementById('btn-mode-stream');
+  const btnClusters = document.getElementById('btn-mode-clusters');
+  const streamView = document.getElementById('raw-stream-view');
+  const clustersView = document.getElementById('clusters-view');
+  const streamTabs = document.getElementById('stream-filter-tabs');
+
+  if (mode === 'stream') {
+    if (btnStream) btnStream.classList.add('active');
+    if (btnClusters) btnClusters.classList.remove('active');
+    if (streamView) streamView.classList.remove('hidden');
+    if (clustersView) clustersView.classList.add('hidden');
+    if (streamTabs) streamTabs.style.display = 'flex';
+  } else {
+    if (btnStream) btnStream.classList.remove('active');
+    if (btnClusters) btnClusters.classList.add('active');
+    if (streamView) streamView.classList.add('hidden');
+    if (clustersView) clustersView.classList.remove('hidden');
+    if (streamTabs) streamTabs.style.display = 'none';
+    renderClusters();
+  }
+}
+
+function renderClusters() {
+  const container = document.getElementById('clusters-grid');
+  const countBadge = document.getElementById('cluster-count-badge');
+  if (!container) return;
+
+  const clusters = state.clusters || [];
+  if (countBadge) countBadge.textContent = clusters.length;
+
+  if (clusters.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state" style="padding: 24px; text-align: center; color: #64748b;">
+        <i class="fa-solid fa-circle-check" style="color:#10b981; margin-right:6px;"></i>
+        No active attack clusters detected. System telemetry indicates baseline normal activity.
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = clusters.map(c => {
+    const sevClass = (c.severity || 'low').toLowerCase();
+    const payloadSnippet = typeof c.sample_payload === 'object' 
+      ? JSON.stringify(c.sample_payload) 
+      : (c.sample_payload || 'Standard payload pattern');
+
+    return `
+      <div class="cluster-card cluster-${sevClass}">
+        <div class="cluster-header">
+          <div class="cluster-title-wrap">
+            <span class="chip-sev chip-${sevClass}">${c.severity}</span>
+            <h3 class="cluster-title">${c.cluster_title}</h3>
+            <span class="cluster-count-chip">${c.event_count} Event${c.event_count === 1 ? '' : 's'}</span>
+          </div>
+          <span class="badge-chip chip-medium" style="font-family:var(--font-mono); font-size:11px;">
+            ${c.mitre_technique ? c.mitre_technique.id : 'MITRE'}
+          </span>
+        </div>
+
+        <div class="cluster-details-row">
+          <div class="cluster-detail-item">
+            <i class="fa-solid fa-bullseye" style="color:var(--accent-primary);"></i>
+            <span>Target Routes: <strong>${c.target_endpoints.join(', ')}</strong></span>
+          </div>
+          <div class="cluster-detail-item">
+            <i class="fa-solid fa-network-wired" style="color:#f59e0b;"></i>
+            <span>Attacker IPs: <strong>${c.source_ips.join(', ')}</strong></span>
+          </div>
+          <div class="cluster-detail-item">
+            <i class="fa-regular fa-clock" style="color:#64748b;"></i>
+            <span>First / Last Seen: <strong>${c.first_seen ? c.first_seen.substring(11, 19) : ''} &rarr; ${c.last_seen ? c.last_seen.substring(11, 19) : ''}</strong></span>
+          </div>
+        </div>
+
+        <div class="cluster-payload-snippet" title="Observed representative payload">
+          <strong>Payload Evidence:</strong> <code>${payloadSnippet.substring(0, 120)}</code>
+        </div>
+
+        <div class="cluster-actions">
+          <div style="font-size:11px; color:#166534; font-weight:600; display:flex; align-items:center; gap:6px;">
+            <i class="fa-solid fa-shield-halved" style="color:#10b981;"></i>
+            <span>${c.containment_directive || 'Active honeypot defense active'}</span>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-secondary" onclick="inspectAttackVector('${c.attack_type}')" style="padding:4px 10px; font-size:11px;">
+              <i class="fa-solid fa-magnifying-glass"></i> Inspect Cluster
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
 function renderDetectedAttacks() {
@@ -411,60 +515,64 @@ function renderDetectedAttacks() {
     const type = (e.event_type || '').toLowerCase();
     const page = e.page || 'trap';
 
+    let key = '';
+    let name = '';
+    let icon = '';
+    let severity = 'low';
+    let detail = '';
+
     if (type === 'sqli' || act.includes('sql') || act.includes('injection')) {
-      detectedMap.set('sqli', {
-        key: 'sqli',
-        name: 'SQL Injection Payload Attack',
-        icon: 'fa-code',
-        severity: 'critical',
-        page: `/${page}`,
-        detail: 'Harmful SQL syntax pattern identified in database trap'
-      });
+      key = 'sqli';
+      name = 'SQL Injection Payload Attack';
+      icon = 'fa-code';
+      severity = 'critical';
+      detail = 'Harmful SQL syntax pattern identified in database trap';
     } else if (type === 'authentication' || act.includes('failed_login') || act.includes('brute_force')) {
-      detectedMap.set('brute_force', {
-        key: 'brute_force',
-        name: 'Credential Brute-Force Spray',
-        icon: 'fa-key',
-        severity: 'high',
-        page: `/${page}`,
-        detail: 'Repeated authentication failures detected within short window'
-      });
+      key = 'brute_force';
+      name = 'Credential Brute-Force Spray';
+      icon = 'fa-key';
+      severity = 'high';
+      detail = 'Repeated authentication failures detected within short window';
     } else if (type === 'traversal' || act.includes('traversal') || act.includes('directory')) {
-      detectedMap.set('traversal', {
-        key: 'traversal',
-        name: 'Directory / Path Traversal Attack',
-        icon: 'fa-folder-tree',
-        severity: 'high',
-        page: `/${page}`,
-        detail: 'Dot-dot-slash sequence probed against backup portal'
-      });
+      key = 'traversal';
+      name = 'Directory / Path Traversal Attack';
+      icon = 'fa-folder-tree';
+      severity = 'high';
+      detail = 'Dot-dot-slash sequence probed against backup portal';
     } else if (type === 'scanning' || act.includes('scan') || act.includes('probe') || act.includes('swagger')) {
-      detectedMap.set('scanning', {
-        key: 'scanning',
-        name: 'Automated Port & Route Discovery Scan',
-        icon: 'fa-radar',
-        severity: 'medium',
-        page: `/${page}`,
-        detail: 'Enumeration of administrative endpoints and hidden paths'
-      });
+      key = 'scanning';
+      name = 'Automated Port & Route Discovery Scan';
+      icon = 'fa-radar';
+      severity = 'medium';
+      detail = 'Enumeration of administrative endpoints and hidden paths';
     } else if (type === 'sensitive_access' || act.includes('backup') || act.includes('exfiltration')) {
-      detectedMap.set('exfiltration', {
-        key: 'exfiltration',
-        name: 'Confidential Backup & Data Exfiltration',
-        icon: 'fa-database',
-        severity: 'critical',
-        page: `/${page}`,
-        detail: 'Unauthorized download attempt on enterprise database archive'
-      });
+      key = 'exfiltration';
+      name = 'Confidential Backup & Data Exfiltration';
+      icon = 'fa-database';
+      severity = 'critical';
+      detail = 'Unauthorized download attempt on enterprise database archive';
     } else if (type === 'privilege_escalation' || act.includes('privilege')) {
-      detectedMap.set('privilege_escalation', {
-        key: 'privilege_escalation',
-        name: 'Privilege Escalation Probing',
-        icon: 'fa-user-shield',
-        severity: 'critical',
-        page: `/${page}`,
-        detail: 'Role assignment token override attempt detected'
-      });
+      key = 'privilege_escalation';
+      name = 'Privilege Escalation Probing';
+      icon = 'fa-user-shield';
+      severity = 'critical';
+      detail = 'Role assignment token override attempt detected';
+    }
+
+    if (key) {
+      if (!detectedMap.has(key)) {
+        detectedMap.set(key, {
+          key: key,
+          name: name,
+          icon: icon,
+          severity: severity,
+          page: `/${page}`,
+          detail: detail,
+          count: 1
+        });
+      } else {
+        detectedMap.get(key).count += 1;
+      }
     }
   });
 
@@ -489,7 +597,7 @@ function renderDetectedAttacks() {
   container.innerHTML = attackList.map(atk => `
     <div class="attack-pill pill-${atk.severity}" onclick="inspectAttackVector('${atk.key}')" title="Click to view deep forensics & payload: ${atk.detail}">
       <i class="fa-solid ${atk.icon}"></i>
-      <span>${atk.name}</span>
+      <span>${atk.name} <strong style="opacity:0.85;">(${atk.count}x)</strong></span>
       <span class="attack-pill-page">${atk.page}</span>
     </div>
   `).join('');

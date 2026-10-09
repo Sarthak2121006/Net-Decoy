@@ -992,6 +992,157 @@ body {
   background-color: rgba(37, 99, 235, 0.05);
 }
 
+/* VIEW MODE TOGGLE (RAW STREAM VS GROUPED CLUSTERS) */
+.view-mode-toggle {
+  display: flex;
+  background: rgba(15, 23, 42, 0.06);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 2px;
+  gap: 2px;
+}
+
+.mode-btn {
+  background: transparent;
+  border: none;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 4px;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.mode-btn.active {
+  background: #ffffff;
+  color: var(--text-primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.mode-btn:hover:not(.active) {
+  color: var(--text-primary);
+}
+
+/* GROUPED ATTACK CLUSTERS VIEW */
+.clusters-container {
+  padding: 14px;
+  overflow-y: auto;
+  max-height: 480px;
+}
+
+.clusters-container.hidden {
+  display: none !important;
+}
+
+.clusters-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cluster-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.cluster-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: #cbd5e1;
+}
+
+.cluster-card.cluster-critical {
+  border-left: 4px solid #ef4444;
+}
+
+.cluster-card.cluster-high {
+  border-left: 4px solid #f59e0b;
+}
+
+.cluster-card.cluster-medium {
+  border-left: 4px solid #06b6d4;
+}
+
+.cluster-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cluster-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cluster-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.cluster-count-chip {
+  font-size: 11px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  background: #0f172a;
+  color: #ffffff;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.cluster-details-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 11px;
+  color: #64748b;
+}
+
+.cluster-detail-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.cluster-detail-item strong {
+  color: #0f172a;
+}
+
+.cluster-payload-snippet {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #0369a1;
+  word-break: break-all;
+}
+
+.cluster-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 8px;
+  margin-top: 2px;
+}
+
 /* ATTACK FORENSIC DETAIL INSPECTOR MODAL */
 .attack-modal-overlay {
   position: fixed;
