@@ -34,6 +34,19 @@
         </div>
       </div>
 
+      <!-- 3-System Interconnected Switcher -->
+      <nav class="system-switch-nav">
+        <a href="/dashboard" class="system-switch-btn active-soc" title="SOC Analysis Dashboard">
+          <i class="fa-solid fa-shield-halved" style="color:var(--accent-primary);"></i> 1. SOC Dashboard
+        </a>
+        <a href="/traps" target="_blank" class="system-switch-btn" title="Victim Decoy Portal">
+          <i class="fa-solid fa-building" style="color:#10b981;"></i> 2. Fake Target Site
+        </a>
+        <a href="/attacker" target="_blank" class="system-switch-btn" title="Attacker Red-Team Console">
+          <i class="fa-solid fa-skull" style="color:#ef4444;"></i> 3. Attacker System
+        </a>
+      </nav>
+
       <div class="header-actions">
         <!-- Minimal Operational Dot Indicator (No Standalone Engine label) -->
         <div class="status-indicator-pill" title="System Operational">
@@ -59,7 +72,7 @@
     <!-- Simulation Trigger Controller Bar -->
     <section class="demo-bar hidden" id="demo-controller">
       <div class="demo-bar-title">
-        <i class="fa-solid fa-terminal"></i> Attack Simulation Triggers:
+        <i class="fa-solid fa-terminal"></i> Quick Simulation Triggers:
       </div>
       <div class="demo-bar-actions">
         <button class="btn-demo-action" onclick="triggerSimulatedAttack('brute_force')">
@@ -112,6 +125,22 @@
             <div class="metric-icon icon-emerald"><i class="fa-solid fa-network-wired"></i></div>
           </div>
           <span class="metric-val text-emerald" id="stat-active-sessions">0</span>
+        </div>
+      </section>
+
+      <!-- Live Detected Attacks Showcase Banner -->
+      <section class="detected-attacks-banner" id="detected-attacks-section">
+        <div class="detected-attacks-header">
+          <div class="attacks-title">
+            <i class="fa-solid fa-crosshairs" style="color:#ef4444;"></i>
+            <span>Active & Detected Attack Vectors:</span>
+          </div>
+          <span class="attacks-count-badge" id="attacks-count-badge">0 Attacks Active</span>
+        </div>
+        <div class="detected-attacks-list" id="detected-attacks-list">
+          <div class="no-attacks-msg">
+            <i class="fa-solid fa-circle-check" style="color:#10b981;"></i> System Baseline Normal — Monitoring honeypot traps for active intrusion attempts.
+          </div>
         </div>
       </section>
 

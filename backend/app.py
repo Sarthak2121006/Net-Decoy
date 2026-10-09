@@ -131,6 +131,19 @@ def create_app(test_config=None):
     def serve_demo_runner():
         return send_from_directory(TRAPS_DIR, "demo_runner.html")
 
+    # System 3: Attacker Red-Team Console
+    @app.route("/attacker", methods=["GET"])
+    @app.route("/redteam", methods=["GET"])
+    @app.route("/exploit", methods=["GET"])
+    def serve_attacker_console():
+        return send_from_directory(TRAPS_DIR, "attacker.html")
+
+    # System 2: Decoy Fake Company Portal Aliases
+    @app.route("/company", methods=["GET"])
+    @app.route("/portal", methods=["GET"])
+    def serve_company_portal():
+        return send_from_directory(TRAPS_DIR, "index.html")
+
     # Error Handlers
     @app.errorhandler(404)
     def not_found(e):

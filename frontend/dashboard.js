@@ -391,11 +391,102 @@ function simulateIncomingEvent() {
 
 function renderAllComponents() {
   renderStatsCards();
+  renderDetectedAttacks();
   renderEventTable();
   renderRiskPanel();
   renderJourney();
   renderAiAnalysis();
   renderPrediction();
+}
+
+function renderDetectedAttacks() {
+  const container = document.getElementById('detected-attacks-list');
+  const countBadge = document.getElementById('attacks-count-badge');
+  if (!container) return;
+
+  const detectedMap = new Map();
+
+  state.events.forEach(e => {
+    const act = (e.action || '').toLowerCase();
+    const type = (e.event_type || '').toLowerCase();
+    const page = e.page || 'trap';
+
+    if (type === 'sqli' || act.includes('sql') || act.includes('injection')) {
+      detectedMap.set('sqli', {
+        name: 'SQL Injection Payload Attack',
+        icon: 'fa-code',
+        severity: 'critical',
+        page: `/${page}`,
+        detail: 'Harmful SQL syntax pattern identified in database trap'
+      });
+    } else if (type === 'authentication' || act.includes('failed_login') || act.includes('brute_force')) {
+      detectedMap.set('brute_force', {
+        name: 'Credential Brute-Force Spray',
+        icon: 'fa-key',
+        severity: 'high',
+        page: `/${page}`,
+        detail: 'Repeated authentication failures detected within short window'
+      });
+    } else if (type === 'traversal' || act.includes('traversal') || act.includes('directory')) {
+      detectedMap.set('traversal', {
+        name: 'Directory / Path Traversal Attack',
+        icon: 'fa-folder-tree',
+        severity: 'high',
+        page: `/${page}`,
+        detail: 'Dot-dot-slash sequence probed against backup portal'
+      });
+    } else if (type === 'scanning' || act.includes('scan') || act.includes('probe') || act.includes('swagger')) {
+      detectedMap.set('scanning', {
+        name: 'Automated Port & Route Discovery Scan',
+        icon: 'fa-radar',
+        severity: 'medium',
+        page: `/${page}`,
+        detail: 'Enumeration of administrative endpoints and hidden paths'
+      });
+    } else if (type === 'sensitive_access' || act.includes('backup') || act.includes('exfiltration')) {
+      detectedMap.set('exfiltration', {
+        name: 'Confidential Backup & Data Exfiltration',
+        icon: 'fa-database',
+        severity: 'critical',
+        page: `/${page}`,
+        detail: 'Unauthorized download attempt on enterprise database archive'
+      });
+    } else if (type === 'privilege_escalation' || act.includes('privilege')) {
+      detectedMap.set('privilege_escalation', {
+        name: 'Privilege Escalation Probing',
+        icon: 'fa-user-shield',
+        severity: 'critical',
+        page: `/${page}`,
+        detail: 'Role assignment token override attempt detected'
+      });
+    }
+  });
+
+  const attackList = Array.from(detectedMap.values());
+
+  if (countBadge) {
+    countBadge.textContent = `${attackList.length} Active Threat Pattern${attackList.length === 1 ? '' : 's'}`;
+    countBadge.style.background = attackList.length > 0 ? '#fef2f2' : '#f0fdf4';
+    countBadge.style.color = attackList.length > 0 ? '#991b1b' : '#166534';
+    countBadge.style.borderColor = attackList.length > 0 ? '#fecaca' : '#bbf7d0';
+  }
+
+  if (attackList.length === 0) {
+    container.innerHTML = `
+      <div class="no-attacks-msg">
+        <i class="fa-solid fa-circle-check" style="color:#10b981;"></i> System Baseline Normal — Monitoring honeypot traps for active intrusion attempts.
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = attackList.map(atk => `
+    <div class="attack-pill pill-${atk.severity}" title="${atk.detail}">
+      <i class="fa-solid ${atk.icon}"></i>
+      <span>${atk.name}</span>
+      <span class="attack-pill-page">${atk.page}</span>
+    </div>
+  `).join('');
 }
 
 function renderStatsCards() {

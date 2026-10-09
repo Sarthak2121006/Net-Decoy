@@ -343,3 +343,16 @@ def test_frontend_and_traps_serving(client):
     res_demo = client.get("/demo")
     assert res_demo.status_code == 200
 
+    # Test Attacker Red-Team Console (System 3)
+    res_attacker = client.get("/attacker")
+    assert res_attacker.status_code == 200
+    assert b"Attacker Red-Team" in res_attacker.data
+
+    res_redteam = client.get("/redteam")
+    assert res_redteam.status_code == 200
+
+    # Test Company Portal Aliases (System 2)
+    res_company = client.get("/company")
+    assert res_company.status_code == 200
+    assert b"Apex Global" in res_company.data
+

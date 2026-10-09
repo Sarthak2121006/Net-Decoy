@@ -846,6 +846,134 @@ body {
   font-weight: 500;
 }
 
+/* 3-SYSTEM SWITCHER NAV */
+.system-switch-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px solid var(--border-light);
+}
+
+.system-switch-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--text-muted);
+  transition: all 0.15s ease;
+}
+
+.system-switch-btn:hover {
+  color: var(--text-primary);
+  background: #ffffff;
+}
+
+.system-switch-btn.active-soc {
+  background: #ffffff;
+  color: var(--accent-primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* LIVE DETECTED ATTACKS SHOWCASE */
+.detected-attacks-banner {
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-card);
+  padding: 14px 18px;
+  box-shadow: var(--shadow-xs);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.detected-attacks-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.attacks-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: -0.2px;
+}
+
+.attacks-count-badge {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.detected-attacks-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.no-attacks-msg {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.attack-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid transparent;
+  animation: fadeIn 0.3s ease;
+}
+
+.attack-pill.pill-critical {
+  background: #fef2f2;
+  color: #991b1b;
+  border-color: #fecaca;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.15);
+}
+
+.attack-pill.pill-high {
+  background: #fffbeb;
+  color: #92400e;
+  border-color: #fde68a;
+}
+
+.attack-pill.pill-medium {
+  background: #ecfeff;
+  color: #155e75;
+  border-color: #a5f3fc;
+}
+
+.attack-pill-page {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  background: rgba(0, 0, 0, 0.06);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
 /* RESPONSIVE */
 @media (max-width: 1100px) {
   .metrics-grid { grid-template-columns: repeat(2, 1fr); }
@@ -856,4 +984,5 @@ body {
 @media (max-width: 600px) {
   .metrics-grid { grid-template-columns: 1fr; }
   .ai-details-row { grid-template-columns: 1fr; }
+  .system-switch-nav { display: none; }
 }

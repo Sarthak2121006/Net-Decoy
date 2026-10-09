@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NetDecoy — Attacker Red-Team Exploit Console</title>
+  
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --bg-main: #06090f;
+      --bg-panel: #0d131f;
+      --bg-panel-hover: #141c2c;
+      --bg-input: #080d16;
+      --border-main: #1e293b;
+      --border-bright: #334155;
+      --red-accent: #ef4444;
+      --red-glow: rgba(239, 68, 68, 0.25);
+      --green-terminal: #10b981;
+      --cyan-bright: #06b6d4;
+      --amber-warn: #f59e0b;
+      --purple-accent: #8b5cf6;
+      --text-white: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --font-ui: 'Plus Jakarta Sans', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-white);
+      font-family: var(--font-ui);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(239, 68, 68, 0.07) 0%, transparent 45%),
+        radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.05) 0%, transparent 45%);
+    }
+
+    /* 3-System Interconnected Navigation Header */
+    .system-nav-bar {
+      background: rgba(13, 19, 31, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-main);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .system-nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-badge {
+      background: linear-gradient(135deg, #ef4444, #b91c1c);
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.85rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      box-shadow: 0 0 15px var(--red-glow);
+    }
+
+    .brand-title-text {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text-white);
+    }
+
+    .system-switcher {
+      display: flex;
+      gap: 0.5rem;
+      background: rgba(8, 13, 22, 0.8);
+      padding: 0.3rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-main);
+    }
+
+    .system-link {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.45rem 0.9rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-decoration: none;
+      color: var(--text-muted);
+      transition: all 0.2s ease;
+    }
+
+    .system-link:hover {
+      color: var(--text-white);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .system-link.active-red {
+      background: rgba(239, 68, 68, 0.18);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+
+    .system-link.active-blue {
+      background: rgba(37, 99, 235, 0.18);
+      color: #93c5fd;
+      border: 1px solid rgba(37, 99, 235, 0.4);
+    }
+
+    .system-link.active-cyan {
+      background: rgba(6, 182, 212, 0.18);
+      color: #67e8f9;
+      border: 1px solid rgba(6, 182, 212, 0.4);
+    }
+
+    /* Main Container */
+    .attacker-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 1.5rem;
+      width: 100%;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* Target Status Strip */
+    .target-strip {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-main);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .target-info {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .info-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .info-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-dim);
+      font-weight: 700;
+    }
+
+    .info-value {
+      font-size: 0.92rem;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: var(--text-white);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .pulse-online {
+      width: 8px;
+      height: 8px;
+      background: var(--green-terminal);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--green-terminal);
+      animation: pulseAnim 2s infinite;
+    }
+
+    @keyframes pulseAnim {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    /* Main Work Grid */
+    .attack-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 1.25rem;
+      align-items: start;
+    }
+
+    @media (max-width: 1024px) {
+      .attack-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Attack Cards & Sections */
+    .section-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-main);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 0.9rem 1.25rem;
+      background: rgba(8, 13, 22, 0.6);
+      border-bottom: 1px solid var(--border-main);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-white);
+    }
+
+    .card-body {
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    /* Attack Vector Cards */
+    .vector-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem;
+    }
+
+    @media (max-width: 640px) {
+      .vector-grid { grid-template-columns: 1fr; }
+    }
+
+    .vector-btn-card {
+      background: rgba(8, 13, 22, 0.7);
+      border: 1px solid var(--border-main);
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      position: relative;
+    }
+
+    .vector-btn-card:hover {
+      background: var(--bg-panel-hover);
+      border-color: var(--border-bright);
+      transform: translateY(-2px);
+    }
+
+    .vector-btn-card.active-card {
+      border-color: var(--red-accent);
+      background: rgba(239, 68, 68, 0.08);
+      box-shadow: 0 0 15px var(--red-glow);
+    }
+
+    .vector-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .vector-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-white);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .vector-badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+      font-family: var(--font-mono);
+    }
+
+    .badge-critical { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .badge-high { background: rgba(245, 158, 11, 0.2); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .badge-medium { background: rgba(6, 182, 212, 0.2); color: #67e8f9; border: 1px solid rgba(6, 182, 212, 0.4); }
+
+    .vector-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .vector-target {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-top: 0.2rem;
+    }
+
+    /* Kill Chain Big Action Card */
+    .kill-chain-banner {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(139, 92, 246, 0.15));
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      border-radius: 8px;
+      padding: 1.15rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .chain-info h3 {
+      font-size: 1rem;
+      color: var(--text-white);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .chain-info p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* Buttons */
+    .btn-exploit {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: #fff;
+      border: none;
+      padding: 0.65rem 1.25rem;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 12px var(--red-glow);
+      transition: all 0.2s ease;
+    }
+
+    .btn-exploit:hover {
+      background: linear-gradient(135deg, #f87171, #ef4444);
+      transform: translateY(-1px);
+    }
+
+    .btn-exploit:active { transform: translateY(0); }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-main);
+      color: var(--text-muted);
+      padding: 0.45rem 0.85rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+      color: var(--text-white);
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--border-bright);
+    }
+
+    /* Custom Payload Builder */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .form-group label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .form-input, .form-select {
+      background: var(--bg-input);
+      border: 1px solid var(--border-main);
+      color: var(--text-white);
+      padding: 0.55rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-family: var(--font-mono);
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .form-input:focus, .form-select:focus {
+      border-color: var(--red-accent);
+    }
+
+    /* Terminal Console */
+    .terminal-card {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 520px;
+    }
+
+    .terminal-body {
+      background: #030712;
+      padding: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.5;
+      color: #a7f3d0;
+      flex: 1;
+      height: 440px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .log-line { display: flex; gap: 0.5rem; word-break: break-all; }
+    .log-ts { color: #64748b; font-size: 0.75rem; user-select: none; }
+    .log-prefix-red { color: #f87171; font-weight: 700; }
+    .log-prefix-green { color: #34d399; font-weight: 700; }
+    .log-prefix-cyan { color: #38bdf8; font-weight: 700; }
+    .log-prefix-amber { color: #fbbf24; font-weight: 700; }
+    .log-msg { color: #e2e8f0; }
+
+    /* Progress Indicator */
+    .progress-bar-wrap {
+      height: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ef4444, #f59e0b, #10b981);
+      transition: width 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top 3-System Interconnected Switcher Bar -->
+  <header class="system-nav-bar">
+    <div class="system-nav-brand">
+      <div class="brand-badge">
+        <i class="fa-solid fa-skull"></i> SYSTEM 3
+      </div>
+      <div class="brand-title-text">Attacker Red-Team Console</div>
+    </div>
+
+    <nav class="system-switcher">
+      <a href="/dashboard" class="system-link" title="Open Security Operations Center Dashboard">
+        <i class="fa-solid fa-shield-halved" style="color:#38bdf8;"></i>
+        <span>1. SOC Dashboard</span>
+      </a>
+      <a href="/traps" class="system-link" title="Open Victim Company Honeypot Website">
+        <i class="fa-solid fa-building" style="color:#10b981;"></i>
+        <span>2. Fake Target Portal</span>
+      </a>
+      <a href="/attacker" class="system-link active-red" title="Active Attacker Exploitation Terminal">
+        <i class="fa-solid fa-crosshairs" style="color:#ef4444;"></i>
+        <span>3. Attacker System</span>
+      </a>
+    </nav>
+  </header>
+
+  <!-- Progress Bar for Sequence Execution -->
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="killChainProgress"></div>
+  </div>
+
+  <main class="attacker-container">
+
+    <!-- Target & Identity Status Banner -->
+    <section class="target-strip">
+      <div class="target-info">
+        <div class="info-item">
+          <span class="info-label">Target Decoy Infrastructure</span>
+          <span class="info-value">
+            <span class="pulse-online"></span>
+            <span>Apex Global Enterprise (<code id="targetHostLabel">http://localhost:5000</code>)</span>
+          </span>
+        </div>
+
+        <div class="info-item">
+          <span class="info-label">Attacker Origin IP</span>
+          <select class="form-select" id="attackerIpSelect" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; background:#04070e;">
+            <option value="185.220.101.5" selected>185.220.101.5 (Frankfurt, Germany - Tor Node)</option>
+            <option value="198.51.100.42">198.51.100.42 (Ashburn, VA, USA - Cloud Bot)</option>
+            <option value="203.0.113.88">203.0.113.88 (Tokyo, Japan - APT Proxy)</option>
+            <option value="127.0.0.1">127.0.0.1 (Local Loopback)</option>
+          </select>
+        </div>
+
+        <div class="info-item">
+          <span class="info-label">Active Session ID</span>
+          <span class="info-value" id="currentSessionLabel" style="color: #38bdf8;">sess_redteam_init</span>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 0.5rem;">
+        <button class="btn-secondary" onclick="generateNewSession()">
+          <i class="fa-solid fa-rotate"></i> New Session
+        </button>
+        <button class="btn-secondary" onclick="openTargetCompany()">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i> Visit Target Site
+        </button>
+        <button class="btn-secondary" onclick="openSocDashboard()">
+          <i class="fa-solid fa-chart-line"></i> Open SOC
+        </button>
+      </div>
+    </section>
+
+    <!-- Main Working Grid -->
+    <div class="attack-grid">
+
+      <!-- Left Column: Attack Vectors & Custom Exploit Form -->
+      <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+
+        <!-- One-Click Full Attack Chain Banner -->
+        <div class="kill-chain-banner">
+          <div class="chain-info">
+            <h3><i class="fa-solid fa-bolt" style="color: #f59e0b;"></i> Automated 5-Stage Cyber Kill-Chain</h3>
+            <p>Executes complete sequence: Reconnaissance ➔ Scanning ➔ Brute Force ➔ SQL Injection ➔ Data Theft.</p>
+          </div>
+          <button class="btn-exploit" id="btnRunKillChain" onclick="executeFullKillChain()">
+            <i class="fa-solid fa-play"></i> Launch Kill Chain
+          </button>
+        </div>
+
+        <!-- Predefined Attack Vectors Grid -->
+        <section class="section-card">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fa-solid fa-crosshairs" style="color: #ef4444;"></i> Target Attack Vectors
+            </div>
+            <span style="font-size: 0.78rem; color: var(--text-dim);">Click vector to trigger honeypot telemetry</span>
+          </div>
+
+          <div class="card-body">
+            <div class="vector-grid">
+
+              <!-- Vector 1: Brute Force -->
+              <div class="vector-btn-card" onclick="launchVector('brute_force')">
+                <div class="vector-top">
+                  <span class="vector-title"><i class="fa-solid fa-key" style="color: #f59e0b;"></i> Brute-Force Spray</span>
+                  <span class="vector-badge badge-high">HIGH</span>
+                </div>
+                <p class="vector-desc">Fires multiple rapid authentication attempts with admin credentials.</p>
+                <span class="vector-target">Target: POST /login</span>
+              </div>
+
+              <!-- Vector 2: SQLi -->
+              <div class="vector-btn-card" onclick="launchVector('sqli')">
+                <div class="vector-top">
+                  <span class="vector-title"><i class="fa-solid fa-code" style="color: #ef4444;"></i> SQL Injection (SQLi)</span>
+                  <span class="vector-badge badge-critical">CRITICAL</span>
+                </div>
+                <p class="vector-desc">Injects SQL auth bypass strings into database workbench.</p>
+                <span class="vector-target">Target: POST /database</span>
+              </div>
+
+              <!-- Vector 3: Traversal -->
+              <div class="vector-btn-card" onclick="launchVector('traversal')">
+                <div class="vector-top">
+                  <span class="vector-title"><i class="fa-solid fa-folder-tree" style="color: #f59e0b;"></i> Directory Traversal</span>
+                  <span class="vector-badge badge-high">HIGH</span>
+                </div>
+                <p class="vector-desc">Attempts path escape payload to read sensitive configuration files.</p>
+                <span class="vector-target">Target: GET /backup</span>
+              </div>
+
+              <!-- Vector 4: Recon Scan -->
+              <div class="vector-btn-card" onclick="launchVector('scanning')">
+                <div class="vector-top">
+                  <span class="vector-title"><i class="fa-solid fa-radar" style="color: #06b6d4;"></i> Port & Endpoint Scan</span>
+                  <span class="vector-badge badge-medium">MEDIUM</span>
+                </div>
+                <p class="vector-desc">Enumerates sensitive endpoints (/.env, /admin, /api/v1/debug).</p>
+                <span class="vector-target">Target: GET /admin</span>
+              </div>
+
+              <!-- Vector 5: Exfiltration -->
+              <div class="vector-btn-card" onclick="launchVector('exfiltration')">
+                <div class="vector-top">
+                  <span class="vector-title"><i class="fa-solid fa-database" style="color: #ef4444;"></i> Backup Exfiltration</span>
+                  <span class="vector-badge badge-critical">CRITICAL</span>
+                </div>
+                <p class="vector-desc">Attempts unauthorized download of full enterprise SQL archive.</p>
+                <span class="vector-target">Target: POST /backup</span>
+              </div>
+
+              <!-- Vector 6: Privilege Escalation -->
+              <div class="vector-btn-card" onclick="launchVector('privilege_escalation')">
+                <div class="vector-top">
+                  <span class="vector-title"><i class="fa-solid fa-user-shield" style="color: #8b5cf6;"></i> Privilege Escalation</span>
+                  <span class="vector-badge badge-critical">CRITICAL</span>
+                </div>
+                <p class="vector-desc">Probes administrative privileges and role assignment vectors.</p>
+                <span class="vector-target">Target: POST /admin</span>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- Custom Payload Injector Form -->
+        <section class="section-card">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fa-solid fa-terminal" style="color: #06b6d4;"></i> Custom Payload Injector
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Target Trap Route</label>
+                <select class="form-select" id="customTargetRoute">
+                  <option value="login">/login (SSO Login Trap)</option>
+                  <option value="admin">/admin (Admin Console)</option>
+                  <option value="database" selected>/database (SQL Workbench)</option>
+                  <option value="backup">/backup (Backup Portal)</option>
+                  <option value="api-explorer">/api-explorer (REST API Explorer)</option>
+                  <option value="search">/search (Internal Document Search)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Attack Category</label>
+                <select class="form-select" id="customEventType">
+                  <option value="sqli">SQL Injection (sqli)</option>
+                  <option value="authentication">Credential Access (authentication)</option>
+                  <option value="traversal">Path Traversal (traversal)</option>
+                  <option value="scanning">Reconnaissance (scanning)</option>
+                  <option value="sensitive_access">Sensitive Data Exfiltration (sensitive_access)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Custom Attack Payload / Query String</label>
+              <input type="text" class="form-input" id="customPayloadText" value="SELECT * FROM auth_tokens WHERE token='master' OR 1=1 --">
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.25rem;">
+              <div style="font-size: 0.78rem; color: var(--text-dim);">
+                Payload is safely logged and analyzed without executing against host.
+              </div>
+              <button class="btn-exploit" onclick="launchCustomExploit()">
+                <i class="fa-solid fa-paper-plane"></i> Transmit Exploit
+              </button>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Right Column: Live Hacker Terminal Console -->
+      <section class="section-card terminal-card">
+        <div class="card-header">
+          <div class="card-title">
+            <i class="fa-solid fa-terminal" style="color: #10b981;"></i> Red-Team Output Stream
+          </div>
+          <div style="display: flex; gap: 0.4rem;">
+            <button class="btn-secondary" onclick="clearTerminal()">
+              <i class="fa-solid fa-trash-can"></i> Clear
+            </button>
+          </div>
+        </div>
+
+        <div class="terminal-body" id="terminalOutput">
+          <div class="log-line">
+            <span class="log-ts">[00:00:00]</span>
+            <span class="log-prefix-green">[READY]</span>
+            <span class="log-msg">NetDecoy Attacker Red-Team Console initialized.</span>
+          </div>
+          <div class="log-line">
+            <span class="log-ts">[00:00:00]</span>
+            <span class="log-prefix-cyan">[TARGET]</span>
+            <span class="log-msg">Connected to target decoy honeypot at <span style="color:#fff;">http://localhost:5000</span></span>
+          </div>
+          <div class="log-line">
+            <span class="log-ts">[00:00:00]</span>
+            <span class="log-prefix-amber">[INFO]</span>
+            <span class="log-msg">Select an attack vector or launch the 5-stage automated kill-chain above.</span>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <script>
+    // Configuration & Session State
+    const CONFIG = {
+      apiBaseUrl: (typeof window !== 'undefined' && window.location.origin && window.location.origin.startsWith('http') && window.location.port === '5000')
+        ? window.location.origin 
+        : 'http://localhost:5000'
+    };
+
+    let activeSessionId = 'sess_redteam_' + Math.random().toString(36).substring(2, 8);
+    document.getElementById('currentSessionLabel').textContent = activeSessionId;
+
+    function getTimestamp() {
+      return new Date().toTimeString().split(' ')[0];
+    }
+
+    function logToTerminal(prefix, prefixClass, message) {
+      const term = document.getElementById('terminalOutput');
+      const line = document.createElement('div');
+      line.className = 'log-line';
+      line.innerHTML = `
+        <span class="log-ts">[${getTimestamp()}]</span>
+        <span class="${prefixClass}">${prefix}</span>
+        <span class="log-msg">${message}</span>
+      `;
+      term.appendChild(line);
+      term.scrollTop = term.scrollHeight;
+    }
+
+    function clearTerminal() {
+      const term = document.getElementById('terminalOutput');
+      term.innerHTML = `
+        <div class="log-line">
+          <span class="log-ts">[${getTimestamp()}]</span>
+          <span class="log-prefix-green">[READY]</span>
+          <span class="log-msg">Terminal cleared. Ready for next exploitation attempt.</span>
+        </div>
+      `;
+    }
+
+    function generateNewSession() {
+      activeSessionId = 'sess_redteam_' + Math.random().toString(36).substring(2, 8);
+      document.getElementById('currentSessionLabel').textContent = activeSessionId;
+      logToTerminal('[SESSION]', 'log-prefix-cyan', `New attacker session initialized: <strong>${activeSessionId}</strong>`);
+    }
+
+    function openTargetCompany() {
+      window.open('/traps', '_blank');
+    }
+
+    function openSocDashboard() {
+      window.open('/dashboard', '_blank');
+    }
+
+    // Core Event Dispatcher to Central Honeypot Backend
+    async function emitAttackEvent({ page, action, event_type, severity = 'HIGH', payload = {} }) {
+      const sourceIp = document.getElementById('attackerIpSelect').value || '185.220.101.5';
+      const eventData = {
+        event_id: 'evt_redteam_' + Math.random().toString(36).substring(2, 9),
+        session_id: activeSessionId,
+        source_ip: sourceIp,
+        page: page,
+        action: action,
+        event_type: event_type,
+        severity: severity,
+        payload: payload,
+        timestamp: new Date().toISOString()
+      };
+
+      logToTerminal('[TRANSMIT]', 'log-prefix-red', `POST /api/events -> Target: <strong>/${page}</strong> | Action: <strong>${action}</strong> [${severity}]`);
+
+      try {
+        const res = await fetch(`${CONFIG.apiBaseUrl}/api/events`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(eventData)
+        });
+
+        if (res.status === 201 || res.status === 200) {
+          const respJson = await res.json();
+          logToTerminal('[HTTP 201]', 'log-prefix-green', `Payload accepted by Honeypot. Event ID: <code>${respJson.event ? respJson.event.event_id : eventData.event_id}</code>`);
+          logToTerminal('[HONEYPOT]', 'log-prefix-cyan', `Decoy telemetry logged -> SOC Dashboard alerted with <strong>${severity}</strong> threat!`);
+        } else {
+          logToTerminal('[HTTP WARN]', 'log-prefix-amber', `Server responded with status ${res.status}`);
+        }
+      } catch (err) {
+        logToTerminal('[ERROR]', 'log-prefix-red', `Connection error sending exploit telemetry: ${err.message}`);
+      }
+    }
+
+    // Launch Predefined Attack Vectors
+    async function launchVector(vectorType) {
+      if (vectorType === 'brute_force') {
+        logToTerminal('[VECTOR: BRUTE FORCE]', 'log-prefix-amber', 'Initiating rapid credential spray against SSO Authentication...');
+        await emitAttackEvent({
+          page: 'login',
+          action: 'failed_login',
+          event_type: 'authentication',
+          severity: 'MEDIUM',
+          payload: { username: 'admin', password: 'password123', tool: 'Hydra/v9.5' }
+        });
+        await new Promise(r => setTimeout(r, 400));
+        await emitAttackEvent({
+          page: 'login',
+          action: 'failed_login',
+          event_type: 'authentication',
+          severity: 'MEDIUM',
+          payload: { username: 'root', password: 'toor', tool: 'Hydra/v9.5' }
+        });
+        await new Promise(r => setTimeout(r, 400));
+        await emitAttackEvent({
+          page: 'login',
+          action: 'failed_login',
+          event_type: 'authentication',
+          severity: 'HIGH',
+          payload: { username: 'administrator', password: 'admin_master_2026', tool: 'Hydra/v9.5' }
+        });
+      } else if (vectorType === 'sqli') {
+        logToTerminal('[VECTOR: SQL INJECTION]', 'log-prefix-red', 'Injecting malicious SQL syntax payload into SQL Workbench trap...');
+        await emitAttackEvent({
+          page: 'database',
+          action: 'sql_injection_attempt',
+          event_type: 'sqli',
+          severity: 'CRITICAL',
+          payload: { query: "SELECT * FROM users WHERE username = 'admin' OR '1'='1'; --", dialect: 'PostgreSQL' }
+        });
+      } else if (vectorType === 'traversal') {
+        logToTerminal('[VECTOR: PATH TRAVERSAL]', 'log-prefix-amber', 'Submitting directory traversal sequence to inspect host files...');
+        await emitAttackEvent({
+          page: 'backup',
+          action: 'directory_traversal',
+          event_type: 'traversal',
+          severity: 'HIGH',
+          payload: { file_path: '../../../../etc/shadow', user_agent: 'curl/8.4.0' }
+        });
+      } else if (vectorType === 'scanning') {
+        logToTerminal('[VECTOR: SCANNER]', 'log-prefix-cyan', 'Executing automated endpoint scanner across management ports...');
+        await emitAttackEvent({
+          page: 'admin',
+          action: 'probe_endpoint',
+          event_type: 'scanning',
+          severity: 'LOW',
+          payload: { path: '/.env', user_agent: 'Nmap Scripting Engine (NSE)' }
+        });
+        await new Promise(r => setTimeout(r, 300));
+        await emitAttackEvent({
+          page: 'admin',
+          action: 'probe_endpoint',
+          event_type: 'scanning',
+          severity: 'MEDIUM',
+          payload: { path: '/api/v1/internal/config', user_agent: 'Nmap Scripting Engine' }
+        });
+      } else if (vectorType === 'exfiltration') {
+        logToTerminal('[VECTOR: DATA EXFILTRATION]', 'log-prefix-red', 'Attempting unauthorized archive retrieval of full corporate database...');
+        await emitAttackEvent({
+          page: 'backup',
+          action: 'sensitive_backup_download',
+          event_type: 'sensitive_access',
+          severity: 'CRITICAL',
+          payload: { archive: 'apex_master_customer_db_2026.sql.gz', bytes_requested: '450MB' }
+        });
+      } else if (vectorType === 'privilege_escalation') {
+        logToTerminal('[VECTOR: PRIVILEGE ESCALATION]', 'log-prefix-red', 'Attempting role assignment override in Admin Management portal...');
+        await emitAttackEvent({
+          page: 'admin',
+          action: 'privilege_escalation_attempt',
+          event_type: 'privilege_escalation',
+          severity: 'CRITICAL',
+          payload: { target_role: 'SUPER_ADMIN', auth_token_override: 'bearer fake_master_jwt' }
+        });
+      }
+    }
+
+    // Launch Custom User-Specified Exploit
+    async function launchCustomExploit() {
+      const page = document.getElementById('customTargetRoute').value;
+      const eventType = document.getElementById('customEventType').value;
+      const payloadText = document.getElementById('customPayloadText').value || 'TEST_PAYLOAD';
+
+      let severity = 'HIGH';
+      if (eventType === 'sqli' || eventType === 'sensitive_access') severity = 'CRITICAL';
+      if (eventType === 'scanning') severity = 'MEDIUM';
+
+      logToTerminal('[CUSTOM EXPLOIT]', 'log-prefix-cyan', `Dispatching custom payload to <strong>/${page}</strong> (${eventType})...`);
+
+      await emitAttackEvent({
+        page: page,
+        action: 'custom_exploit_payload',
+        event_type: eventType,
+        severity: severity,
+        payload: { input: payloadText, custom_trigger: true }
+      });
+    }
+
+    // Full 5-Stage Automated Cyber Kill-Chain
+    async function executeFullKillChain() {
+      const btn = document.getElementById('btnRunKillChain');
+      const progress = document.getElementById('killChainProgress');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Executing Sequence...';
+
+      logToTerminal('[KILL-CHAIN START]', 'log-prefix-red', 'Starting 5-stage automated adversary sequence across honeypot traps...');
+
+      // Stage 1: Reconnaissance
+      progress.style.width = '20%';
+      logToTerminal('[STAGE 1: RECONNAISSANCE]', 'log-prefix-cyan', 'Stage 1/5: Probing public endpoints and API definitions...');
+      await emitAttackEvent({
+        page: 'api-explorer',
+        action: 'swagger_scrape',
+        event_type: 'scanning',
+        severity: 'LOW',
+        payload: { endpoint: '/api/v1/users', method: 'OPTIONS' }
+      });
+      await new Promise(r => setTimeout(r, 800));
+
+      // Stage 2: Scanning & Enumeration
+      progress.style.width = '40%';
+      logToTerminal('[STAGE 2: SCANNING]', 'log-prefix-cyan', 'Stage 2/5: Scanning internal administrative resources...');
+      await emitAttackEvent({
+        page: 'admin',
+        action: 'probe_endpoint',
+        event_type: 'scanning',
+        severity: 'MEDIUM',
+        payload: { path: '/admin/config.php', method: 'GET' }
+      });
+      await new Promise(r => setTimeout(r, 800));
+
+      // Stage 3: Credential Access
+      progress.style.width = '60%';
+      logToTerminal('[STAGE 3: CREDENTIAL ACCESS]', 'log-prefix-amber', 'Stage 3/5: Launching brute-force authentication spray...');
+      await emitAttackEvent({
+        page: 'login',
+        action: 'failed_login',
+        event_type: 'authentication',
+        severity: 'HIGH',
+        payload: { username: 'admin', password: 'password123' }
+      });
+      await new Promise(r => setTimeout(r, 800));
+
+      // Stage 4: Privilege Escalation & SQLi
+      progress.style.width = '80%';
+      logToTerminal('[STAGE 4: EXPLOITATION]', 'log-prefix-red', 'Stage 4/5: Injecting SQL authentication bypass payload...');
+      await emitAttackEvent({
+        page: 'database',
+        action: 'sql_injection_attempt',
+        event_type: 'sqli',
+        severity: 'CRITICAL',
+        payload: { query: "SELECT * FROM users WHERE user='admin' OR 1=1--" }
+      });
+      await new Promise(r => setTimeout(r, 800));
+
+      // Stage 5: Data Exfiltration
+      progress.style.width = '100%';
+      logToTerminal('[STAGE 5: DATA EXFILTRATION]', 'log-prefix-red', 'Stage 5/5: Exfiltrating sensitive corporate backup archives...');
+      await emitAttackEvent({
+        page: 'backup',
+        action: 'sensitive_backup_download',
+        event_type: 'sensitive_access',
+        severity: 'CRITICAL',
+        payload: { file: 'corporate_financial_ledger_2026.sql.gz' }
+      });
+
+      logToTerminal('[KILL-CHAIN COMPLETE]', 'log-prefix-green', 'All 5 attack stages successfully delivered! Open SOC Dashboard to view real-time risk score, journey map, and AI threat analysis.');
+
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-play"></i> Launch Kill Chain';
+    }
+  </script>
+</body>
+</html>
