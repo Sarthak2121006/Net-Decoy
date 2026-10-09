@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apex Global Portal | Corporate Home</title>
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/trap_event_logger.js"></script>
+</head>
+<body>
+  <nav class="top-nav">
+    <a href="index.html" class="brand-container">
+      <div class="brand-logo">A</div>
+      <div class="brand-title">Apex Global Logistics</div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html" class="active">Home</a></li>
+      <li><a href="login.html">SSO Login</a></li>
+      <li><a href="admin.html">Admin Console</a></li>
+      <li><a href="backup.html">Backup Portal</a></li>
+      <li><a href="database.html">SQL Workbench</a></li>
+      <li><a href="api.html">API Explorer</a></li>
+      <li><a href="search.html">Document Search</a></li>
+      <li><span class="nav-badge">Internal Only</span></li>
+    </ul>
+  </nav>
+
+  <main class="container">
+    <div class="page-header">
+      <h1 class="page-title">Enterprise Infrastructure & Systems Portal</h1>
+      <p class="page-subtitle">Welcome to Apex Global Logistics internal resource management center.</p>
+    </div>
+
+    <div class="card" style="margin-bottom: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h2 style="font-size: 1.25rem;">System Operational Health</h2>
+        <span class="badge badge-success">All Services Operational</span>
+      </div>
+      <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
+        Authorized employees and administrators can navigate internal tools and services using the module links below.
+        All network access is monitored and logged in compliance with Corporate Security Policy ISO-27001.
+      </p>
+    </div>
+
+    <div class="grid-3">
+      <div class="card">
+        <h3 style="margin-bottom: 0.5rem; font-size: 1.1rem;">Corporate Login</h3>
+        <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.25rem;">Single Sign-On authentication for employee access.</p>
+        <a href="login.html" class="btn btn-secondary" style="width: 100%;">Open SSO Login</a>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom: 0.5rem; font-size: 1.1rem;">Admin Dashboard</h3>
+        <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.25rem;">Internal administration and user account management.</p>
+        <a href="admin.html" class="btn btn-secondary" style="width: 100%;">Access Admin</a>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom: 0.5rem; font-size: 1.1rem;">Backup Portal</h3>
+        <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.25rem;">Archived system backups and database snapshots.</p>
+        <a href="backup.html" class="btn btn-secondary" style="width: 100%;">View Backups</a>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom: 0.5rem; font-size: 1.1rem;">Database Console</h3>
+        <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.25rem;">Internal SQL query console and database tools.</p>
+        <a href="database.html" class="btn btn-secondary" style="width: 100%;">Launch Workbench</a>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom: 0.5rem; font-size: 1.1rem;">API Gateway Explorer</h3>
+        <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.25rem;">Internal microservice REST API documentation.</p>
+        <a href="api.html" class="btn btn-secondary" style="width: 100%;">Explore APIs</a>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom: 0.5rem; font-size: 1.1rem;">Document Repository</h3>
+        <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.25rem;">Search corporate policies, specs, and internal files.</p>
+        <a href="search.html" class="btn btn-secondary" style="width: 100%;">Search Documents</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    &copy; 2026 Apex Global Logistics Inc. Internal Systems. Confidential and Proprietary.
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      logDecoyEvent({
+        page: 'home',
+        action: 'page_view',
+        event_type: 'scanning',
+        payload: { path: '/' }
+      });
+    });
+  </script>
+</body>
+</html>
