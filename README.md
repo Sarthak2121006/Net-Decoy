@@ -881,8 +881,8 @@ observed activity easier to interpret and investigate.
 ## Project Details
 
 -   **Event:** IEEE SYNAPSE 2026
--   **Team name:** Add team name
--   **Team members:** Add member names and roles
--   **GitHub repository:** Add final repository URL
+-   **Team name:** core-innovators
+-   **Team members:** Sarthak Gaikwad, Chaitanya Sarkate, Vishvjeet Kamble, Ajit Bhandekar
+-   **GitHub repository:** [Add final repository URL](https://github.com/Sarthak2121006/Net-Decoy)
 -   **Demo video:** Add link if created
 -   **License:** Choose and add a license before public distribution
