@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apex Global Internal API Gateway Explorer</title>
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/trap_event_logger.js"></script>
+</head>
+<body>
+  <nav class="top-nav">
+    <a href="index.html" class="brand-container">
+      <div class="brand-logo">A</div>
+      <div class="brand-title">Apex Global Logistics</div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="login.html">SSO Login</a></li>
+      <li><a href="admin.html">Admin Console</a></li>
+      <li><a href="backup.html">Backup Portal</a></li>
+      <li><a href="database.html">SQL Workbench</a></li>
+      <li><a href="api.html" class="active">API Explorer</a></li>
+      <li><a href="search.html">Document Search</a></li>
+      <li><span class="nav-badge">v2.4 API</span></li>
+    </ul>
+  </nav>
+
+  <main class="container">
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-end;">
+      <div>
+        <h1 class="page-title">Internal REST API Explorer & Gateway</h1>
+        <p class="page-subtitle">Interactive documentation and service probe interface for internal endpoints.</p>
+      </div>
+      <button class="btn btn-secondary" id="scanAllEndpointsBtn">Probe All Endpoints</button>
+    </div>
+
+    <div class="card" style="margin-bottom: 1.5rem;">
+      <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem;">Base Endpoint: https://api.apexglobal.internal/v1</h3>
+      <p style="color: var(--text-muted); font-size: 0.85rem;">Authorization Token Required for Production. Sandbox Mode Active.</p>
+    </div>
+
+    <!-- API Endpoints List -->
+    <div class="card">
+      <div style="display: flex; flex-direction: column; gap: 1rem;">
+        <!-- Endpoint 1: GET /users -->
+        <div style="border: 1px solid var(--border-color); border-radius: 6px; padding: 1rem; background: rgba(15, 23, 42, 0.4);">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <span class="badge badge-info">GET</span>
+              <code style="color: #f8fafc; font-size: 0.95rem;">/users</code>
+              <span style="color: var(--text-muted); font-size: 0.85rem;">- List internal user directory</span>
+            </div>
+            <button class="btn btn-secondary probe-api-btn" data-method="GET" data-endpoint="/users">Execute Probe</button>
+          </div>
+        </div>
+
+        <!-- Endpoint 2: GET /admin -->
+        <div style="border: 1px solid var(--border-color); border-radius: 6px; padding: 1rem; background: rgba(15, 23, 42, 0.4);">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <span class="badge badge-info">GET</span>
+              <code style="color: #f8fafc; font-size: 0.95rem;">/admin</code>
+              <span style="color: var(--text-muted); font-size: 0.85rem;">- Access administrative system metrics</span>
+            </div>
+            <button class="btn btn-secondary probe-api-btn" data-method="GET" data-endpoint="/admin">Execute Probe</button>
+          </div>
+        </div>
+
+        <!-- Endpoint 3: GET /backup -->
+        <div style="border: 1px solid var(--border-color); border-radius: 6px; padding: 1rem; background: rgba(15, 23, 42, 0.4);">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <span class="badge badge-info">GET</span>
+              <code style="color: #f8fafc; font-size: 0.95rem;">/backup</code>
+              <span style="color: var(--text-muted); font-size: 0.85rem;">- Query storage vault backup artifacts</span>
+            </div>
+            <button class="btn btn-secondary probe-api-btn" data-method="GET" data-endpoint="/backup">Execute Probe</button>
+          </div>
+        </div>
+
+        <!-- Endpoint 4: GET /config -->
+        <div style="border: 1px solid var(--border-color); border-radius: 6px; padding: 1rem; background: rgba(15, 23, 42, 0.4);">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <span class="badge badge-warning">GET</span>
+              <code style="color: #f8fafc; font-size: 0.95rem;">/config</code>
+              <span style="color: var(--text-muted); font-size: 0.85rem;">- Retrieve system environment configuration</span>
+            </div>
+            <button class="btn btn-secondary probe-api-btn" data-method="GET" data-endpoint="/config">Execute Probe</button>
+          </div>
+        </div>
+
+        <!-- Endpoint 5: POST /login -->
+        <div style="border: 1px solid var(--border-color); border-radius: 6px; padding: 1rem; background: rgba(15, 23, 42, 0.4);">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <span class="badge badge-success">POST</span>
+              <code style="color: #f8fafc; font-size: 0.95rem;">/login</code>
+              <span style="color: var(--text-muted); font-size: 0.85rem;">- Submit authentication credentials token</span>
+            </div>
+            <button class="btn btn-secondary probe-api-btn" data-method="POST" data-endpoint="/login">Execute Probe</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- API Response Display -->
+    <div id="responseCard" class="card" style="display: none; margin-top: 1.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+        <h3 id="resEndpoint" style="font-size: 1.05rem;">API Response</h3>
+        <span class="badge badge-success">HTTP 200 OK</span>
+      </div>
+      <div id="resBody" class="code-box"></div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    &copy; 2026 Apex Global Logistics Inc. API Services Gateway.
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Log page access
+      logDecoyEvent({
+        page: 'api',
+        action: 'api_access',
+        event_type: 'api_probing',
+        payload: { path: '/api' }
+      });
+
+      const probeBtns = document.querySelectorAll('.probe-api-btn');
+      const scanAllBtn = document.getElementById('scanAllEndpointsBtn');
+      const responseCard = document.getElementById('responseCard');
+      const resEndpoint = document.getElementById('resEndpoint');
+      const resBody = document.getElementById('resBody');
+
+      const mockResponses = {
+        '/users': { status: 'success', count: 4, items: ['admin', 'john.doe', 'finance_user', 'backup_admin'] },
+        '/admin': { status: 'success', system_load: '0.14', active_nodes: 3, role_required: 'SuperAdmin' },
+        '/backup': { status: 'success', location: '/var/backups/production', total_archives: 4 },
+        '/config': { env: 'staging-decoy-cluster', debug_mode: false, log_level: 'WARN' },
+        '/login': { status: 'auth_required', challenge: 'sso_bearer_token' }
+      };
+
+      // 2. Individual probe telemetry
+      probeBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const method = e.target.getAttribute('data-method');
+          const endpoint = e.target.getAttribute('data-endpoint');
+
+          logDecoyEvent({
+            page: 'api',
+            action: 'endpoint_probe',
+            event_type: 'api_probing',
+            payload: { method, endpoint, pattern_detected: true }
+          });
+
+          responseCard.style.display = 'block';
+          resEndpoint.textContent = `Probe Result: ${method} ${endpoint}`;
+          resBody.textContent = JSON.stringify(mockResponses[endpoint] || { status: 'ok' }, null, 2);
+        });
+      });
+
+      // 3. Scan all endpoints (enumeration pattern)
+      scanAllBtn.addEventListener('click', () => {
+        logDecoyEvent({
+          page: 'api',
+          action: 'endpoint_enumeration',
+          event_type: 'scanning',
+          payload: { action: 'bulk_endpoint_scan', pattern_detected: true }
+        });
+
+        responseCard.style.display = 'block';
+        resEndpoint.textContent = 'Bulk Endpoint Scan Executed';
+        resBody.textContent = JSON.stringify({
+          scanned_endpoints: ['/users', '/admin', '/backup', '/config', '/login'],
+          probe_result: 'All 5 endpoints reachable.'
+        }, null, 2);
+      });
+    });
+  </script>
+</body>
+</html>

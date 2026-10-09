@@ -1,60 +1,79 @@
 {
-  "attack_types": [
-    {
-      "id": "brute_force",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "NetDecoyAttackTypes",
+  "description": "Standardized attack types, default risk weights, severities, and associated attack stages for NetDecoy.",
+  "attack_types": {
+    "BRUTE_FORCE": {
       "name": "Brute Force Authentication",
-      "category": "authentication",
+      "category": "Credential Access",
+      "severity": "HIGH",
+      "base_weight": 20,
+      "mapped_stage": "CREDENTIAL_ACCESS",
+      "description": "Repeated failed authentication attempts against authentication decoys in a short time frame."
+    },
+    "SCANNING": {
+      "name": "Reconnaissance / Endpoint Scanning",
+      "category": "Discovery",
       "severity": "MEDIUM",
-      "description": "Repeated login attempts using dictionary or password guessing."
+      "base_weight": 20,
+      "mapped_stage": "SCANNING",
+      "description": "Probing multiple distinct decoy endpoints or administrative paths to map application structure."
     },
-    {
-      "id": "credential_stuffing",
-      "name": "Credential Stuffing",
-      "category": "authentication",
-      "severity": "HIGH",
-      "description": "Automated login attempts using leaked credential pairs."
-    },
-    {
-      "id": "sql_injection",
-      "name": "SQL Injection (SQLi)",
-      "category": "exploitation",
+    "SQL_INJECTION": {
+      "name": "SQL Injection Pattern",
+      "category": "Exploitation / Privilege Escalation",
       "severity": "CRITICAL",
-      "description": "Malicious SQL syntax injected into input fields or URL parameters."
+      "base_weight": 30,
+      "mapped_stage": "PRIVILEGE_ESCALATION",
+      "description": "Controlled detection of structured SQL syntax patterns (auth bypass, UNION operators, comments) in decoy inputs."
     },
-    {
-      "id": "directory_traversal",
-      "name": "Path / Directory Traversal",
-      "category": "reconnaissance",
+    "PATH_TRAVERSAL": {
+      "name": "Directory Path Traversal",
+      "category": "Exploitation / File Access",
       "severity": "HIGH",
-      "description": "Attempts to access files outside the intended root directory (e.g. ../../../etc/passwd)."
+      "base_weight": 30,
+      "mapped_stage": "DATA_ACCESS",
+      "description": "Controlled detection of directory escape sequences (e.g., ../, ..\\, encoded separators) in search or file decoys."
     },
-    {
-      "id": "scanning",
-      "name": "Vulnerability / Port Scanning",
-      "category": "reconnaissance",
-      "severity": "LOW",
-      "description": "Automated probing of endpoints, admin interfaces, and common sensitive files."
+    "SENSITIVE_ACCESS": {
+      "name": "Sensitive Resource Enumeration",
+      "category": "Data Access",
+      "severity": "HIGH",
+      "base_weight": 20,
+      "mapped_stage": "DATA_ACCESS",
+      "description": "Direct interaction with decoy sensitive backup archives, configuration dumps, or synthetic proprietary databases."
     },
-    {
-      "id": "privilege_escalation",
+    "PRIVILEGE_ESCALATION": {
       "name": "Privilege Escalation",
-      "category": "privilege_escalation",
+      "category": "Privilege Escalation",
       "severity": "CRITICAL",
-      "description": "Attempts to elevate session permissions or bypass role checks."
+      "base_weight": 30,
+      "mapped_stage": "PRIVILEGE_ESCALATION",
+      "description": "Attempts to elevate session permissions, forge tokens, or bypass role checks."
     },
-    {
-      "id": "command_injection",
-      "name": "Command Injection (RCE)",
-      "category": "exploitation",
-      "severity": "CRITICAL",
-      "description": "Injection of shell or OS command sequences in input parameters."
-    },
-    {
-      "id": "data_exfiltration",
+    "DATA_EXFILTRATION": {
       "name": "Data Exfiltration Probe",
-      "category": "data_exfiltration",
+      "category": "Data Access",
       "severity": "HIGH",
+      "base_weight": 25,
+      "mapped_stage": "DATA_ACCESS",
       "description": "Attempts to download fake confidential honey-tokens, database dumps, or keys."
+    },
+    "REPEATED_SUSPICIOUS": {
+      "name": "Repeated Suspicious Behavior",
+      "category": "Multi-stage Progression",
+      "severity": "HIGH",
+      "base_weight": 10,
+      "mapped_stage": "PRIVILEGE_ESCALATION",
+      "description": "Persistent, multi-vector suspicious activity observed across the session timeline."
     }
+  },
+  "stage_progression": [
+    "RECONNAISSANCE",
+    "SCANNING",
+    "CREDENTIAL_ACCESS",
+    "RESOURCE_DISCOVERY",
+    "PRIVILEGE_ESCALATION",
+    "DATA_ACCESS"
   ]
 }

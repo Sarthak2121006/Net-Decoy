@@ -1,0 +1,62 @@
+[
+  {
+    "event_id": "evt_trap_001",
+    "session_id": "sess_trap_alpha",
+    "timestamp": "2026-10-09T10:00:00Z",
+    "source_ip": "10.0.0.45",
+    "page": "login",
+    "action": "page_view",
+    "event_type": "navigation",
+    "payload": {
+      "user_agent": "Mozilla/5.0"
+    }
+  },
+  {
+    "event_id": "evt_trap_002",
+    "session_id": "sess_trap_alpha",
+    "timestamp": "2026-10-09T10:00:15Z",
+    "source_ip": "10.0.0.45",
+    "page": "login",
+    "action": "failed_login",
+    "event_type": "authentication",
+    "payload": {
+      "username": "admin"
+    }
+  },
+  {
+    "event_id": "evt_trap_003",
+    "session_id": "sess_trap_alpha",
+    "timestamp": "2026-10-09T10:00:30Z",
+    "source_ip": "10.0.0.45",
+    "page": "login",
+    "action": "failed_login",
+    "event_type": "authentication",
+    "payload": {
+      "username": "admin"
+    }
+  },
+  {
+    "event_id": "evt_trap_004",
+    "session_id": "sess_trap_alpha",
+    "timestamp": "2026-10-09T10:00:45Z",
+    "source_ip": "10.0.0.45",
+    "page": "login",
+    "action": "failed_login",
+    "event_type": "authentication",
+    "payload": {
+      "username": "admin"
+    }
+  },
+  {
+    "event_id": "evt_trap_005",
+    "session_id": "sess_trap_alpha",
+    "timestamp": "2026-10-09T10:01:00Z",
+    "source_ip": "10.0.0.45",
+    "page": "admin",
+    "action": "probe",
+    "event_type": "navigation",
+    "payload": {
+      "endpoint": "/admin/config"
+    }
+  }
+]

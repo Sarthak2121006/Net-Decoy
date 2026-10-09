@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apex Global Document Repository Search</title>
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/trap_event_logger.js"></script>
+</head>
+<body>
+  <nav class="top-nav">
+    <a href="index.html" class="brand-container">
+      <div class="brand-logo">A</div>
+      <div class="brand-title">Apex Global Logistics</div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="login.html">SSO Login</a></li>
+      <li><a href="admin.html">Admin Console</a></li>
+      <li><a href="backup.html">Backup Portal</a></li>
+      <li><a href="database.html">SQL Workbench</a></li>
+      <li><a href="api.html">API Explorer</a></li>
+      <li><a href="search.html" class="active">Document Search</a></li>
+      <li><span class="nav-badge">Search Node</span></li>
+    </ul>
+  </nav>
+
+  <main class="container">
+    <div class="page-header">
+      <h1 class="page-title">Internal Document & Knowledge Base Search</h1>
+      <p class="page-subtitle">Search enterprise policies, technical specifications, and internal file archives.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="font-size: 1.1rem; margin-bottom: 0.75rem;">Document Search Query</h3>
+
+      <div style="margin-bottom: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <span style="font-size: 0.8rem; color: var(--text-muted); align-self: center;">Quick Test Queries:</span>
+        <button class="btn btn-secondary preset-btn" data-query="corporate security policy" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Standard Policy</button>
+        <button class="btn btn-secondary preset-btn" data-query="../../etc/passwd" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">../../etc/passwd</button>
+        <button class="btn btn-secondary preset-btn" data-query="..\..\windows\win.ini" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">..\..\windows\win.ini</button>
+        <button class="btn btn-secondary preset-btn" data-query="/var/log/auth.log" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">/var/log/auth.log</button>
+      </div>
+
+      <form id="searchForm">
+        <div class="form-group" style="display: flex; gap: 0.75rem;">
+          <input type="text" id="searchInput" class="form-input" placeholder="Enter keywords or document path..." required autocomplete="off">
+          <button type="submit" class="btn" style="min-width: 140px;">Search</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Search Results Panel -->
+    <div id="resultsCard" class="card" style="display: none; margin-top: 1.5rem;">
+      <h3 id="resultsSummary" style="font-size: 1.05rem; margin-bottom: 0.75rem;">Search Results</h3>
+      <div id="resultsList"></div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    &copy; 2026 Apex Global Logistics Inc. Knowledge Portal.
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      logDecoyEvent({
+        page: 'search',
+        action: 'search_page_access',
+        event_type: 'scanning',
+        payload: { path: '/search' }
+      });
+
+      const form = document.getElementById('searchForm');
+      const searchInput = document.getElementById('searchInput');
+      const resultsCard = document.getElementById('resultsCard');
+      const resultsSummary = document.getElementById('resultsSummary');
+      const resultsList = document.getElementById('resultsList');
+      const presetBtns = document.querySelectorAll('.preset-btn');
+
+      presetBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          searchInput.value = btn.getAttribute('data-query');
+        });
+      });
+
+      // Path traversal detector
+      function isPathTraversal(str) {
+        const patterns = [
+          /\.\.[\/\\]/,
+          /\/etc\/passwd/i,
+          /win\.ini/i,
+          /\/var\/log/i,
+          /boot\.ini/i,
+          /c:\\/i
+        ];
+        return patterns.some(pattern => pattern.test(str));
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const term = searchInput.value.trim();
+        if (!term) return;
+
+        const isTraversal = isPathTraversal(term);
+
+        if (isTraversal) {
+          // Log Path Traversal Attempt silently
+          await logDecoyEvent({
+            page: 'search',
+            action: 'path_traversal_attempt',
+            event_type: 'path_traversal',
+            payload: {
+              search_term: term,
+              pattern_detected: true,
+              traversal_type: 'Directory_Traversal_Sequence'
+            }
+          });
+        } else {
+          // Log standard search query
+          await logDecoyEvent({
+            page: 'search',
+            action: 'document_search',
+            event_type: 'scanning',
+            payload: { search_term: term, pattern_detected: false }
+          });
+        }
+
+        // Realistic Safe UI Response (NEVER touches host filesystem)
+        resultsCard.style.display = 'block';
+        if (isTraversal) {
+          resultsSummary.textContent = `Search Query: "${term}" - 0 Results Found`;
+          resultsList.innerHTML = `<div class="alert alert-info">No documents matched path sequence "${term}". System search index returned 0 references.</div>`;
+        } else {
+          resultsSummary.textContent = `Search Query: "${term}" - 2 Documents Found`;
+          resultsList.innerHTML = `
+            <div style="border-bottom: 1px solid var(--border-color); padding: 0.75rem 0;">
+              <h4 style="color: var(--accent-cyan); font-size: 0.95rem;">Apex Corporate Data Classification & Security Guide.pdf</h4>
+              <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.2rem;">Internal guidelines regarding system access, data handling, and trap configuration...</p>
+            </div>
+            <div style="padding: 0.75rem 0;">
+              <h4 style="color: var(--accent-cyan); font-size: 0.95rem;">Network Architecture & Subnet Topology v4.2.pdf</h4>
+              <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.2rem;">Detailed network map describing DMZ servers, staging subnets, and database clusters...</p>
+            </div>
+          `;
+        }
+      });
+    });
+  </script>
+</body>
+</html>

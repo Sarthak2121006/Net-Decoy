@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NetDecoy — Security Operations Center</title>
+  
+  <!-- Premium Typography: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Leaflet CSS for Geolocation Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  
+  <!-- Dashboard Style -->
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <div class="app-layout">
+    
+    <!-- Header Navigation -->
+    <header class="app-header">
+      <div class="header-brand">
+        <div class="brand-logo">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div class="brand-meta">
+          <h1 class="brand-title">NetDecoy</h1>
+          <span class="brand-subtitle">Security Operations Center</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Minimal Operational Dot Indicator (No Standalone Engine label) -->
+        <div class="status-indicator-pill" title="System Operational">
+          <span class="status-dot-active" id="status-dot"></span>
+          <span class="status-label-active">Operational</span>
+        </div>
+
+        <div class="header-clock" id="system-time">
+          <i class="fa-regular fa-clock"></i>
+          <span id="clock-display">00:00:00 UTC</span>
+        </div>
+
+        <button class="btn btn-secondary" id="btn-demo-panel">
+          <i class="fa-solid fa-sliders"></i> Simulation Tools
+        </button>
+
+        <button class="btn btn-secondary btn-reset-style" id="btn-reset">
+          <i class="fa-solid fa-rotate-right"></i> Clear Session
+        </button>
+      </div>
+    </header>
+
+    <!-- Simulation Trigger Controller Bar -->
+    <section class="demo-bar hidden" id="demo-controller">
+      <div class="demo-bar-title">
+        <i class="fa-solid fa-terminal"></i> Attack Simulation Triggers:
+      </div>
+      <div class="demo-bar-actions">
+        <button class="btn-demo-action" onclick="triggerSimulatedAttack('brute_force')">
+          <i class="fa-solid fa-key"></i> Brute-Force
+        </button>
+        <button class="btn-demo-action" onclick="triggerSimulatedAttack('scanning')">
+          <i class="fa-solid fa-radar"></i> Endpoint Scan
+        </button>
+        <button class="btn-demo-action" onclick="triggerSimulatedAttack('sqli')">
+          <i class="fa-solid fa-code"></i> SQL Injection
+        </button>
+        <button class="btn-demo-action" onclick="triggerSimulatedAttack('full_chain')">
+          <i class="fa-solid fa-bolt"></i> Full Chain
+        </button>
+      </div>
+    </section>
+
+    <!-- Main Content Workspace -->
+    <main class="dashboard-content">
+      
+      <!-- Key Metric KPI Cards -->
+      <section class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-top">
+            <span class="metric-label">Total Telemetry Events</span>
+            <div class="metric-icon icon-slate"><i class="fa-solid fa-chart-simple"></i></div>
+          </div>
+          <span class="metric-val" id="stat-total-events">0</span>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-top">
+            <span class="metric-label">Threat Patterns Flagged</span>
+            <div class="metric-icon icon-amber"><i class="fa-solid fa-triangle-exclamation"></i></div>
+          </div>
+          <span class="metric-val text-amber" id="stat-threats">0</span>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-top">
+            <span class="metric-label">High Risk Sessions</span>
+            <div class="metric-icon icon-rose"><i class="fa-solid fa-shield-virus"></i></div>
+          </div>
+          <span class="metric-val text-rose" id="stat-high-risk">0</span>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-top">
+            <span class="metric-label">Monitored Sessions</span>
+            <div class="metric-icon icon-emerald"><i class="fa-solid fa-network-wired"></i></div>
+          </div>
+          <span class="metric-val text-emerald" id="stat-active-sessions">0</span>
+        </div>
+      </section>
+
+      <!-- Main Middle Grid Layout -->
+      <div class="middle-grid">
+        
+        <!-- Live Event Stream Card -->
+        <section class="card event-feed-card">
+          <div class="card-header-bar">
+            <div class="card-header-title">
+              <i class="fa-solid fa-wave-square header-icon"></i>
+              <h2 class="card-title">Live Telemetry Stream</h2>
+            </div>
+            
+            <div class="feed-tabs">
+              <button class="tab-btn active" data-filter="all">All</button>
+              <button class="tab-btn" data-filter="CRITICAL">Critical</button>
+              <button class="tab-btn" data-filter="HIGH">High</button>
+              <button class="tab-btn" data-filter="MEDIUM">Medium</button>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Endpoint</th>
+                  <th>Observed Action</th>
+                  <th>Category</th>
+                  <th>Severity</th>
+                  <th>Source IP</th>
+                </tr>
+              </thead>
+              <tbody id="event-table-body">
+                <tr class="empty-state">
+                  <td colspan="6">Loading telemetry stream...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Right Side Stack: Risk Assessment + Geolocation Map -->
+        <div class="right-col-stack">
+          
+          <!-- Threat Risk Assessment Card -->
+          <section class="card risk-card">
+            <div class="card-header-bar">
+              <div class="card-header-title">
+                <i class="fa-solid fa-gauge-high header-icon"></i>
+                <h2 class="card-title">Threat Risk Index</h2>
+              </div>
+              <span class="badge-chip" id="risk-severity-tag">LOW</span>
+            </div>
+
+            <div class="risk-widget">
+              <div class="risk-meter-box">
+                <div class="risk-circle-gauge" id="risk-circle">
+                  <div class="risk-circle-inner">
+                    <span class="risk-number" id="risk-score-val">0</span>
+                    <span class="risk-denom">/ 100</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="risk-breakdown-panel">
+                <h4 class="section-label">Contributing Signals</h4>
+                <ul class="signal-list" id="risk-breakdown-list">
+                  <li class="signal-empty">No active risk signals.</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <!-- Geolocation Map Card -->
+          <section class="card map-card">
+            <div class="card-header-bar">
+              <div class="card-header-title">
+                <i class="fa-solid fa-globe header-icon"></i>
+                <h2 class="card-title">Attacker Geolocation</h2>
+              </div>
+              <span class="geo-tag" id="geo-status-text">Locating...</span>
+            </div>
+
+            <div class="map-box">
+              <div id="leaflet-map"></div>
+              <div class="map-info-banner hidden" id="map-info-box">
+                <i class="fa-solid fa-location-dot"></i>
+                <div>
+                  <div class="map-location-name" id="map-location-title">Frankfurt, Germany</div>
+                  <div class="map-location-sub" id="map-location-coords">IP: 185.220.101.5 (50.1109, 8.6821)</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+
+      <!-- Attacker Journey Flow & Intelligence Grid -->
+      <div class="bottom-grid">
+        
+        <!-- Attacker Chronological Journey Card -->
+        <section class="card journey-card">
+          <div class="card-header-bar">
+            <div class="card-header-title">
+              <i class="fa-solid fa-route header-icon"></i>
+              <h2 class="card-title">Attacker Trajectory Journey</h2>
+            </div>
+          </div>
+
+          <div class="journey-flow-wrapper" id="journey-container">
+            <div class="journey-empty">Awaiting session activity...</div>
+          </div>
+        </section>
+
+        <!-- AI Analysis & Next Stage Prediction Combined -->
+        <div class="intelligence-stack">
+          
+          <!-- AI Threat Analysis Card -->
+          <section class="card ai-card">
+            <div class="card-header-bar">
+              <div class="card-header-title">
+                <i class="fa-solid fa-brain header-icon icon-purple"></i>
+                <h2 class="card-title">AI Threat Synthesis</h2>
+              </div>
+              <span class="ai-chip"><i class="fa-solid fa-microchip"></i> Engine Active</span>
+            </div>
+
+            <div class="ai-body">
+              <p class="ai-summary-paragraph" id="ai-summary-text">
+                Analyzing session telemetry...
+              </p>
+
+              <div class="ai-details-row">
+                <div class="ai-sub-card">
+                  <h4 class="section-label"><i class="fa-solid fa-magnifying-glass"></i> Telemetry Evidence</h4>
+                  <ul class="sub-list" id="ai-evidence-list">
+                    <li>Awaiting telemetry evidence...</li>
+                  </ul>
+                </div>
+
+                <div class="ai-sub-card">
+                  <h4 class="section-label"><i class="fa-solid fa-shield-halved"></i> Recommended Response</h4>
+                  <ul class="sub-list recommend-style" id="ai-recommend-list">
+                    <li>No action required.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Next Stage Prediction Card -->
+          <section class="card prediction-card">
+            <div class="card-header-bar">
+              <div class="card-header-title">
+                <i class="fa-solid fa-bullseye header-icon"></i>
+                <h2 class="card-title">Next Attack Stage Estimate</h2>
+              </div>
+              <span class="confidence-percentage" id="predict-confidence-val">0%</span>
+            </div>
+
+            <div class="prediction-body">
+              <div class="pred-stage-row">
+                <span class="pred-stage-name" id="predict-stage-name">RECONNAISSANCE</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-bar" id="predict-confidence-bar" style="width: 0%;"></div>
+              </div>
+              <p class="basis-note" id="predict-basis-text">Pattern trajectory matching active.</p>
+            </div>
+          </section>
+
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <div>NetDecoy Security Operations Center</div>
+      <div>Active Telemetry Monitoring &bull; Real-time Deception System</div>
+    </footer>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Dashboard Script -->
+  <script src="dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apex Global SQL Workbench & Query Console</title>
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/trap_event_logger.js"></script>
+</head>
+<body>
+  <nav class="top-nav">
+    <a href="index.html" class="brand-container">
+      <div class="brand-logo">A</div>
+      <div class="brand-title">Apex Global Logistics</div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="login.html">SSO Login</a></li>
+      <li><a href="admin.html">Admin Console</a></li>
+      <li><a href="backup.html">Backup Portal</a></li>
+      <li><a href="database.html" class="active">SQL Workbench</a></li>
+      <li><a href="api.html">API Explorer</a></li>
+      <li><a href="search.html">Document Search</a></li>
+      <li><span class="nav-badge">DB Console</span></li>
+    </ul>
+  </nav>
+
+  <main class="container">
+    <div class="page-header">
+      <h1 class="page-title">Internal Database Console & Query Workbench</h1>
+      <p class="page-subtitle">Execute diagnostic queries against the primary corporate database cluster.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="font-size: 1.1rem; margin-bottom: 0.75rem;">Database Query Editor</h3>
+      
+      <div style="margin-bottom: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <span style="font-size: 0.8rem; color: var(--text-muted); align-self: center;">Quick Test Snippets:</span>
+        <button class="btn btn-secondary preset-btn" data-sql="SELECT * FROM users WHERE status = 'active';" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Normal SELECT</button>
+        <button class="btn btn-secondary preset-btn" data-sql="' OR '1'='1" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">' OR '1'='1</button>
+        <button class="btn btn-secondary preset-btn" data-sql="SELECT * FROM users WHERE username = 'admin' OR '1'='1' --" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">SQLi Bypass</button>
+        <button class="btn btn-secondary preset-btn" data-sql="UNION SELECT NULL, username, password FROM users;" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">UNION Query</button>
+      </div>
+
+      <form id="queryForm">
+        <div class="form-group">
+          <label class="form-label" for="sqlQuery">SQL Statement</label>
+          <textarea id="sqlQuery" class="form-textarea" rows="4" style="font-family: monospace; font-size: 0.95rem; color: #38bdf8;" placeholder="Enter SQL statement, e.g. SELECT * FROM users WHERE username = 'admin';"></textarea>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Database Node: pg-cluster-prod-01 (Read-Only Replica)</span>
+          <button type="submit" id="execBtn" class="btn">Execute Query</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Output Result Panel -->
+    <div id="resultCard" class="card" style="display: none; margin-top: 1.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+        <h3 style="font-size: 1.05rem;">Query Execution Output</h3>
+        <span id="execTime" class="badge badge-info">0.014 sec</span>
+      </div>
+      <div id="outputContent" class="code-box"></div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    &copy; 2026 Apex Global Logistics Inc. Database Systems.
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      logDecoyEvent({
+        page: 'database',
+        action: 'database_console_access',
+        event_type: 'scanning',
+        payload: { path: '/database' }
+      });
+
+      const form = document.getElementById('queryForm');
+      const queryInput = document.getElementById('sqlQuery');
+      const resultCard = document.getElementById('resultCard');
+      const outputContent = document.getElementById('outputContent');
+      const presetBtns = document.querySelectorAll('.preset-btn');
+
+      presetBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          queryInput.value = btn.getAttribute('data-sql');
+        });
+      });
+
+      // SQL Injection pattern detector
+      function isSqlInjection(str) {
+        const patterns = [
+          /'\s*OR\s*'?1'?\s*=\s*'?1/i,
+          /OR\s+1\s*=\s*1/i,
+          /UNION\s+SELECT/i,
+          /DROP\s+TABLE/i,
+          /INSERT\s+INTO/i,
+          /DELETE\s+FROM/i,
+          /--/,
+          /;\s*$/
+        ];
+        return patterns.some(pattern => pattern.test(str));
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const rawQuery = queryInput.value.trim();
+        if (!rawQuery) return;
+
+        const sqliDetected = isSqlInjection(rawQuery);
+
+        if (sqliDetected) {
+          // Log SQL Injection Attempt
+          await logDecoyEvent({
+            page: 'database',
+            action: 'sql_injection_attempt',
+            event_type: 'sql_injection',
+            payload: {
+              query: rawQuery,
+              suspicious: true,
+              pattern_detected: true,
+              matched_pattern: 'SQLi_Pattern_Matched'
+            }
+          });
+          await logDecoyEvent({
+            page: 'database',
+            action: 'suspicious_query',
+            event_type: 'sql_injection',
+            payload: { query: rawQuery, pattern_detected: true }
+          });
+        } else {
+          // Log normal query
+          await logDecoyEvent({
+            page: 'database',
+            action: 'sql_query',
+            event_type: 'scanning',
+            payload: { query: rawQuery, pattern_detected: false }
+          });
+        }
+
+        // Realistic safe output (NEVER execute query)
+        resultCard.style.display = 'block';
+        if (sqliDetected) {
+          outputContent.innerHTML = `<span style="color: #fca5a5;">SQL Syntax Warning: Query returned 0 rows. Transaction rolled back due to non-standard operator in statement.</span>\n\nQuery: ${rawQuery}`;
+        } else {
+          outputContent.innerHTML = `<span style="color: #6ee7b7;">Query executed successfully. 0 rows returned.</span>\n\nStatement: ${rawQuery}`;
+        }
+      });
+    });
+  </script>
+</body>
+</html>

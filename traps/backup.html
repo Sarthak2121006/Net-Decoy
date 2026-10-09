@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apex Global Infrastructure Backup Vault</title>
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/trap_event_logger.js"></script>
+</head>
+<body>
+  <nav class="top-nav">
+    <a href="index.html" class="brand-container">
+      <div class="brand-logo">A</div>
+      <div class="brand-title">Apex Global Logistics</div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="login.html">SSO Login</a></li>
+      <li><a href="admin.html">Admin Console</a></li>
+      <li><a href="backup.html" class="active">Backup Portal</a></li>
+      <li><a href="database.html">SQL Workbench</a></li>
+      <li><a href="api.html">API Explorer</a></li>
+      <li><a href="search.html">Document Search</a></li>
+      <li><span class="nav-badge">Vault Access</span></li>
+    </ul>
+  </nav>
+
+  <main class="container">
+    <div class="page-header">
+      <h1 class="page-title">Enterprise System Backup Portal</h1>
+      <p class="page-subtitle">Encrypted snapshots, database backups, and confidential archives.</p>
+    </div>
+
+    <div class="card" style="margin-bottom: 1.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h3 style="font-size: 1.1rem; margin-bottom: 0.25rem;">Storage Repository: /var/backups/production</h3>
+          <p style="color: var(--text-muted); font-size: 0.85rem;">Last automated backup cycle completed 4 hours ago.</p>
+        </div>
+        <button class="btn btn-secondary" id="enumerateBtn">Enumerate Vault Files</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>File Name</th>
+              <th>Format</th>
+              <th>File Size</th>
+              <th>Created Date</th>
+              <th>Classification</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>database_backup.sql</strong></td>
+              <td><span class="badge badge-info">SQL Dump</span></td>
+              <td>450 MB</td>
+              <td>Yesterday, 02:15 AM</td>
+              <td><span class="badge badge-danger">CONFIDENTIAL</span></td>
+              <td>
+                <button class="btn btn-secondary action-view-btn" data-filename="database_backup.sql" style="padding: 0.25rem 0.6rem; font-size: 0.8rem;">View</button>
+                <button class="btn action-dl-btn" data-filename="database_backup.sql" style="padding: 0.25rem 0.6rem; font-size: 0.8rem;">Download</button>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>employees.csv</strong></td>
+              <td><span class="badge badge-info">CSV File</span></td>
+              <td>12.4 MB</td>
+              <td>2 days ago</td>
+              <td><span class="badge badge-danger">RESTRICTED PII</span></td>
+              <td>
+                <button class="btn btn-secondary action-view-btn" data-filename="employees.csv" style="padding: 0.25rem 0.6rem; font-size: 0.8rem;">View</button>
+                <button class="btn action-dl-btn" data-filename="employees.csv" style="padding: 0.25rem 0.6rem; font-size: 0.8rem;">Download</button>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>financial_report.pdf</strong></td>
+              <td><span class="badge badge-info">PDF Doc</span></td>
+              <td>8.2 MB</td>
+              <td>Last week</td>
+              <td><span class="badge badge-warning">INTERNAL ONLY</span></td>
+              <td>
+                <button class="btn btn-secondary action-view-btn" data-filename="financial_report.pdf" style="padding: 0.25rem 0.6rem; font-size: 0.8rem;">View</button>
+                <button class="btn action-dl-btn" data-filename="financial_report.pdf" style="padding: 0.25rem 0.6rem; font-size: 0.8rem;">Download</button>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>config_backup.zip</strong></td>
+              <td><span class="badge badge-info">ZIP Archive</span></td>
+              <td>1.1 MB</td>
+              <td>3 days ago</td>
+              <td><span class="badge badge-danger">CRITICAL SECRETS</span></td>
+              <td>
+                <button class="btn btn-secondary action-view-btn" data-filename="config_backup.zip" style="padding: 0.25rem 0.6rem; font-size: 0.8rem;">View</button>
+                <button class="btn action-dl-btn" data-filename="config_backup.zip" style="padding: 0.25rem 0.6rem; font-size: 0.8rem;">Download</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Details Box -->
+    <div id="fileNotice" class="card" style="display: none; margin-top: 1.5rem;">
+      <h3 id="noticeTitle" style="font-size: 1.05rem; margin-bottom: 0.5rem;">File Action</h3>
+      <p id="noticeMsg" style="color: var(--text-muted); font-size: 0.9rem;"></p>
+    </div>
+  </main>
+
+  <footer class="footer">
+    &copy; 2026 Apex Global Logistics Inc. Storage & Backup Subsystem.
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Log page access
+      logDecoyEvent({
+        page: 'backup',
+        action: 'backup_access',
+        event_type: 'sensitive_access',
+        payload: { path: '/backup' }
+      });
+
+      const enumerateBtn = document.getElementById('enumerateBtn');
+      const viewBtns = document.querySelectorAll('.action-view-btn');
+      const dlBtns = document.querySelectorAll('.action-dl-btn');
+      const fileNotice = document.getElementById('fileNotice');
+      const noticeTitle = document.getElementById('noticeTitle');
+      const noticeMsg = document.getElementById('noticeMsg');
+
+      // 2. Enumerate vault
+      enumerateBtn.addEventListener('click', () => {
+        logDecoyEvent({
+          page: 'backup',
+          action: 'file_enumeration',
+          event_type: 'file_enumeration',
+          payload: { action: 'list_vault_contents', pattern_detected: true }
+        });
+        fileNotice.style.display = 'block';
+        noticeTitle.textContent = 'Vault Inventory Enumerated';
+        noticeMsg.textContent = 'Listing 4 registered archive artifacts in /var/backups/production.';
+      });
+
+      // 3. View sensitive file
+      viewBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const fileName = e.target.getAttribute('data-filename');
+          logDecoyEvent({
+            page: 'backup',
+            action: 'sensitive_file_access',
+            event_type: 'sensitive_access',
+            payload: { file_name: fileName, mode: 'view', pattern_detected: true }
+          });
+          fileNotice.style.display = 'block';
+          noticeTitle.textContent = `File Metadata: ${fileName}`;
+          noticeMsg.textContent = `Header signature verified for ${fileName}. SHA-256 integrity hash matches archive registry.`;
+        });
+      });
+
+      // 4. Download sensitive file
+      dlBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const fileName = e.target.getAttribute('data-filename');
+          logDecoyEvent({
+            page: 'backup',
+            action: 'sensitive_file_access',
+            event_type: 'sensitive_access',
+            payload: { file_name: fileName, mode: 'download', pattern_detected: true }
+          });
+
+          fileNotice.style.display = 'block';
+          noticeTitle.textContent = `Downloading ${fileName}...`;
+          noticeMsg.textContent = `Initiated stream transfer for file ${fileName}. Stream package packaged cleanly.`;
+
+          // Generate synthetic download
+          const blob = new Blob([`-- Synthetic Decoy Backup Archive: ${fileName}\n-- NetDecoy Synthetic Data Node\n`], { type: 'text/plain' });
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = fileName;
+          link.click();
+        });
+      });
+    });
+  </script>
+</body>
+</html>
