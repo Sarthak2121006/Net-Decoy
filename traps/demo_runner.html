@@ -15,9 +15,9 @@
       <span style="color: #f8fafc;">Fake Target Decoy Company Portal &mdash; Sequence Demo Runner</span>
     </div>
     <div style="display: flex; gap: 0.5rem; align-items: center;">
-      <a href="/dashboard" style="color: #94a3b8; text-decoration: none; padding: 4px 10px; border-radius: 4px; background: rgba(255,255,255,0.05); border: 1px solid #334155; font-weight: 600; transition: all 0.2s;">📊 1. SOC Dashboard</a>
-      <a href="/traps" style="color: #10b981; text-decoration: none; padding: 4px 10px; border-radius: 4px; background: rgba(16, 185, 129, 0.18); border: 1px solid rgba(16, 185, 129, 0.4); font-weight: 700;">🏢 2. Fake Company Portal (Active)</a>
-      <a href="/attacker" style="color: #f87171; text-decoration: none; padding: 4px 10px; border-radius: 4px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 600; transition: all 0.2s;">⚔️ 3. Attacker System</a>
+      <a href="/dashboard" style="color: #94a3b8; text-decoration: none; padding: 4px 10px; border-radius: 4px; background: rgba(255,255,255,0.05); border: 1px solid #334155; font-weight: 600; transition: all 0.2s;">1. SOC Dashboard</a>
+      <a href="/traps" style="color: #10b981; text-decoration: none; padding: 4px 10px; border-radius: 4px; background: rgba(16, 185, 129, 0.18); border: 1px solid rgba(16, 185, 129, 0.4); font-weight: 700;">2. Fake Company Portal (Active)</a>
+      <a href="/attacker" style="color: #f87171; text-decoration: none; padding: 4px 10px; border-radius: 4px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 600; transition: all 0.2s;">3. Attacker System</a>
     </div>
   </div>
 
@@ -45,7 +45,7 @@
         <h1 class="page-title">Deterministic Attack Sequence Demo Runner</h1>
         <p class="page-subtitle">Executes the official 5-stage attack journey to demonstrate end-to-end telemetry generation.</p>
       </div>
-      <button id="exportEventsBtn" class="btn btn-secondary">💾 Export Telemetry JSON</button>
+      <button id="exportEventsBtn" class="btn btn-secondary">Export Telemetry JSON</button>
     </div>
 
     <!-- Progress Bar & Risk Gauge -->
@@ -66,8 +66,8 @@
           <p style="color: var(--text-muted); font-size: 0.88rem;">Simulates an attacker traversing Login &rarr; Admin &rarr; Database &rarr; Backup &rarr; Search.</p>
         </div>
         <div style="display: flex; gap: 0.75rem;">
-          <button id="resetDemoBtn" class="btn btn-secondary">🔄 Reset Session</button>
-          <button id="runDemoBtn" class="btn btn-danger">🚀 Run Full Attack Demo</button>
+          <button id="resetDemoBtn" class="btn btn-secondary">Reset Session</button>
+          <button id="runDemoBtn" class="btn btn-danger">Run Full Attack Demo</button>
         </div>
       </div>
     </div>
@@ -175,7 +175,7 @@ Press "Run Full Attack Demo" to execute sequence...
         document.getElementById('step1').style.borderColor = 'var(--accent-green)';
         document.getElementById('step1').style.background = 'rgba(16, 185, 129, 0.08)';
         setProgress(20);
-        appendLog('✓ Step 1 Complete: 5 failed_login events dispatched. Triggered BRUTE_FORCE pattern.\n');
+        appendLog('[SUCCESS] Step 1 Complete: 5 failed_login events dispatched. Triggered BRUTE_FORCE pattern.\n');
 
         // Step 2: Admin Dashboard Scanning
         document.getElementById('step2').style.borderColor = 'var(--accent-amber)';
@@ -188,7 +188,7 @@ Press "Run Full Attack Demo" to execute sequence...
         document.getElementById('step2').style.borderColor = 'var(--accent-green)';
         document.getElementById('step2').style.background = 'rgba(16, 185, 129, 0.08)';
         setProgress(40);
-        appendLog('✓ Step 2 Complete: Probed users, settings, backup. Triggered SCANNING / ENUMERATION pattern.\n');
+        appendLog('[SUCCESS] Step 2 Complete: Probed users, settings, backup. Triggered SCANNING / ENUMERATION pattern.\n');
 
         // Step 3: Database Console SQLi
         document.getElementById('step3').style.borderColor = 'var(--accent-amber)';
@@ -209,7 +209,7 @@ Press "Run Full Attack Demo" to execute sequence...
         document.getElementById('step3').style.borderColor = 'var(--accent-green)';
         document.getElementById('step3').style.background = 'rgba(16, 185, 129, 0.08)';
         setProgress(60);
-        appendLog('✓ Step 3 Complete: SQLi attempt dispatched. Triggered SQL_INJECTION pattern.\n');
+        appendLog('[SUCCESS] Step 3 Complete: SQLi attempt dispatched. Triggered SQL_INJECTION pattern.\n');
 
         // Step 4: Backup Vault Sensitive Access
         document.getElementById('step4').style.borderColor = 'var(--accent-amber)';
@@ -221,7 +221,7 @@ Press "Run Full Attack Demo" to execute sequence...
         document.getElementById('step4').style.borderColor = 'var(--accent-green)';
         document.getElementById('step4').style.background = 'rgba(16, 185, 129, 0.08)';
         setProgress(80);
-        appendLog('✓ Step 4 Complete: Accessed database_backup.sql & employees.csv. Triggered SENSITIVE_ACCESS pattern.\n');
+        appendLog('[SUCCESS] Step 4 Complete: Accessed database_backup.sql & employees.csv. Triggered SENSITIVE_ACCESS pattern.\n');
 
         // Step 5: Search Path Traversal
         document.getElementById('step5').style.borderColor = 'var(--accent-amber)';
@@ -236,7 +236,7 @@ Press "Run Full Attack Demo" to execute sequence...
         document.getElementById('step5').style.borderColor = 'var(--accent-green)';
         document.getElementById('step5').style.background = 'rgba(16, 185, 129, 0.08)';
         setProgress(100);
-        appendLog('✓ Step 5 Complete: Path traversal attempt dispatched. Triggered PATH_TRAVERSAL pattern.\n');
+        appendLog('[SUCCESS] Step 5 Complete: Path traversal attempt dispatched. Triggered PATH_TRAVERSAL pattern.\n');
 
         appendLog('=== FULL ATTACK DEMO SEQUENCE COMPLETE ===');
         appendLog('Visual Attack Journey generated: LOGIN -> ADMIN -> DATABASE -> BACKUP -> SEARCH');
