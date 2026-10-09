@@ -3,31 +3,45 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Apex Global Document Repository Search</title>
-  <link rel="stylesheet" href="assets/styles.css">
-  <script src="assets/trap_event_logger.js"></script>
+  <title>Apex Global Document Repository Search (Decoy Trap)</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+  <script src="/assets/trap_event_logger.js"></script>
 </head>
 <body>
+  <!-- 3-System Interconnected Switcher -->
+  <div style="background: rgba(6, 9, 15, 0.98); border-bottom: 1px solid #1e293b; padding: 0.6rem 2rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.84rem; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+    <div style="display: flex; align-items: center; gap: 0.6rem; font-weight: 700; color: #10b981;">
+      <span style="background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.5); padding: 2px 8px; border-radius: 4px; letter-spacing: 0.5px;">SYSTEM 2</span>
+      <span style="color: #f8fafc;">Fake Target Decoy Company Portal &mdash; Path Traversal Document Trap</span>
+    </div>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <a href="/dashboard" style="color: #94a3b8; text-decoration: none; padding: 4px 10px; border-radius: 4px; background: rgba(255,255,255,0.05); border: 1px solid #334155; font-weight: 600; transition: all 0.2s;">📊 1. SOC Dashboard</a>
+      <a href="/traps" style="color: #10b981; text-decoration: none; padding: 4px 10px; border-radius: 4px; background: rgba(16, 185, 129, 0.18); border: 1px solid rgba(16, 185, 129, 0.4); font-weight: 700;">🏢 2. Fake Company Portal (Active)</a>
+      <a href="/attacker" style="color: #f87171; text-decoration: none; padding: 4px 10px; border-radius: 4px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 600; transition: all 0.2s;">⚔️ 3. Attacker System</a>
+    </div>
+  </div>
+
   <nav class="top-nav">
-    <a href="index.html" class="brand-container">
+    <a href="/traps" class="brand-container">
       <div class="brand-logo">A</div>
       <div class="brand-title">Apex Global Logistics</div>
     </a>
     <ul class="nav-links">
-      <li><a href="index.html">Home</a></li>
-      <li><a href="login.html">SSO Login</a></li>
-      <li><a href="admin.html">Admin Console</a></li>
-      <li><a href="backup.html">Backup Portal</a></li>
-      <li><a href="database.html">SQL Workbench</a></li>
-      <li><a href="api.html">API Explorer</a></li>
-      <li><a href="search.html" class="active">Document Search</a></li>
+      <li><a href="/traps">Home</a></li>
+      <li><a href="/login">SSO Login</a></li>
+      <li><a href="/admin">Admin Console</a></li>
+      <li><a href="/backup">Backup Vault</a></li>
+      <li><a href="/database">SQL Workbench</a></li>
+      <li><a href="/api-explorer">API Explorer</a></li>
+      <li><a href="/search" class="active">Document Search</a></li>
+      <li><a href="/demo">Demo Runner</a></li>
       <li><span class="nav-badge">Search Node</span></li>
     </ul>
   </nav>
 
-  <main class="container">
+  <main class="container" style="max-width: 1200px; padding: 2rem 1.5rem;">
     <div class="page-header">
-      <h1 class="page-title">Internal Document & Knowledge Base Search</h1>
+      <h1 class="page-title">Internal Document &amp; Knowledge Base Search</h1>
       <p class="page-subtitle">Search enterprise policies, technical specifications, and internal file archives.</p>
     </div>
 
@@ -43,8 +57,8 @@
       </div>
 
       <form id="searchForm">
-        <div class="form-group" style="display: flex; gap: 0.75rem;">
-          <input type="text" id="searchInput" class="form-input" placeholder="Enter keywords or document path..." required autocomplete="off">
+        <div class="form-group" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <input type="text" id="searchInput" class="form-input" placeholder="Enter keywords or document path..." required autocomplete="off" style="flex: 1; min-width: 250px;">
           <button type="submit" class="btn" style="min-width: 140px;">Search</button>
         </div>
       </form>

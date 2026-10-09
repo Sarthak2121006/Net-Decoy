@@ -3,38 +3,51 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Apex Global SSO | Corporate Login</title>
-  <link rel="stylesheet" href="assets/styles.css">
-  <script src="assets/trap_event_logger.js"></script>
+  <title>Apex Global SSO | Corporate Login (Decoy Trap)</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+  <script src="/assets/trap_event_logger.js"></script>
 </head>
 <body>
+  <!-- 3-System Interconnected Switcher -->
+  <div style="background: rgba(6, 9, 15, 0.98); border-bottom: 1px solid #1e293b; padding: 0.6rem 2rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.84rem; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+    <div style="display: flex; align-items: center; gap: 0.6rem; font-weight: 700; color: #10b981;">
+      <span style="background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.5); padding: 2px 8px; border-radius: 4px; letter-spacing: 0.5px;">SYSTEM 2</span>
+      <span style="color: #f8fafc;">Fake Target Decoy Company Portal &mdash; SSO Auth Trap</span>
+    </div>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <a href="/dashboard" style="color: #94a3b8; text-decoration: none; padding: 4px 10px; border-radius: 4px; background: rgba(255,255,255,0.05); border: 1px solid #334155; font-weight: 600; transition: all 0.2s;">📊 1. SOC Dashboard</a>
+      <a href="/traps" style="color: #10b981; text-decoration: none; padding: 4px 10px; border-radius: 4px; background: rgba(16, 185, 129, 0.18); border: 1px solid rgba(16, 185, 129, 0.4); font-weight: 700;">🏢 2. Fake Company Portal (Active)</a>
+      <a href="/attacker" style="color: #f87171; text-decoration: none; padding: 4px 10px; border-radius: 4px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 600; transition: all 0.2s;">⚔️ 3. Attacker System</a>
+    </div>
+  </div>
+
   <nav class="top-nav">
-    <a href="index.html" class="brand-container">
+    <a href="/traps" class="brand-container">
       <div class="brand-logo">A</div>
       <div class="brand-title">Apex Global Logistics</div>
     </a>
     <ul class="nav-links">
-      <li><a href="index.html">Home</a></li>
-      <li><a href="login.html" class="active">SSO Login</a></li>
-      <li><a href="admin.html">Admin Console</a></li>
-      <li><a href="backup.html">Backup Portal</a></li>
-      <li><a href="database.html">SQL Workbench</a></li>
-      <li><a href="api.html">API Explorer</a></li>
-      <li><a href="search.html">Document Search</a></li>
-      <li><a href="demo_runner.html">Demo Runner</a></li>
+      <li><a href="/traps">Home</a></li>
+      <li><a href="/login" class="active">SSO Login</a></li>
+      <li><a href="/admin">Admin Console</a></li>
+      <li><a href="/backup">Backup Vault</a></li>
+      <li><a href="/database">SQL Workbench</a></li>
+      <li><a href="/api-explorer">API Explorer</a></li>
+      <li><a href="/search">Document Search</a></li>
+      <li><a href="/demo">Demo Runner</a></li>
       <li><span class="nav-badge"><span class="pulse-dot"></span> SSO Active</span></li>
     </ul>
   </nav>
 
-  <main class="container" style="max-width: 460px; margin-top: 3.5rem;">
-    <div class="card">
+  <main class="container" style="max-width: 480px; margin-top: 3rem;">
+    <div class="card" style="box-shadow: 0 10px 30px rgba(0,0,0,0.4); border: 1px solid rgba(56, 189, 248, 0.25);">
       <div style="text-align: center; margin-bottom: 1.5rem;">
-        <div class="brand-logo" style="width: 48px; height: 48px; margin: 0 auto 0.75rem auto; font-size: 1.5rem;">A</div>
+        <div class="brand-logo" style="width: 52px; height: 52px; margin: 0 auto 0.75rem auto; font-size: 1.6rem; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); border-radius: 10px;">A</div>
         <h2 style="font-size: 1.35rem; font-weight: 800;">Corporate Single Sign-On</h2>
-        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.25rem;">Enter your network credentials to access enterprise portals</p>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.25rem;">Enter enterprise credentials to access Apex Global Intranet</p>
       </div>
 
-      <div id="alertBox" class="alert alert-danger" style="display: none;">
+      <div id="alertBox" class="alert alert-danger" style="display: none; margin-bottom: 1rem;">
         <span id="alertMessage">Invalid credentials provided.</span>
       </div>
 
@@ -58,21 +71,21 @@
         </div>
 
         <button type="submit" id="submitBtn" class="btn" style="width: 100%;">
-          Sign In
+          Sign In to Portal
         </button>
       </form>
 
       <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; color: var(--text-dim);">
-        <span>Security Node: sso-auth-gateway-01</span>
-        <span class="badge badge-info" style="font-size: 0.7rem;">TLS 1.3 Encrypted</span>
+        <span>Gateway: sso-auth-gateway-01</span>
+        <span class="badge badge-info" style="font-size: 0.7rem;">TLS 1.3 Active</span>
       </div>
     </div>
 
     <!-- Quick Demo Helper Card -->
-    <div class="card" style="padding: 1rem; background: rgba(37,99,235,0.06); border-color: rgba(37,99,235,0.25);">
+    <div class="card" style="padding: 1rem; margin-top: 1rem; background: rgba(37,99,235,0.06); border-color: rgba(37,99,235,0.25);">
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <span style="font-size: 0.82rem; color: var(--text-muted);">Quick Demo Login Credentials:</span>
-        <button id="fillDemoBtn" class="btn btn-secondary" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;">Fill Credentials</button>
+        <button id="fillDemoBtn" class="btn btn-secondary" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Fill Credentials</button>
       </div>
     </div>
   </main>
@@ -132,7 +145,7 @@
             payload: { username: username }
           });
           setTimeout(() => {
-            window.location.href = 'admin.html';
+            window.location.href = '/admin';
           }, 500);
           return;
         }
@@ -153,8 +166,8 @@
 
         setTimeout(() => {
           submitBtn.disabled = false;
-          submitBtn.textContent = 'Sign In';
-          alertMessage.textContent = `Invalid username or password (Attempt ${failedAttempts}). Please verify credentials.`;
+          submitBtn.textContent = 'Sign In to Portal';
+          alertMessage.textContent = `Invalid username or password (Attempt ${failedAttempts}). Security incident logged.`;
           alertBox.style.display = 'flex';
         }, 400);
       });

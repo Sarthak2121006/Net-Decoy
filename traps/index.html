@@ -3,110 +3,220 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Apex Global Portal | Corporate Home</title>
-  <link rel="stylesheet" href="assets/styles.css">
-  <script src="assets/trap_event_logger.js"></script>
+  <title>Apex Global Logistics | Enterprise Systems Portal (Decoy Honeypot)</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+  <script src="/assets/trap_event_logger.js"></script>
 </head>
 <body>
   <!-- 3-System Interconnected Switcher -->
-  <div style="background: rgba(6, 9, 15, 0.95); border-bottom: 1px solid #1e293b; padding: 0.5rem 2rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem;">
-    <div style="display: flex; align-items: center; gap: 0.5rem; font-weight: 700; color: #10b981;">
-      <span style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); padding: 2px 8px; border-radius: 4px;">SYSTEM 2</span>
-      <span>Fake Target Decoy Company Portal (Honeypot Traps)</span>
+  <div style="background: rgba(6, 9, 15, 0.98); border-bottom: 1px solid #1e293b; padding: 0.6rem 2rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.84rem; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+    <div style="display: flex; align-items: center; gap: 0.6rem; font-weight: 700; color: #10b981;">
+      <span style="background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.5); padding: 2px 8px; border-radius: 4px; letter-spacing: 0.5px;">SYSTEM 2</span>
+      <span style="color: #f8fafc;">Fake Target Decoy Company Portal (Honeypot Traps)</span>
     </div>
-    <div style="display: flex; gap: 0.5rem;">
-      <a href="/dashboard" style="color: #94a3b8; text-decoration: none; padding: 3px 8px; border-radius: 4px; background: rgba(255,255,255,0.05); font-weight: 600;">📊 1. SOC Dashboard</a>
-      <a href="/traps" style="color: #10b981; text-decoration: none; padding: 3px 8px; border-radius: 4px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); font-weight: 700;">🏢 2. Fake Company Portal</a>
-      <a href="/attacker" style="color: #f87171; text-decoration: none; padding: 3px 8px; border-radius: 4px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 600;">⚔️ 3. Attacker System</a>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <a href="/dashboard" style="color: #94a3b8; text-decoration: none; padding: 4px 10px; border-radius: 4px; background: rgba(255,255,255,0.05); border: 1px solid #334155; font-weight: 600; transition: all 0.2s;">📊 1. SOC Dashboard</a>
+      <a href="/traps" style="color: #10b981; text-decoration: none; padding: 4px 10px; border-radius: 4px; background: rgba(16, 185, 129, 0.18); border: 1px solid rgba(16, 185, 129, 0.4); font-weight: 700;">🏢 2. Fake Company Portal (Active)</a>
+      <a href="/attacker" style="color: #f87171; text-decoration: none; padding: 4px 10px; border-radius: 4px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 600; transition: all 0.2s;">⚔️ 3. Attacker System</a>
     </div>
   </div>
 
+  <!-- Corporate Top Navigation -->
   <nav class="top-nav">
-    <a href="index.html" class="brand-container">
+    <a href="/traps" class="brand-container">
       <div class="brand-logo">A</div>
       <div class="brand-title">Apex Global Logistics</div>
     </a>
     <ul class="nav-links">
-      <li><a href="index.html" class="active">Home</a></li>
-      <li><a href="login.html">SSO Login</a></li>
-      <li><a href="admin.html">Admin Console</a></li>
-      <li><a href="backup.html">Backup Portal</a></li>
-      <li><a href="database.html">SQL Workbench</a></li>
-      <li><a href="api.html">API Explorer</a></li>
-      <li><a href="search.html">Document Search</a></li>
-      <li><span class="nav-badge">Internal Only</span></li>
+      <li><a href="/traps" class="active">Home</a></li>
+      <li><a href="/login">SSO Login</a></li>
+      <li><a href="/admin">Admin Console</a></li>
+      <li><a href="/backup">Backup Vault</a></li>
+      <li><a href="/database">SQL Workbench</a></li>
+      <li><a href="/api-explorer">API Explorer</a></li>
+      <li><a href="/search">Document Search</a></li>
+      <li><a href="/demo">Demo Runner</a></li>
+      <li><span class="nav-badge"><span class="pulse-dot"></span> Honeypot Active</span></li>
     </ul>
   </nav>
 
-  <main class="container">
-    <div class="page-header">
-      <h1 class="page-title">Enterprise Infrastructure & Systems Portal</h1>
-      <p class="page-subtitle">Welcome to Apex Global Logistics internal resource management center.</p>
+  <main class="container" style="max-width: 1200px; padding: 2rem 1.5rem;">
+    <!-- Hero Banner -->
+    <div class="page-header" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.9) 100%); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 8px 24px rgba(0,0,0,0.3);">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+            <span class="badge badge-info" style="text-transform: uppercase; font-size: 0.75rem;">Corporate Intranet Gateway</span>
+            <span class="badge badge-success" style="font-size: 0.75rem;">Deception Mesh Armed</span>
+          </div>
+          <h1 class="page-title" style="font-size: 1.85rem; margin-bottom: 0.5rem;">Apex Global Infrastructure & Systems Portal</h1>
+          <p class="page-subtitle" style="max-width: 720px; color: #94a3b8; font-size: 0.95rem; margin-bottom: 0;">
+            Secure internal gateway for employee resources, database administration, and operational archives. All interaction telemetry is captured and analyzed by NetDecoy Autonomous Intelligence.
+          </p>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.4rem;">
+          <div style="font-size: 0.82rem; color: #64748b;">Current Active Node: <strong style="color: #38bdf8;">node-us-east-prod-04</strong></div>
+          <div style="font-size: 0.82rem; color: #64748b;">Deception Mesh Status: <strong style="color: #10b981;">ONLINE &amp; MONITORING</strong></div>
+        </div>
+      </div>
     </div>
 
-    <div class="card" style="margin-bottom: 2rem;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-        <h2 style="font-size: 1.25rem;">System Operational Health</h2>
-        <span class="badge badge-success">All Services Operational</span>
+    <!-- System Operational Health Status Bar -->
+    <div class="card" style="margin-bottom: 2rem; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color);">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <div style="width: 12px; height: 12px; border-radius: 50%; background: #10b981; box-shadow: 0 0 10px #10b981;"></div>
+          <div>
+            <h3 style="font-size: 1.05rem; margin-bottom: 0.2rem; font-weight: 700;">Operational Decoy Services</h3>
+            <span style="font-size: 0.82rem; color: var(--text-muted);">6 Active Deception Endpoints Ready for Adversary Engagement</span>
+          </div>
+        </div>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <button onclick="triggerDecoyPing()" class="btn btn-secondary" style="padding: 0.35rem 0.8rem; font-size: 0.8rem;">📡 Ping Decoy Mesh</button>
+          <a href="/demo" class="btn btn-primary" style="padding: 0.35rem 0.8rem; font-size: 0.8rem; text-decoration: none;">▶️ Launch Demo Runner</a>
+        </div>
       </div>
-      <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
-        Authorized employees and administrators can navigate internal tools and services using the module links below.
-        All network access is monitored and logged in compliance with Corporate Security Policy ISO-27001.
-      </p>
     </div>
 
-    <div class="grid-3">
-      <div class="card">
-        <h3 style="margin-bottom: 0.5rem; font-size: 1.1rem;">Corporate Login</h3>
-        <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.25rem;">Single Sign-On authentication for employee access.</p>
-        <a href="login.html" class="btn btn-secondary" style="width: 100%;">Open SSO Login</a>
+    <!-- Grid of 6 Decoy Honeypot Trap Portals -->
+    <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+      <span>🎯 Available Decoy Traps &amp; Vulnerable Surfaces</span>
+    </h2>
+
+    <div class="grid-3" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
+      <!-- Trap 1: SSO Login -->
+      <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s, border-color 0.2s;" onmouseenter="this.style.borderColor='#38bdf8'" onmouseleave="this.style.borderColor='var(--border-color)'">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+            <div style="font-size: 1.75rem;">🔑</div>
+            <span class="badge badge-info" style="font-size: 0.72rem;">Credential Trap</span>
+          </div>
+          <h3 style="margin-bottom: 0.4rem; font-size: 1.15rem; font-weight: 700;">Corporate SSO Gateway</h3>
+          <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.5; margin-bottom: 1.25rem;">
+            Simulated Single Sign-On login portal. Lures brute-force attackers, credential sprayers, and automated password guessing.
+          </p>
+        </div>
+        <div>
+          <div style="font-size: 0.78rem; color: #64748b; margin-bottom: 0.75rem; font-family: monospace;">Route: /login (MITRE T1110)</div>
+          <a href="/login" class="btn btn-secondary" style="width: 100%; text-align: center; text-decoration: none; display: block;">Open SSO Portal &rarr;</a>
+        </div>
       </div>
 
-      <div class="card">
-        <h3 style="margin-bottom: 0.5rem; font-size: 1.1rem;">Admin Dashboard</h3>
-        <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.25rem;">Internal administration and user account management.</p>
-        <a href="admin.html" class="btn btn-secondary" style="width: 100%;">Access Admin</a>
+      <!-- Trap 2: Admin Dashboard -->
+      <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s, border-color 0.2s;" onmouseenter="this.style.borderColor='#ef4444'" onmouseleave="this.style.borderColor='var(--border-color)'">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+            <div style="font-size: 1.75rem;">👑</div>
+            <span class="badge badge-danger" style="font-size: 0.72rem;">Privilege Escalation Trap</span>
+          </div>
+          <h3 style="margin-bottom: 0.4rem; font-size: 1.15rem; font-weight: 700;">Admin Management Console</h3>
+          <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.5; margin-bottom: 1.25rem;">
+            Decoy user directory and superadmin role overrides. Captures token manipulation and unauthorized administrative actions.
+          </p>
+        </div>
+        <div>
+          <div style="font-size: 0.78rem; color: #64748b; margin-bottom: 0.75rem; font-family: monospace;">Route: /admin (MITRE T1078)</div>
+          <a href="/admin" class="btn btn-secondary" style="width: 100%; text-align: center; text-decoration: none; display: block;">Open Admin Console &rarr;</a>
+        </div>
       </div>
 
-      <div class="card">
-        <h3 style="margin-bottom: 0.5rem; font-size: 1.1rem;">Backup Portal</h3>
-        <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.25rem;">Archived system backups and database snapshots.</p>
-        <a href="backup.html" class="btn btn-secondary" style="width: 100%;">View Backups</a>
+      <!-- Trap 3: Storage Vault & Backups -->
+      <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s, border-color 0.2s;" onmouseenter="this.style.borderColor='#f59e0b'" onmouseleave="this.style.borderColor='var(--border-color)'">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+            <div style="font-size: 1.75rem;">📦</div>
+            <span class="badge badge-warning" style="font-size: 0.72rem;">Data Exfiltration Lure</span>
+          </div>
+          <h3 style="margin-bottom: 0.4rem; font-size: 1.15rem; font-weight: 700;">Backup &amp; Storage Vault</h3>
+          <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.5; margin-bottom: 1.25rem;">
+            Decoy database dumps (`.sql`), employee records (`.csv`), and config secrets (`.zip`). Generates synthetic payloads upon download.
+          </p>
+        </div>
+        <div>
+          <div style="font-size: 0.78rem; color: #64748b; margin-bottom: 0.75rem; font-family: monospace;">Route: /backup (MITRE T1567)</div>
+          <a href="/backup" class="btn btn-secondary" style="width: 100%; text-align: center; text-decoration: none; display: block;">View Backup Vault &rarr;</a>
+        </div>
       </div>
 
-      <div class="card">
-        <h3 style="margin-bottom: 0.5rem; font-size: 1.1rem;">Database Console</h3>
-        <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.25rem;">Internal SQL query console and database tools.</p>
-        <a href="database.html" class="btn btn-secondary" style="width: 100%;">Launch Workbench</a>
+      <!-- Trap 4: SQL Workbench -->
+      <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s, border-color 0.2s;" onmouseenter="this.style.borderColor='#38bdf8'" onmouseleave="this.style.borderColor='var(--border-color)'">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+            <div style="font-size: 1.75rem;">🗄️</div>
+            <span class="badge badge-danger" style="font-size: 0.72rem;">SQL Injection Trap</span>
+          </div>
+          <h3 style="margin-bottom: 0.4rem; font-size: 1.15rem; font-weight: 700;">SQL Workbench &amp; Query Console</h3>
+          <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.5; margin-bottom: 1.25rem;">
+            Interactive database query editor that safely analyzes SQL injection attacks (`OR 1=1`, `UNION SELECT`) with zero DB risk.
+          </p>
+        </div>
+        <div>
+          <div style="font-size: 0.78rem; color: #64748b; margin-bottom: 0.75rem; font-family: monospace;">Route: /database (MITRE T1190)</div>
+          <a href="/database" class="btn btn-secondary" style="width: 100%; text-align: center; text-decoration: none; display: block;">Launch Workbench &rarr;</a>
+        </div>
       </div>
 
-      <div class="card">
-        <h3 style="margin-bottom: 0.5rem; font-size: 1.1rem;">API Gateway Explorer</h3>
-        <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.25rem;">Internal microservice REST API documentation.</p>
-        <a href="api.html" class="btn btn-secondary" style="width: 100%;">Explore APIs</a>
+      <!-- Trap 5: API Gateway Explorer -->
+      <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s, border-color 0.2s;" onmouseenter="this.style.borderColor='#10b981'" onmouseleave="this.style.borderColor='var(--border-color)'">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+            <div style="font-size: 1.75rem;">⚡</div>
+            <span class="badge badge-info" style="font-size: 0.72rem;">Endpoint Scanning Trap</span>
+          </div>
+          <h3 style="margin-bottom: 0.4rem; font-size: 1.15rem; font-weight: 700;">Internal REST API Explorer</h3>
+          <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.5; margin-bottom: 1.25rem;">
+            Exposes mock internal microservice endpoints (`/users`, `/admin`, `/config`). Captures automated API reconnaissance probes.
+          </p>
+        </div>
+        <div>
+          <div style="font-size: 0.78rem; color: #64748b; margin-bottom: 0.75rem; font-family: monospace;">Route: /api-explorer (MITRE T1046)</div>
+          <a href="/api-explorer" class="btn btn-secondary" style="width: 100%; text-align: center; text-decoration: none; display: block;">Explore APIs &rarr;</a>
+        </div>
       </div>
 
-      <div class="card">
-        <h3 style="margin-bottom: 0.5rem; font-size: 1.1rem;">Document Repository</h3>
-        <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.25rem;">Search corporate policies, specs, and internal files.</p>
-        <a href="search.html" class="btn btn-secondary" style="width: 100%;">Search Documents</a>
+      <!-- Trap 6: Document Search & Path Traversal -->
+      <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s, border-color 0.2s;" onmouseenter="this.style.borderColor='#a855f7'" onmouseleave="this.style.borderColor='var(--border-color)'">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+            <div style="font-size: 1.75rem;">🔍</div>
+            <span class="badge badge-warning" style="font-size: 0.72rem;">Directory Traversal Trap</span>
+          </div>
+          <h3 style="margin-bottom: 0.4rem; font-size: 1.15rem; font-weight: 700;">Document Repository Search</h3>
+          <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.5; margin-bottom: 1.25rem;">
+            Internal file search engine that detects traversal attempts (`../../etc/passwd`, `win.ini`) and routes logs to the SOC dashboard.
+          </p>
+        </div>
+        <div>
+          <div style="font-size: 0.78rem; color: #64748b; margin-bottom: 0.75rem; font-family: monospace;">Route: /search (MITRE T1083)</div>
+          <a href="/search" class="btn btn-secondary" style="width: 100%; text-align: center; text-decoration: none; display: block;">Search Documents &rarr;</a>
+        </div>
       </div>
     </div>
   </main>
 
   <footer class="footer">
-    &copy; 2026 Apex Global Logistics Inc. Internal Systems. Confidential and Proprietary.
+    &copy; 2026 Apex Global Logistics Inc. Enterprise Systems Portal. Monitored by NetDecoy Autonomous Intelligence.
   </footer>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       logDecoyEvent({
         page: 'home',
-        action: 'page_view',
+        action: 'portal_index_access',
         event_type: 'scanning',
-        payload: { path: '/' }
+        payload: { path: '/traps', user_agent: navigator.userAgent }
       });
     });
+
+    function triggerDecoyPing() {
+      logDecoyEvent({
+        page: 'home',
+        action: 'decoy_mesh_ping',
+        event_type: 'scanning',
+        payload: { ping_type: 'manual_verification', timestamp: new Date().toISOString() }
+      });
+      alert('Decoy Mesh Ping sent! Telemetry transmitted to SOC Dashboard.');
+    }
   </script>
 </body>
 </html>

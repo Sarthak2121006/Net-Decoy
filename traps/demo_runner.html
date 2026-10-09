@@ -3,36 +3,49 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NetDecoy M4 - Enhanced Attack Sequence Runner</title>
-  <link rel="stylesheet" href="assets/styles.css">
-  <script src="assets/trap_event_logger.js"></script>
+  <title>NetDecoy - Attack Sequence Demo Runner (Decoy Trap)</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+  <script src="/assets/trap_event_logger.js"></script>
 </head>
 <body>
+  <!-- 3-System Interconnected Switcher -->
+  <div style="background: rgba(6, 9, 15, 0.98); border-bottom: 1px solid #1e293b; padding: 0.6rem 2rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.84rem; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+    <div style="display: flex; align-items: center; gap: 0.6rem; font-weight: 700; color: #10b981;">
+      <span style="background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.5); padding: 2px 8px; border-radius: 4px; letter-spacing: 0.5px;">SYSTEM 2</span>
+      <span style="color: #f8fafc;">Fake Target Decoy Company Portal &mdash; Sequence Demo Runner</span>
+    </div>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <a href="/dashboard" style="color: #94a3b8; text-decoration: none; padding: 4px 10px; border-radius: 4px; background: rgba(255,255,255,0.05); border: 1px solid #334155; font-weight: 600; transition: all 0.2s;">📊 1. SOC Dashboard</a>
+      <a href="/traps" style="color: #10b981; text-decoration: none; padding: 4px 10px; border-radius: 4px; background: rgba(16, 185, 129, 0.18); border: 1px solid rgba(16, 185, 129, 0.4); font-weight: 700;">🏢 2. Fake Company Portal (Active)</a>
+      <a href="/attacker" style="color: #f87171; text-decoration: none; padding: 4px 10px; border-radius: 4px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 600; transition: all 0.2s;">⚔️ 3. Attacker System</a>
+    </div>
+  </div>
+
   <nav class="top-nav">
-    <a href="index.html" class="brand-container">
+    <a href="/traps" class="brand-container">
       <div class="brand-logo">A</div>
       <div class="brand-title">Apex Global Logistics</div>
     </a>
     <ul class="nav-links">
-      <li><a href="index.html">Home</a></li>
-      <li><a href="login.html">Login</a></li>
-      <li><a href="admin.html">Admin</a></li>
-      <li><a href="backup.html">Backup</a></li>
-      <li><a href="database.html">Database</a></li>
-      <li><a href="api.html">API</a></li>
-      <li><a href="search.html">Search</a></li>
-      <li><a href="demo_runner.html" class="active">Demo Runner</a></li>
+      <li><a href="/traps">Home</a></li>
+      <li><a href="/login">SSO Login</a></li>
+      <li><a href="/admin">Admin Console</a></li>
+      <li><a href="/backup">Backup Vault</a></li>
+      <li><a href="/database">SQL Workbench</a></li>
+      <li><a href="/api-explorer">API Explorer</a></li>
+      <li><a href="/search">Document Search</a></li>
+      <li><a href="/demo" class="active">Demo Runner</a></li>
       <li><span class="nav-badge"><span class="pulse-dot"></span> Test Suite</span></li>
     </ul>
   </nav>
 
-  <main class="container">
-    <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-end;">
+  <main class="container" style="max-width: 1200px; padding: 2rem 1.5rem;">
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;">
       <div>
         <h1 class="page-title">Deterministic Attack Sequence Demo Runner</h1>
         <p class="page-subtitle">Executes the official 5-stage attack journey to demonstrate end-to-end telemetry generation.</p>
       </div>
-      <button id="exportEventsBtn" class="btn btn-secondary">Export Telemetry JSON</button>
+      <button id="exportEventsBtn" class="btn btn-secondary">💾 Export Telemetry JSON</button>
     </div>
 
     <!-- Progress Bar & Risk Gauge -->
@@ -47,14 +60,14 @@
     </div>
 
     <div class="card" style="margin-bottom: 1.5rem;">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
         <div>
           <h3 style="font-size: 1.15rem; margin-bottom: 0.25rem;">Deterministic Demo Scenario Controller</h3>
           <p style="color: var(--text-muted); font-size: 0.88rem;">Simulates an attacker traversing Login &rarr; Admin &rarr; Database &rarr; Backup &rarr; Search.</p>
         </div>
         <div style="display: flex; gap: 0.75rem;">
-          <button id="resetDemoBtn" class="btn btn-secondary">Reset Session</button>
-          <button id="runDemoBtn" class="btn btn-danger">Run Full Attack Demo</button>
+          <button id="resetDemoBtn" class="btn btn-secondary">🔄 Reset Session</button>
+          <button id="runDemoBtn" class="btn btn-danger">🚀 Run Full Attack Demo</button>
         </div>
       </div>
     </div>
@@ -80,7 +93,7 @@
 
         <div id="step4" class="step-box" style="padding: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 0.85rem; transition: all 0.3s ease;">
           <strong>Step 4: Backup Vault (`/backup`)</strong>
-          <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.2rem;">Access <code>database_backup.sql</code> & <code>employees.csv</code> &rarr; <span class="badge badge-danger">SENSITIVE ACCESS</span></p>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.2rem;">Access <code>database_backup.sql</code> &amp; <code>employees.csv</code> &rarr; <span class="badge badge-danger">SENSITIVE ACCESS</span></p>
         </div>
 
         <div id="step5" class="step-box" style="padding: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 0.85rem; transition: all 0.3s ease;">

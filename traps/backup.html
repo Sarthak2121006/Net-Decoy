@@ -3,41 +3,55 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Apex Global Infrastructure Backup Vault</title>
-  <link rel="stylesheet" href="assets/styles.css">
-  <script src="assets/trap_event_logger.js"></script>
+  <title>Apex Global Infrastructure Backup Vault (Decoy Trap)</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+  <script src="/assets/trap_event_logger.js"></script>
 </head>
 <body>
+  <!-- 3-System Interconnected Switcher -->
+  <div style="background: rgba(6, 9, 15, 0.98); border-bottom: 1px solid #1e293b; padding: 0.6rem 2rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.84rem; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+    <div style="display: flex; align-items: center; gap: 0.6rem; font-weight: 700; color: #10b981;">
+      <span style="background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.5); padding: 2px 8px; border-radius: 4px; letter-spacing: 0.5px;">SYSTEM 2</span>
+      <span style="color: #f8fafc;">Fake Target Decoy Company Portal &mdash; Backup Vault Exfiltration Trap</span>
+    </div>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <a href="/dashboard" style="color: #94a3b8; text-decoration: none; padding: 4px 10px; border-radius: 4px; background: rgba(255,255,255,0.05); border: 1px solid #334155; font-weight: 600; transition: all 0.2s;">📊 1. SOC Dashboard</a>
+      <a href="/traps" style="color: #10b981; text-decoration: none; padding: 4px 10px; border-radius: 4px; background: rgba(16, 185, 129, 0.18); border: 1px solid rgba(16, 185, 129, 0.4); font-weight: 700;">🏢 2. Fake Company Portal (Active)</a>
+      <a href="/attacker" style="color: #f87171; text-decoration: none; padding: 4px 10px; border-radius: 4px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 600; transition: all 0.2s;">⚔️ 3. Attacker System</a>
+    </div>
+  </div>
+
   <nav class="top-nav">
-    <a href="index.html" class="brand-container">
+    <a href="/traps" class="brand-container">
       <div class="brand-logo">A</div>
       <div class="brand-title">Apex Global Logistics</div>
     </a>
     <ul class="nav-links">
-      <li><a href="index.html">Home</a></li>
-      <li><a href="login.html">SSO Login</a></li>
-      <li><a href="admin.html">Admin Console</a></li>
-      <li><a href="backup.html" class="active">Backup Portal</a></li>
-      <li><a href="database.html">SQL Workbench</a></li>
-      <li><a href="api.html">API Explorer</a></li>
-      <li><a href="search.html">Document Search</a></li>
+      <li><a href="/traps">Home</a></li>
+      <li><a href="/login">SSO Login</a></li>
+      <li><a href="/admin">Admin Console</a></li>
+      <li><a href="/backup" class="active">Backup Vault</a></li>
+      <li><a href="/database">SQL Workbench</a></li>
+      <li><a href="/api-explorer">API Explorer</a></li>
+      <li><a href="/search">Document Search</a></li>
+      <li><a href="/demo">Demo Runner</a></li>
       <li><span class="nav-badge">Vault Access</span></li>
     </ul>
   </nav>
 
-  <main class="container">
+  <main class="container" style="max-width: 1200px; padding: 2rem 1.5rem;">
     <div class="page-header">
       <h1 class="page-title">Enterprise System Backup Portal</h1>
       <p class="page-subtitle">Encrypted snapshots, database backups, and confidential archives.</p>
     </div>
 
     <div class="card" style="margin-bottom: 1.5rem;">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
         <div>
           <h3 style="font-size: 1.1rem; margin-bottom: 0.25rem;">Storage Repository: /var/backups/production</h3>
           <p style="color: var(--text-muted); font-size: 0.85rem;">Last automated backup cycle completed 4 hours ago.</p>
         </div>
-        <button class="btn btn-secondary" id="enumerateBtn">Enumerate Vault Files</button>
+        <button class="btn btn-secondary" id="enumerateBtn">📦 Enumerate Vault Files</button>
       </div>
     </div>
 
@@ -174,7 +188,7 @@
 
           fileNotice.style.display = 'block';
           noticeTitle.textContent = `Downloading ${fileName}...`;
-          noticeMsg.textContent = `Initiated stream transfer for file ${fileName}. Stream package packaged cleanly.`;
+          noticeMsg.textContent = `Initiated stream transfer for file ${fileName}. Synthetic payload emitted.`;
 
           // Generate synthetic download
           const blob = new Blob([`-- Synthetic Decoy Backup Archive: ${fileName}\n-- NetDecoy Synthetic Data Node\n`], { type: 'text/plain' });

@@ -91,6 +91,13 @@ def create_app(test_config=None):
     def serve_frontend_assets(filename):
         return send_from_directory(FRONTEND_DIR, filename)
 
+    # Static Assets for Traps and Decoys
+    @app.route("/assets/<path:filename>", methods=["GET"])
+    @app.route("/traps/assets/<path:filename>", methods=["GET"])
+    def serve_trap_assets(filename):
+        assets_dir = os.path.join(TRAPS_DIR, "assets")
+        return send_from_directory(assets_dir, filename)
+
     # Honeypot Deception Traps Web Routes
     @app.route("/traps", methods=["GET"])
     @app.route("/traps/", methods=["GET"])
@@ -104,35 +111,43 @@ def create_app(test_config=None):
 
     # Shortcut Traps URLs
     @app.route("/login", methods=["GET"])
+    @app.route("/login.html", methods=["GET"])
     def serve_login_trap():
         return send_from_directory(TRAPS_DIR, "login.html")
 
     @app.route("/admin", methods=["GET"])
+    @app.route("/admin.html", methods=["GET"])
     def serve_admin_trap():
         return send_from_directory(TRAPS_DIR, "admin.html")
 
     @app.route("/backup", methods=["GET"])
+    @app.route("/backup.html", methods=["GET"])
     def serve_backup_trap():
         return send_from_directory(TRAPS_DIR, "backup.html")
 
     @app.route("/database", methods=["GET"])
+    @app.route("/database.html", methods=["GET"])
     def serve_database_trap():
         return send_from_directory(TRAPS_DIR, "database.html")
 
     @app.route("/api-explorer", methods=["GET"])
+    @app.route("/api.html", methods=["GET"])
     def serve_api_explorer_trap():
         return send_from_directory(TRAPS_DIR, "api.html")
 
     @app.route("/search", methods=["GET"])
+    @app.route("/search.html", methods=["GET"])
     def serve_search_trap():
         return send_from_directory(TRAPS_DIR, "search.html")
 
     @app.route("/demo", methods=["GET"])
+    @app.route("/demo_runner.html", methods=["GET"])
     def serve_demo_runner():
         return send_from_directory(TRAPS_DIR, "demo_runner.html")
 
     # System 3: Attacker Red-Team Console
     @app.route("/attacker", methods=["GET"])
+    @app.route("/attacker.html", methods=["GET"])
     @app.route("/redteam", methods=["GET"])
     @app.route("/exploit", methods=["GET"])
     def serve_attacker_console():
