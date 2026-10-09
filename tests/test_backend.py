@@ -433,3 +433,50 @@ def test_clusters_endpoint(client):
     assert "mitre_technique" in sqli_cluster
     assert "containment_directive" in sqli_cluster
 
+
+def test_mitre_endpoint(client):
+    """Verify GET /api/mitre parses events into ATT&CK matrix tactics and techniques."""
+    # Ingest events across tactics
+    client.post("/api/events", json={
+        "session_id": "sess_mitre",
+        "page": "env_leak",
+        "action": "env_read",
+        "event_type": "reconnaissance",
+        "severity": "MEDIUM",
+        "payload": {"target": ".env"}
+    })
+    client.post("/api/events", json={
+        "session_id": "sess_mitre",
+        "page": "database",
+        "action": "sql_injection",
+        "event_type": "sqli",
+        "severity": "CRITICAL",
+        "payload": {"query": "' OR 1=1"}
+    })
+
+    res = client.get("/api/mitre?session_id=sess_mitre")
+    assert res.status_code == 200
+    data = res.json
+    assert data["status"] == "success"
+    assert "metrics" in data
+    assert "tactics" in data
+    assert data["metrics"]["engaged_tactics"] >= 2
+    assert data["metrics"]["active_techniques"] >= 2
+    assert len(data["tactics"]) == 7
+
+    # Check tactics array
+    tactic_ids = [t["tactic_id"] for t in data["tactics"]]
+    assert "TA0043" in tactic_ids
+    assert "TA0001" in tactic_ids
+    assert "TA0002" in tactic_ids
+    assert "TA0006" in tactic_ids
+
+    # Find Initial Access tactic and check SQL injection technique
+    initial_access = next(t for t in data["tactics"] if t["tactic_id"] == "TA0001")
+    t1190 = next(tech for tech in initial_access["techniques"] if tech["id"] == "T1190")
+    assert t1190["hit_count"] >= 1
+    assert t1190["heat_score"] > 0
+    assert len(t1190["evidence"]) >= 1
+
+
+

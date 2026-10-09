@@ -659,10 +659,271 @@ body {
   margin-top: 1px;
 }
 
+/* MITRE ATT&CK ENTERPRISE MATRIX HEATMAP */
+.mitre-matrix-card {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.mitre-header-metrics {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.mitre-metric-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: #334155;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  padding: 3px 10px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot-red {
+  background: #ef4444;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.6);
+  animation: pulse 1.5s infinite;
+}
+
+.dot-blue {
+  background: #3b82f6;
+  box-shadow: 0 0 6px rgba(59, 130, 246, 0.4);
+}
+
+.mitre-matrix-body {
+  overflow-x: auto;
+  padding: 8px 2px 14px 2px;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.mitre-matrix-body.collapsed {
+  display: none;
+}
+
+.mitre-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(160px, 1fr));
+  gap: 12px;
+  min-width: 1100px;
+}
+
+.mitre-column {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mitre-column.engaged-tactic {
+  background: #fdfbf7;
+  border-color: #fed7aa;
+}
+
+.mitre-col-header {
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.mitre-tactic-id {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.5px;
+}
+
+.mitre-tactic-name {
+  font-size: 12px;
+  font-weight: 800;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mitre-tech-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mitre-tech-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 8px 10px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.mitre-tech-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: #94a3b8;
+}
+
+.tech-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.tech-id {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  color: #334155;
+  background: #f1f5f9;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.tech-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.3;
+}
+
+.tech-heat-badge {
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 10px;
+  letter-spacing: 0.3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  width: fit-content;
+  margin-top: 2px;
+}
+
+/* HEAT LEVELS */
+.mitre-tech-card.heat-crit {
+  border-color: #fca5a5;
+  background: #fff5f5;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.15);
+}
+
+.mitre-tech-card.heat-crit .tech-id {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.mitre-tech-card.heat-crit .tech-heat-badge {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.mitre-tech-card.heat-high {
+  border-color: #fdba74;
+  background: #fffaf0;
+  box-shadow: 0 0 8px rgba(249, 115, 22, 0.12);
+}
+
+.mitre-tech-card.heat-high .tech-id {
+  background: #ffedd5;
+  color: #9a3412;
+}
+
+.mitre-tech-card.heat-high .tech-heat-badge {
+  background: #f97316;
+  color: #ffffff;
+}
+
+.mitre-tech-card.heat-med {
+  border-color: #93c5fd;
+  background: #f0f9ff;
+}
+
+.mitre-tech-card.heat-med .tech-id {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.mitre-tech-card.heat-med .tech-heat-badge {
+  background: #0284c7;
+  color: #ffffff;
+}
+
+.mitre-tech-card.heat-inactive {
+  opacity: 0.75;
+}
+
+.mitre-tech-card.heat-inactive:hover {
+  opacity: 1;
+}
+
+.mitre-tech-card.heat-inactive .tech-heat-badge {
+  background: #f1f5f9;
+  color: #94a3b8;
+}
+
+/* MITRE MODAL CONTENT */
+.mitre-modal-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.mitre-modal-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mitre-hits-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.mitre-hit-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 
 /* FULL WIDTH PANORAMIC JOURNEY CARD */
 .full-width-card {
   width: 100%;
+
   margin-bottom: 20px;
 }
 

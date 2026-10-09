@@ -19,6 +19,8 @@ const state = {
   map: null,
   mapMarker: null,
   events: [],
+  clusters: [],
+  mitre: { tactics: [], metrics: {} },
   stats: { totalEvents: 0, threats: 0, highRisk: 0, activeSessions: 0 },
   risk: { score: 0, label: 'LOW', breakdown: [] },
   journey: [],
@@ -88,6 +90,20 @@ function initEventListeners() {
     });
   }
 
+  const toggleMitreBtn = document.getElementById('btn-toggle-mitre-matrix');
+  if (toggleMitreBtn) {
+    toggleMitreBtn.addEventListener('click', () => {
+      const container = document.getElementById('mitre-matrix-container');
+      if (container) {
+        container.classList.toggle('collapsed');
+        const isCollapsed = container.classList.contains('collapsed');
+        toggleMitreBtn.innerHTML = isCollapsed 
+          ? '<i class="fa-solid fa-chevron-down"></i> Expand'
+          : '<i class="fa-solid fa-chevron-up"></i> Collapse';
+      }
+    });
+  }
+
   const tabBtns = document.querySelectorAll('.tab-btn');
   tabBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -98,6 +114,7 @@ function initEventListeners() {
     });
   });
 }
+
 
 function initLeafletMap() {
   const mapContainer = document.getElementById('leaflet-map');
@@ -337,7 +354,7 @@ function setBackendConnectedStatus(isConnected) {
 
 async function fetchFromBackend() {
   try {
-    const [statsRes, eventsRes, riskRes, journeyRes, aiRes, predRes, geoRes, clustersRes] = await Promise.allSettled([
+    const [statsRes, eventsRes, riskRes, journeyRes, aiRes, predRes, geoRes, clustersRes, mitreRes] = await Promise.allSettled([
       fetch(`${CONFIG.apiBaseUrl}/api/stats`).then(r => r.json()),
       fetch(`${CONFIG.apiBaseUrl}/api/events`).then(r => r.json()),
       fetch(`${CONFIG.apiBaseUrl}/api/risk`).then(r => r.json()),
@@ -345,8 +362,13 @@ async function fetchFromBackend() {
       fetch(`${CONFIG.apiBaseUrl}/api/analysis`).then(r => r.json()),
       fetch(`${CONFIG.apiBaseUrl}/api/prediction`).then(r => r.json()),
       fetch(`${CONFIG.apiBaseUrl}/api/geo`).then(r => r.json()),
-      fetch(`${CONFIG.apiBaseUrl}/api/clusters`).then(r => r.json())
+      fetch(`${CONFIG.apiBaseUrl}/api/clusters`).then(r => r.json()),
+      fetch(`${CONFIG.apiBaseUrl}/api/mitre`).then(r => r.json())
     ]);
+
+    if (mitreRes.status === 'fulfilled' && mitreRes.value && mitreRes.value.tactics) {
+      state.mitre = mitreRes.value;
+    }
 
     if (clustersRes.status === 'fulfilled' && clustersRes.value && clustersRes.value.clusters) {
       state.clusters = clustersRes.value.clusters;
@@ -428,6 +450,7 @@ async function fetchFromBackend() {
     console.warn('Backend fetch error:', e);
   }
 }
+
 
 let simStepCount = 0;
 
@@ -534,10 +557,12 @@ function renderAllComponents() {
   renderEventTable();
   renderClusters();
   renderRiskPanel();
+  renderMitreMatrix();
   renderJourney();
   renderAiAnalysis();
   renderPrediction();
 }
+
 
 function setTelemetryViewMode(mode) {
   state.telemetryViewMode = mode;
@@ -1471,3 +1496,195 @@ function filterByCurrentAttackVector() {
     renderEventTable();
   }
 }
+
+/* =========================================================================
+   MITRE ATT&CK ENTERPRISE MATRIX HEATMAP & INSPECTOR
+   ========================================================================= */
+
+let activeInspectedMitreTechnique = null;
+
+function renderMitreMatrix() {
+  const container = document.getElementById('mitre-grid');
+  const activeTechBadge = document.getElementById('mitre-active-tech-count');
+  const tacticsBadge = document.getElementById('mitre-tactics-count');
+  if (!container) return;
+
+  const tactics = (state.mitre && Array.isArray(state.mitre.tactics)) ? state.mitre.tactics : [];
+  const metrics = (state.mitre && state.mitre.metrics) ? state.mitre.metrics : {};
+
+  if (activeTechBadge) {
+    const activeCount = metrics.active_techniques || 0;
+    activeTechBadge.innerHTML = `<span class="badge-dot ${activeCount > 0 ? 'dot-red' : 'dot-blue'}"></span> <strong>${activeCount}</strong> Active Technique${activeCount !== 1 ? 's' : ''}`;
+  }
+
+  if (tacticsBadge) {
+    const engaged = metrics.engaged_tactics || 0;
+    const total = metrics.total_tactics || 7;
+    tacticsBadge.innerHTML = `<span class="badge-dot dot-blue"></span> <strong>${engaged}/${total}</strong> Tactics Engaged`;
+  }
+
+  if (tactics.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state" style="padding: 24px; text-align: center; color: #64748b; grid-column: 1 / -1;">
+        Awaiting live honeypot telemetry to map MITRE ATT&amp;CK techniques...
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = tactics.map(tactic => {
+    const isEngaged = tactic.is_engaged;
+    const columnClass = isEngaged ? 'mitre-column engaged-tactic' : 'mitre-column';
+
+    const techCardsHtml = (tactic.techniques || []).map(tech => {
+      let heatClass = 'heat-inactive';
+      if (tech.is_active) {
+        if (tech.severity === 'CRITICAL' || tech.heat_score >= 75) heatClass = 'heat-crit';
+        else if (tech.severity === 'HIGH' || tech.heat_score >= 50) heatClass = 'heat-high';
+        else heatClass = 'heat-med';
+      }
+
+      const hitLabel = tech.is_active ? `${tech.hit_count} Hit${tech.hit_count > 1 ? 's' : ''}` : '0 Hits';
+
+      return `
+        <div class="mitre-tech-card ${heatClass}" onclick="openMitreTechniqueModal('${tactic.tactic_id}', '${tech.id}')" title="Click to inspect technique forensics for ${tech.id} - ${tech.name}">
+          <div class="tech-top-row">
+            <span class="tech-id">${tech.id}</span>
+            <span class="tech-heat-badge">${hitLabel}</span>
+          </div>
+          <div class="tech-name">${tech.name}</div>
+        </div>
+      `;
+    }).join('');
+
+    return `
+      <div class="${columnClass}">
+        <div class="mitre-col-header">
+          <span class="mitre-tactic-id">${tactic.tactic_id}</span>
+          <span class="mitre-tactic-name" title="${tactic.tactic_name}">${tactic.tactic_name}</span>
+        </div>
+        <div class="mitre-tech-list">
+          ${techCardsHtml}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function openMitreTechniqueModal(tacticId, techId) {
+  const tactics = (state.mitre && Array.isArray(state.mitre.tactics)) ? state.mitre.tactics : [];
+  let foundTactic = null;
+  let foundTech = null;
+
+  for (const tac of tactics) {
+    if (tac.tactic_id === tacticId) {
+      foundTactic = tac;
+      for (const tech of (tac.techniques || [])) {
+        if (tech.id === techId) {
+          foundTech = tech;
+          break;
+        }
+      }
+    }
+  }
+
+  if (!foundTech) return;
+  activeInspectedMitreTechnique = foundTech;
+
+  document.getElementById('mitreModalTitle').textContent = `${foundTech.id} — ${foundTech.name}`;
+  document.getElementById('mitreModalSubtitle').textContent = `Tactic: ${foundTactic ? foundTactic.tactic_name : 'Enterprise ATT&CK'} &bull; Severity: ${foundTech.severity}`;
+
+  const body = document.getElementById('mitreModalBody');
+  if (body) {
+    const hitsCount = foundTech.hit_count || 0;
+    const eventsList = foundTech.matched_events || [];
+
+    const hitsHtml = eventsList.length > 0 ? eventsList.map(ev => `
+      <div class="mitre-hit-item">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-family:var(--font-mono); font-size:11px; color:#64748b;">${ev.timestamp}</span>
+          <span class="chip-sev chip-${(ev.severity || 'high').toLowerCase()}">${ev.severity}</span>
+        </div>
+        <div style="display:flex; gap:6px; align-items:center; margin-top:2px;">
+          <span style="font-family:var(--font-mono); font-size:12px; font-weight:700; color:#0f172a;">/${ev.page}</span>
+          <span style="font-size:11px; color:#475569;">(${ev.action})</span>
+          <span style="font-size:11px; font-family:var(--font-mono); color:#dc2626; margin-left:auto;">${ev.source_ip}</span>
+        </div>
+        <pre class="attack-payload-box" style="margin-top:4px; max-height:80px; font-size:10px;">${typeof ev.payload === 'object' ? JSON.stringify(ev.payload, null, 2) : ev.payload}</pre>
+      </div>
+    `).join('') : `<div style="font-size:12px; color:#64748b; padding:8px;">No live hits currently detected for this technique in active session.</div>`;
+
+    body.innerHTML = `
+      <div class="attack-detail-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom:14px;">
+        <div class="attack-detail-card">
+          <span class="attack-detail-label">Heat Score Intensity</span>
+          <div class="attack-detail-val" style="color: ${foundTech.heat_score > 50 ? '#ef4444' : '#3b82f6'}; font-family: var(--font-mono); font-size:16px;">
+            ${foundTech.heat_score || 0} / 100
+          </div>
+        </div>
+        <div class="attack-detail-card">
+          <span class="attack-detail-label">Active Detections</span>
+          <div class="attack-detail-val" style="font-size:16px; font-weight:800;">
+            ${hitsCount} Event${hitsCount !== 1 ? 's' : ''}
+          </div>
+        </div>
+        <div class="attack-detail-card">
+          <span class="attack-detail-label">Threat Severity</span>
+          <div class="attack-detail-val">
+            <span class="chip-sev chip-${(foundTech.severity || 'low').toLowerCase()}">${foundTech.severity}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mitre-modal-section">
+        <span class="mitre-modal-label">Technique Description</span>
+        <p class="doc-p" style="margin:0; font-size:12px; line-height:1.5;">${foundTech.description}</p>
+      </div>
+
+      <div class="mitre-modal-section">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="mitre-modal-label">Correlated Honeypot Telemetry Evidence</span>
+          <span style="font-size:10px; color:#64748b;">${eventsList.length} Top Samples</span>
+        </div>
+        <div class="mitre-hits-list">
+          ${hitsHtml}
+        </div>
+      </div>
+
+      <div class="doc-directives-box" style="padding:12px 14px; margin-top:8px;">
+        <h4 style="font-size:11px; font-weight:800; color:#166534; text-transform:uppercase; margin-bottom:4px;">
+          <i class="fa-solid fa-shield-halved"></i> NIST / CISA Recommended Defense Directive
+        </h4>
+        <p style="font-size:12px; color:#15803d; line-height:1.4; margin:0;">${foundTech.mitigation}</p>
+      </div>
+    `;
+  }
+
+  const modal = document.getElementById('mitreModalOverlay');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeMitreModal() {
+  const modal = document.getElementById('mitreModalOverlay');
+  if (modal) modal.classList.add('hidden');
+}
+
+function openOfficialMitrePage() {
+  if (activeInspectedMitreTechnique && activeInspectedMitreTechnique.id) {
+    const rawId = activeInspectedMitreTechnique.id.split('.')[0];
+    window.open(`https://attack.mitre.org/techniques/${rawId}/`, '_blank');
+  }
+}
+
+function filterByMitreTechnique() {
+  closeMitreModal();
+  if (activeInspectedMitreTechnique && activeInspectedMitreTechnique.severity) {
+    const sev = activeInspectedMitreTechnique.severity;
+    state.activeFilter = (sev === 'INACTIVE') ? 'all' : sev;
+    document.querySelectorAll('.feed-tabs .tab-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-filter') === state.activeFilter);
+    });
+    renderEventTable();
+  }
+}
+
