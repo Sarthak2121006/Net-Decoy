@@ -1,13 +1,12 @@
 /**
- * NetDecoy — SOC Dashboard JavaScript Engine
+ * NetDecoy — SOC Dashboard JavaScript Engine (Clean Light Theme)
  * Author: M2 - Frontend & SOC Dashboard Lead
  */
 
-// Configuration & Global State
 const CONFIG = {
   apiBaseUrl: 'http://127.0.0.1:8000',
   pollIntervalMs: 2000,
-  leafletDefaultCoords: [50.1109, 8.6821], // Default: Frankfurt, Germany
+  leafletDefaultCoords: [50.1109, 8.6821], // Frankfurt, Germany
 };
 
 const state = {
@@ -24,20 +23,15 @@ const state = {
   geo: { status: 'unavailable', city: 'Unknown', country: 'Unknown', ip: 'N/A', coords: CONFIG.leafletDefaultCoords }
 };
 
-// Initialize Dashboard on DOM Load
 document.addEventListener('DOMContentLoaded', () => {
   initClock();
   initLeafletMap();
   initEventListeners();
   
-  // Start Periodic Polling & Fallback Engine
   fetchDashboardData();
   setInterval(fetchDashboardData, CONFIG.pollIntervalMs);
 });
 
-/* --------------------------------------------------------------------------
-   Clock & Header Handlers
-   -------------------------------------------------------------------------- */
 function initClock() {
   const clockEl = document.getElementById('clock-display');
   function updateTime() {
@@ -49,20 +43,17 @@ function initClock() {
 }
 
 function initEventListeners() {
-  // Demo panel toggle
   document.getElementById('btn-demo-panel').addEventListener('click', () => {
     const panel = document.getElementById('demo-controller');
     panel.classList.toggle('hidden');
   });
 
-  // Reset button
   document.getElementById('btn-reset').addEventListener('click', handleResetDemo);
 
-  // Feed Filter buttons
-  const filterBtns = document.querySelectorAll('.filter-btn');
-  filterBtns.forEach(btn => {
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  tabBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
-      filterBtns.forEach(b => b.classList.remove('active'));
+      tabBtns.forEach(b => b.classList.remove('active'));
       e.target.classList.add('active');
       state.activeFilter = e.target.getAttribute('data-filter');
       renderEventTable();
@@ -70,9 +61,6 @@ function initEventListeners() {
   });
 }
 
-/* --------------------------------------------------------------------------
-   Leaflet Geolocation Map Setup
-   -------------------------------------------------------------------------- */
 function initLeafletMap() {
   const mapContainer = document.getElementById('leaflet-map');
   if (!mapContainer || typeof L === 'undefined') return;
@@ -84,16 +72,15 @@ function initLeafletMap() {
     attributionControl: false
   });
 
-  // Dark CartoDB Tiles
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  // Clean Light CartoDB Tiles
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
     maxZoom: 19
   }).addTo(state.map);
 
-  // Attacker Marker
   const customIcon = L.divIcon({
     className: 'custom-map-pin',
-    html: `<div style="width:16px;height:16px;background:#ef4444;border-radius:50%;box-shadow:0 0 12px #ef4444;border:2px solid #fff;"></div>`,
-    iconSize: [16, 16]
+    html: `<div style="width:14px;height:14px;background:#ef4444;border-radius:50%;box-shadow:0 0 0 4px rgba(239, 68, 68, 0.2);border:2px solid #ffffff;"></div>`,
+    iconSize: [14, 14]
   });
 
   state.mapMarker = L.marker(CONFIG.leafletDefaultCoords, { icon: customIcon }).addTo(state.map);
@@ -122,9 +109,6 @@ function updateMapPosition(lat, lng, city, country, ip) {
   }
 }
 
-/* --------------------------------------------------------------------------
-   API Polling & Fallback Data Engine
-   -------------------------------------------------------------------------- */
 async function fetchDashboardData() {
   try {
     const healthRes = await fetch(`${CONFIG.apiBaseUrl}/health`, { signal: AbortSignal.timeout(1200) });
@@ -134,7 +118,6 @@ async function fetchDashboardData() {
       return;
     }
   } catch (err) {
-    // API server offline or not yet started - fallback to built-in simulation mode
     setBackendConnectedStatus(false);
     runSimulatedBackendEngine();
   }
@@ -147,10 +130,10 @@ function setBackendConnectedStatus(isConnected) {
   
   if (isConnected) {
     dot.className = 'status-dot pulse';
-    text.innerText = 'API LIVE (CONNECTED)';
+    text.innerText = 'API Connected';
   } else {
     dot.className = 'status-dot offline';
-    text.innerText = 'DEMO SIMULATOR (STANDALONE)';
+    text.innerText = 'Demo Simulation Engine';
   }
 }
 
@@ -216,9 +199,6 @@ async function fetchFromBackend() {
   }
 }
 
-/* --------------------------------------------------------------------------
-   Standalone Simulation Engine (Fallback for offline/standalone demo)
-   -------------------------------------------------------------------------- */
 let simStepCount = 0;
 
 function runSimulatedBackendEngine() {
@@ -226,9 +206,8 @@ function runSimulatedBackendEngine() {
     seedInitialDemoData();
   }
 
-  // Periodic subtle increment
   simStepCount++;
-  if (simStepCount % 3 === 0) {
+  if (simStepCount % 4 === 0) {
     simulateIncomingEvent();
   }
 
@@ -237,10 +216,10 @@ function runSimulatedBackendEngine() {
 
 function seedInitialDemoData() {
   state.events = [
-    { event_id: 'evt_1001', timestamp: '14:31:04', page: 'login', action: 'Failed Authentication', event_type: 'authentication', severity: 'HIGH', source_ip: '185.220.101.5' },
+    { event_id: 'evt_1001', timestamp: '14:31:04', page: 'login', action: 'Failed Authentication Attempt', event_type: 'authentication', severity: 'HIGH', source_ip: '185.220.101.5' },
     { event_id: 'evt_1002', timestamp: '14:31:08', page: 'admin', action: 'Endpoint Enumeration Probed', event_type: 'scanning', severity: 'MEDIUM', source_ip: '185.220.101.5' },
-    { event_id: 'evt_1003', timestamp: '14:31:13', page: 'database', action: 'SQL-Like Input Detected', event_type: 'sqli', severity: 'CRITICAL', source_ip: '185.220.101.5' },
-    { event_id: 'evt_1004', timestamp: '14:31:18', page: 'backup', action: 'Synthetic Decoy Archive Opened', event_type: 'sensitive_access', severity: 'CRITICAL', source_ip: '185.220.101.5' },
+    { event_id: 'evt_1003', timestamp: '14:31:13', page: 'database', action: 'SQL Query Injection Detected', event_type: 'sqli', severity: 'CRITICAL', source_ip: '185.220.101.5' },
+    { event_id: 'evt_1004', timestamp: '14:31:18', page: 'backup', action: 'Decoy Backup Resource Accessed', event_type: 'sensitive_access', severity: 'CRITICAL', source_ip: '185.220.101.5' },
     { event_id: 'evt_1005', timestamp: '14:31:25', page: 'api', action: 'Internal API Schema Probed', event_type: 'enumeration', severity: 'HIGH', source_ip: '185.220.101.5' }
   ];
 
@@ -271,7 +250,7 @@ function seedInitialDemoData() {
   ];
 
   state.aiAnalysis = {
-    summary: 'Attacker session sess_8832 initiated credential brute-forcing against the corporate login decoy before escalating to administrative discovery and submitting malicious SQL payloads.',
+    summary: 'Session sess_8832 initiated credential brute-forcing against the corporate login trap before escalating to administrative discovery and submitting malicious SQL payloads.',
     evidence: [
       'Multiple failed authentication attempts logged within 5 seconds on login trap',
       'Administrative directory scanning detected across /admin endpoints',
@@ -319,9 +298,6 @@ function simulateIncomingEvent() {
   }
 }
 
-/* --------------------------------------------------------------------------
-   Render Controllers
-   -------------------------------------------------------------------------- */
 function renderAllComponents() {
   renderStatsCards();
   renderEventTable();
@@ -355,11 +331,11 @@ function renderEventTable() {
   tbody.innerHTML = filtered.slice(0, 30).map(e => `
     <tr>
       <td>${e.timestamp}</td>
-      <td><span class="page-badge">/${e.page}</span></td>
-      <td style="color:#f1f5f9;font-weight:500;">${e.action}</td>
-      <td style="color:#94a3b8;">${e.event_type}</td>
-      <td><span class="sev-badge sev-${(e.severity || 'low').toLowerCase()}">${e.severity || 'LOW'}</span></td>
-      <td style="color:#64748b;">${e.source_ip || '127.0.0.1'}</td>
+      <td><span class="endpoint-chip">/${e.page}</span></td>
+      <td style="color:#0f172a;font-weight:500;">${e.action}</td>
+      <td>${e.event_type}</td>
+      <td><span class="chip-sev chip-${(e.severity || 'low').toLowerCase()}">${e.severity || 'LOW'}</span></td>
+      <td style="font-family:var(--font-mono);">${e.source_ip || '127.0.0.1'}</td>
     </tr>
   `).join('');
 }
@@ -373,28 +349,25 @@ function renderRiskPanel() {
   const score = Math.min(100, Math.max(0, state.risk.score));
   scoreValEl.innerText = score;
 
-  // Calculate conic gradient angle (360 deg = 100)
   const angle = (score / 100) * 360;
   circleEl.style.setProperty('--risk-angle', `${angle}`);
 
-  // Label styling
-  let sevClass = 'severity-low';
+  let chipClass = 'chip-low';
   let labelText = 'LOW';
-  if (score >= 80) { sevClass = 'severity-critical'; labelText = 'CRITICAL'; }
-  else if (score >= 60) { sevClass = 'severity-high'; labelText = 'HIGH'; }
-  else if (score >= 30) { sevClass = 'severity-medium'; labelText = 'MEDIUM'; }
+  if (score >= 80) { chipClass = 'chip-critical'; labelText = 'CRITICAL'; }
+  else if (score >= 60) { chipClass = 'chip-high'; labelText = 'HIGH'; }
+  else if (score >= 30) { chipClass = 'chip-medium'; labelText = 'MEDIUM'; }
 
-  tagEl.className = `risk-severity-badge ${sevClass}`;
+  tagEl.className = `badge-chip ${chipClass}`;
   tagEl.innerText = state.risk.label || labelText;
 
-  // Breakdown list
   if (!state.risk.breakdown || state.risk.breakdown.length === 0) {
-    listEl.innerHTML = `<li class="empty-breakdown">No risk signals evaluated.</li>`;
+    listEl.innerHTML = `<li class="signal-empty">No active risk signals.</li>`;
   } else {
     listEl.innerHTML = state.risk.breakdown.map(item => `
-      <li class="breakdown-item">
-        <span class="breakdown-signal">• ${item.signal}</span>
-        <span class="breakdown-pts">+${item.points}</span>
+      <li class="signal-item">
+        <span>• ${item.signal}</span>
+        <span class="signal-points">+${item.points}</span>
       </li>
     `).join('');
   }
@@ -405,25 +378,22 @@ function renderJourney() {
   if (!container) return;
 
   if (!state.journey || state.journey.length === 0) {
-    container.innerHTML = `
-      <div class="journey-placeholder">
-        <i class="fa-solid fa-shoe-prints"></i> Awaiting attacker session movement...
-      </div>`;
+    container.innerHTML = `<div class="journey-empty">Awaiting attacker session movement...</div>`;
     return;
   }
 
   container.innerHTML = state.journey.map((node, index) => {
     const isLast = index === state.journey.length - 1;
-    const boxClass = node.status === 'critical' ? 'node-box critical' : 'node-box active';
+    const boxClass = node.status === 'critical' ? 'step-card critical' : 'step-card active';
     return `
-      <div class="journey-node">
+      <div class="journey-step">
         <div class="${boxClass}">
-          <span class="node-step-tag">Step 0${node.step || (index + 1)}</span>
-          <h4 class="node-page">/${node.page}</h4>
-          <span class="node-action">${node.action}</span>
-          <div class="node-time">${node.timestamp}</div>
+          <span class="step-num">Step 0${node.step || (index + 1)}</span>
+          <h4 class="step-endpoint">/${node.page}</h4>
+          <span class="step-desc">${node.action}</span>
+          <div class="step-time">${node.timestamp}</div>
         </div>
-        ${!isLast ? `<i class="fa-solid fa-chevron-right journey-connector"></i>` : ''}
+        ${!isLast ? `<i class="fa-solid fa-chevron-right step-arrow"></i>` : ''}
       </div>
     `;
   }).join('');
@@ -434,7 +404,7 @@ function renderAiAnalysis() {
   const evidenceEl = document.getElementById('ai-evidence-list');
   const recommendEl = document.getElementById('ai-recommend-list');
 
-  if (summaryEl) summaryEl.innerText = state.aiAnalysis.summary || 'Awaiting telemetry evidence for AI synthesis...';
+  if (summaryEl) summaryEl.innerText = state.aiAnalysis.summary || 'Awaiting telemetry evidence for synthesis...';
 
   if (evidenceEl) {
     if (!state.aiAnalysis.evidence || state.aiAnalysis.evidence.length === 0) {
@@ -462,12 +432,9 @@ function renderPrediction() {
   if (stageEl) stageEl.innerText = (state.prediction.stage || 'RECONNAISSANCE').toUpperCase();
   if (confValEl) confValEl.innerText = `${state.prediction.confidence || 0}%`;
   if (confBarEl) confBarEl.style.width = `${state.prediction.confidence || 0}%`;
-  if (basisEl) basisEl.innerText = state.prediction.basis || 'Pattern-based estimation in progress...';
+  if (basisEl) basisEl.innerText = state.prediction.basis || 'Pattern-based estimation active...';
 }
 
-/* --------------------------------------------------------------------------
-   Demo Attack Simulator (For Judge Demos)
-   -------------------------------------------------------------------------- */
 function triggerSimulatedAttack(type) {
   const timeStr = new Date().toTimeString().split(' ')[0];
 
@@ -507,7 +474,7 @@ function triggerSimulatedAttack(type) {
       source_ip: '185.220.101.5'
     });
     state.risk.score = Math.min(100, state.risk.score + 30);
-    state.risk.breakdown.push({ signal: 'SQL Injection Injection Pattern', points: 30 });
+    state.risk.breakdown.push({ signal: 'SQL Injection Pattern', points: 30 });
     state.stats.highRisk++;
     state.stats.threats++;
   } else if (type === 'full_chain') {
@@ -526,7 +493,6 @@ async function handleResetDemo() {
     }
   }
 
-  // Reset local state
   state.events = [];
   state.stats = { totalEvents: 0, threats: 0, highRisk: 0, activeSessions: 1 };
   state.risk = { score: 0, label: 'LOW', breakdown: [] };
