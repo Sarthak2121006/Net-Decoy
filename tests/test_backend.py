@@ -293,3 +293,25 @@ def test_sessions_endpoints(client):
     assert "risk" in sess
     assert "prediction" in sess
     assert "analysis" in sess
+
+def test_quarantine_endpoints(client):
+    """Verify POST, GET, DELETE /api/quarantine active defense workflows."""
+    # Add IP to quarantine
+    res_post = client.post("/api/quarantine", json={"ip": "198.51.100.99", "reason": "Repeated SQLi"})
+    assert res_post.status_code == 201
+    assert res_post.json["status"] == "success"
+
+    # List quarantines
+    res_list = client.get("/api/quarantine")
+    assert res_list.status_code == 200
+    assert res_list.json["count"] >= 1
+    assert res_list.json["quarantined_ips"][0]["ip_address"] == "198.51.100.99"
+
+    # Delete / unquarantine IP
+    res_del = client.delete("/api/quarantine/198.51.100.99")
+    assert res_del.status_code == 200
+    assert res_del.json["status"] == "success"
+
+    # Confirm unquarantined
+    res_list_after = client.get("/api/quarantine")
+    assert res_list_after.json["count"] == 0

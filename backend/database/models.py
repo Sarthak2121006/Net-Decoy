@@ -73,3 +73,23 @@ class SessionModel(Base):
             "risk_level": self.risk_level,
             "status": self.status
         }
+
+
+class QuarantineModel(Base):
+    __tablename__ = "quarantined_ips"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    ip_address = Column(String(64), unique=True, nullable=False, index=True)
+    reason = Column(String(255), nullable=False, default="Automated High Risk Containment")
+    quarantined_at = Column(String(64), nullable=False)
+    status = Column(String(32), nullable=False, default="active")
+
+    def to_dict(self):
+        """Serialize quarantine record."""
+        return {
+            "id": self.id,
+            "ip_address": self.ip_address,
+            "reason": self.reason,
+            "quarantined_at": self.quarantined_at,
+            "status": self.status
+        }

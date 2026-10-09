@@ -264,7 +264,15 @@ Base URL: `http://localhost:5000` (or configured port)
 
 ---
 
-### 1.12 Reset Demo State
+### 1.12 Active Defense & IP Quarantine
+- **Endpoints**:
+  - `GET /api/quarantine` — List all actively quarantined IPs
+  - `POST /api/quarantine` — Block/quarantine an IP (`{"ip": "198.51.100.99", "reason": "SQLi Attempt"}`)
+  - `DELETE /api/quarantine/<ip>` — Release/unquarantine an IP
+
+---
+
+### 1.13 Reset Demo State
 - **Endpoint**: `POST /api/reset`
 - **Description**: Clears demo events, resets session tracking, and restores clean database state for demo repeatability.
 - **Response (200 OK)**:
