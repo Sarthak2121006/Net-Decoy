@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apex Global Admin Console</title>
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/trap_event_logger.js"></script>
+</head>
+<body>
+  <nav class="top-nav">
+    <a href="index.html" class="brand-container">
+      <div class="brand-logo">A</div>
+      <div class="brand-title">Apex Global Logistics</div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="login.html">SSO Login</a></li>
+      <li><a href="admin.html" class="active">Admin Console</a></li>
+      <li><a href="backup.html">Backup Portal</a></li>
+      <li><a href="database.html">SQL Workbench</a></li>
+      <li><a href="api.html">API Explorer</a></li>
+      <li><a href="search.html">Document Search</a></li>
+      <li><span class="nav-badge">SuperAdmin</span></li>
+    </ul>
+  </nav>
+
+  <main class="container">
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-end;">
+      <div>
+        <h1 class="page-title">Internal Administrative Console</h1>
+        <p class="page-subtitle">User directory, access roles, and platform infrastructure settings.</p>
+      </div>
+      <div>
+        <button class="btn btn-secondary" id="refreshUsersBtn">Refresh Directory</button>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+      <button class="btn tab-btn" data-tab="users" style="padding: 0.5rem 1rem; font-size: 0.85rem;">Users</button>
+      <button class="btn btn-secondary tab-btn" data-tab="status" style="padding: 0.5rem 1rem; font-size: 0.85rem;">System Status</button>
+      <button class="btn btn-secondary tab-btn" data-tab="reports" style="padding: 0.5rem 1rem; font-size: 0.85rem;">Reports</button>
+      <button class="btn btn-secondary tab-btn" data-tab="settings" style="padding: 0.5rem 1rem; font-size: 0.85rem;">Settings</button>
+      <button class="btn btn-secondary tab-btn" data-tab="backup" style="padding: 0.5rem 1rem; font-size: 0.85rem;">Backup Vault</button>
+    </div>
+
+    <!-- Section 1: Users Table -->
+    <div id="usersSection" class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h3 style="font-size: 1.1rem;">Enterprise User Accounts</h3>
+        <input type="text" id="userFilter" class="form-input" placeholder="Search accounts..." style="width: 240px; padding: 0.4rem 0.75rem; font-size: 0.85rem;">
+      </div>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Full Name</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Last Active</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="userTableBody">
+            <tr data-username="admin">
+              <td><strong>admin</strong></td>
+              <td>System Administrator</td>
+              <td><span class="badge badge-danger">Global Admin</span></td>
+              <td><span class="badge badge-success">Active</span></td>
+              <td>2 mins ago</td>
+              <td><button class="btn btn-secondary inspect-user-btn" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Inspect</button></td>
+            </tr>
+            <tr data-username="john.doe">
+              <td><strong>john.doe</strong></td>
+              <td>John Doe (IT Support)</td>
+              <td><span class="badge badge-info">IT Specialist</span></td>
+              <td><span class="badge badge-success">Active</span></td>
+              <td>1 hour ago</td>
+              <td><button class="btn btn-secondary inspect-user-btn" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Inspect</button></td>
+            </tr>
+            <tr data-username="finance_user">
+              <td><strong>finance_user</strong></td>
+              <td>Sarah Connor</td>
+              <td><span class="badge badge-warning">Finance Analyst</span></td>
+              <td><span class="badge badge-success">Active</span></td>
+              <td>Yesterday</td>
+              <td><button class="btn btn-secondary inspect-user-btn" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Inspect</button></td>
+            </tr>
+            <tr data-username="backup_admin">
+              <td><strong>backup_admin</strong></td>
+              <td>Robert Paulson</td>
+              <td><span class="badge badge-info">Vault Custodian</span></td>
+              <td><span class="badge badge-success">Active</span></td>
+              <td>3 days ago</td>
+              <td><button class="btn btn-secondary inspect-user-btn" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Inspect</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Section 2: Details Modal / Panel -->
+    <div id="detailsCard" class="card" style="display: none;">
+      <h3 id="detailsTitle" style="font-size: 1.1rem; margin-bottom: 0.5rem;">Resource Information</h3>
+      <p id="detailsText" style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5;"></p>
+    </div>
+  </main>
+
+  <footer class="footer">
+    &copy; 2026 Apex Global Logistics Inc. Administrative Subsystem.
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Log Admin Page Access
+      logDecoyEvent({
+        page: 'admin',
+        action: 'admin_access',
+        event_type: 'scanning',
+        payload: { path: '/admin' }
+      });
+
+      const tabBtns = document.querySelectorAll('.tab-btn');
+      const detailsCard = document.getElementById('detailsCard');
+      const detailsTitle = document.getElementById('detailsTitle');
+      const detailsText = document.getElementById('detailsText');
+      const inspectBtns = document.querySelectorAll('.inspect-user-btn');
+      const userFilter = document.getElementById('userFilter');
+      const refreshUsersBtn = document.getElementById('refreshUsersBtn');
+
+      // 2. Tab Exploration telemetry
+      tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          tabBtns.forEach(b => {
+            b.classList.remove('btn');
+            b.classList.add('btn-secondary');
+          });
+          btn.classList.remove('btn-secondary');
+          btn.classList.add('btn');
+
+          const tabName = btn.getAttribute('data-tab');
+          logDecoyEvent({
+            page: 'admin',
+            action: 'resource_access',
+            event_type: 'scanning',
+            payload: { section: tabName, pattern_detected: true }
+          });
+
+          detailsCard.style.display = 'block';
+          detailsTitle.textContent = 'Section Loaded: ' + tabName.toUpperCase();
+          detailsText.textContent = `Accessing administrative sub-resource /admin/${tabName}. Retrieval completed from simulated node cluster.`;
+        });
+      });
+
+      // 3. User Enumeration telemetry
+      inspectBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const row = e.target.closest('tr');
+          const username = row.getAttribute('data-username');
+          logDecoyEvent({
+            page: 'admin',
+            action: 'user_enumeration',
+            event_type: 'user_enumeration',
+            payload: { target_username: username, pattern_detected: true }
+          });
+
+          detailsCard.style.display = 'block';
+          detailsTitle.textContent = `User Profile: ${username}`;
+          detailsText.textContent = `Retrieved metadata for account ${username}. Group permissions and API authorization tokens loaded.`;
+        });
+      });
+
+      userFilter.addEventListener('input', (e) => {
+        const val = e.target.value.trim();
+        if (val.length > 1) {
+          logDecoyEvent({
+            page: 'admin',
+            action: 'user_enumeration',
+            event_type: 'user_enumeration',
+            payload: { filter_query: val, pattern_detected: true }
+          });
+        }
+      });
+
+      refreshUsersBtn.addEventListener('click', () => {
+        logDecoyEvent({
+          page: 'admin',
+          action: 'user_enumeration',
+          event_type: 'user_enumeration',
+          payload: { action: 'directory_refresh' }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

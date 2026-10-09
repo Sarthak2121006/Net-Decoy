@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apex Global SSO | Corporate Login</title>
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/trap_event_logger.js"></script>
+</head>
+<body>
+  <nav class="top-nav">
+    <a href="index.html" class="brand-container">
+      <div class="brand-logo">A</div>
+      <div class="brand-title">Apex Global Logistics</div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="login.html" class="active">SSO Login</a></li>
+      <li><a href="admin.html">Admin Console</a></li>
+      <li><a href="backup.html">Backup Portal</a></li>
+      <li><a href="database.html">SQL Workbench</a></li>
+      <li><a href="api.html">API Explorer</a></li>
+      <li><a href="search.html">Document Search</a></li>
+    </ul>
+  </nav>
+
+  <main class="container" style="max-width: 440px; margin-top: 4rem;">
+    <div class="card">
+      <div style="text-align: center; margin-bottom: 1.75rem;">
+        <div class="brand-logo" style="width: 48px; height: 48px; margin: 0 auto 0.75rem auto; font-size: 1.5rem;">A</div>
+        <h2 style="font-size: 1.35rem; font-weight: 700;">Corporate Single Sign-On</h2>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.25rem;">Enter your network credentials to authenticate</p>
+      </div>
+
+      <div id="alertBox" class="alert alert-danger" style="display: none;">
+        <span id="alertMessage">Invalid credentials provided.</span>
+      </div>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label class="form-label" for="username">Corporate Username</label>
+          <input type="text" id="username" class="form-input" placeholder="e.g. admin or john.doe" required autocomplete="off">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <input type="password" id="password" class="form-input" placeholder="••••••••••••" required>
+        </div>
+
+        <button type="submit" id="submitBtn" class="btn" style="width: 100%; margin-top: 0.5rem;">
+          Sign In
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <footer class="footer">
+    &copy; 2026 Apex Global Logistics Inc. Internal SSO Service.
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Track load
+      logDecoyEvent({
+        page: 'login',
+        action: 'login_page_access',
+        event_type: 'authentication',
+        payload: { path: '/login' }
+      });
+
+      const form = document.getElementById('loginForm');
+      const alertBox = document.getElementById('alertBox');
+      const alertMessage = document.getElementById('alertMessage');
+      const submitBtn = document.getElementById('submitBtn');
+
+      let failedAttempts = parseInt(sessionStorage.getItem('decoy_failed_logins') || '0', 10);
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Authenticating...';
+
+        // Check demo login trigger
+        if (username.toLowerCase() === 'admin' && password === 'demo_pass') {
+          await logDecoyEvent({
+            page: 'login',
+            action: 'successful_demo_login',
+            event_type: 'authentication',
+            payload: { username: username }
+          });
+          setTimeout(() => {
+            window.location.href = 'admin.html';
+          }, 600);
+          return;
+        }
+
+        // Increment failed attempts counter
+        failedAttempts += 1;
+        sessionStorage.setItem('decoy_failed_logins', failedAttempts.toString());
+
+        // Always log silent event for authentication failure
+        await logDecoyEvent({
+          page: 'login',
+          action: 'failed_login',
+          event_type: 'authentication',
+          payload: {
+            username: username,
+            attempts_count: failedAttempts,
+            pattern_detected: failedAttempts >= 3
+          }
+        });
+
+        // Simulate realistic authentication delay
+        setTimeout(() => {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Sign In';
+          alertMessage.textContent = 'Invalid username or password. Please verify your corporate credentials or contact IT Service Desk.';
+          alertBox.style.display = 'flex';
+        }, 500);
+      });
+    });
+  </script>
+</body>
+</html>

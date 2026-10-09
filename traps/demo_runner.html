@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NetDecoy M4 - Demo Attack Sequence Runner</title>
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/trap_event_logger.js"></script>
+</head>
+<body>
+  <nav class="top-nav">
+    <a href="index.html" class="brand-container">
+      <div class="brand-logo">A</div>
+      <div class="brand-title">Apex Global Logistics</div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="login.html">Login</a></li>
+      <li><a href="admin.html">Admin</a></li>
+      <li><a href="backup.html">Backup</a></li>
+      <li><a href="database.html">Database</a></li>
+      <li><a href="api.html">API</a></li>
+      <li><a href="search.html">Search</a></li>
+      <li><a href="demo_runner.html" class="active">Demo Runner</a></li>
+    </ul>
+  </nav>
+
+  <main class="container">
+    <div class="page-header">
+      <h1 class="page-title">Deterministic Attack Sequence Demo Runner (M4)</h1>
+      <p class="page-subtitle">Executes the official 5-stage attack journey to demonstrate end-to-end telemetry generation.</p>
+    </div>
+
+    <div class="card" style="margin-bottom: 1.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h3 style="font-size: 1.15rem; margin-bottom: 0.25rem;">Deterministic Demo Controller</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Simulates an attacker traversing Login &rarr; Admin &rarr; Database &rarr; Backup &rarr; Search.</p>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+          <button id="resetDemoBtn" class="btn btn-secondary">Reset Session</button>
+          <button id="runDemoBtn" class="btn btn-danger">Run Full Attack Demo</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3 style="font-size: 1.05rem; margin-bottom: 1rem;">Demo Attack Sequence Progress</h3>
+        
+        <div id="step1" class="step-box" style="padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; margin-bottom: 0.75rem;">
+          <strong>Step 1: Corporate Login</strong>
+          <p style="color: var(--text-muted); font-size: 0.85rem;">5 Failed Login Attempts &rarr; Expect: BRUTE FORCE DETECTED</p>
+        </div>
+
+        <div id="step2" class="step-box" style="padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; margin-bottom: 0.75rem;">
+          <strong>Step 2: Admin Dashboard</strong>
+          <p style="color: var(--text-muted); font-size: 0.85rem;">Probe users, settings, backup &rarr; Expect: SCANNING / ENUMERATION</p>
+        </div>
+
+        <div id="step3" class="step-box" style="padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; margin-bottom: 0.75rem;">
+          <strong>Step 3: Database Console</strong>
+          <p style="color: var(--text-muted); font-size: 0.85rem;">Submit SQLi pattern <code>' OR '1'='1</code> &rarr; Expect: SQL INJECTION DETECTED</p>
+        </div>
+
+        <div id="step4" class="step-box" style="padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; margin-bottom: 0.75rem;">
+          <strong>Step 4: Backup Vault</strong>
+          <p style="color: var(--text-muted); font-size: 0.85rem;">Access <code>database_backup.sql</code> & <code>employees.csv</code> &rarr; Expect: SENSITIVE ACCESS</p>
+        </div>
+
+        <div id="step5" class="step-box" style="padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; margin-bottom: 0.75rem;">
+          <strong>Step 5: Document Search</strong>
+          <p style="color: var(--text-muted); font-size: 0.85rem;">Submit traversal string <code>../../etc/passwd</code> &rarr; Expect: PATH TRAVERSAL DETECTED</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="font-size: 1.05rem; margin-bottom: 1rem;">Live Telemetry Event Log</h3>
+        <div id="logConsole" class="code-box" style="height: 380px; overflow-y: auto;">
+          Press "Run Full Attack Demo" to execute sequence...
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    &copy; 2026 NetDecoy Deception Trap Engineering.
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const runBtn = document.getElementById('runDemoBtn');
+      const resetBtn = document.getElementById('resetDemoBtn');
+      const logConsole = document.getElementById('logConsole');
+
+      function appendLog(msg) {
+        logConsole.innerHTML += `[${new Date().toLocaleTimeString()}] ${msg}\n`;
+        logConsole.scrollTop = logConsole.scrollHeight;
+      }
+
+      resetBtn.addEventListener('click', () => {
+        const newSess = resetDecoySession();
+        logConsole.innerHTML = `Session reset. New Session ID: ${newSess}\n`;
+      });
+
+      runBtn.addEventListener('click', async () => {
+        runBtn.disabled = true;
+        logConsole.innerHTML = `=== Starting Deterministic Attack Demo Sequence ===\nSession ID: ${window.NetDecoySessionId}\n\n`;
+
+        // Step 1: Login Brute Force
+        document.getElementById('step1').style.borderColor = 'var(--accent-amber)';
+        appendLog('--> Step 1: Performing 5 failed login attempts on /login...');
+        for (let i = 1; i <= 5; i++) {
+          await logDecoyEvent({
+            page: 'login',
+            action: 'failed_login',
+            event_type: 'authentication',
+            payload: { username: 'admin', attempts_count: i, pattern_detected: i >= 3 }
+          });
+          await new Promise(r => setTimeout(r, 200));
+        }
+        document.getElementById('step1').style.borderColor = 'var(--accent-green)';
+        appendLog('✓ Step 1 Complete: 5 failed_login events dispatched. Triggered BRUTE_FORCE pattern.\n');
+
+        // Step 2: Admin Dashboard Scanning
+        document.getElementById('step2').style.borderColor = 'var(--accent-amber)';
+        appendLog('--> Step 2: Probing admin dashboard sections on /admin...');
+        await logDecoyEvent({ page: 'admin', action: 'admin_access', event_type: 'scanning', payload: { path: '/admin' } });
+        await logDecoyEvent({ page: 'admin', action: 'user_enumeration', event_type: 'user_enumeration', payload: { target_username: 'admin', pattern_detected: true } });
+        await logDecoyEvent({ page: 'admin', action: 'resource_access', event_type: 'scanning', payload: { section: 'settings', pattern_detected: true } });
+        await logDecoyEvent({ page: 'admin', action: 'resource_access', event_type: 'scanning', payload: { section: 'backup', pattern_detected: true } });
+        document.getElementById('step2').style.borderColor = 'var(--accent-green)';
+        appendLog('✓ Step 2 Complete: Probed users, settings, backup. Triggered SCANNING / ENUMERATION pattern.\n');
+
+        // Step 3: Database Console SQLi
+        document.getElementById('step3').style.borderColor = 'var(--accent-amber)';
+        appendLog("--> Step 3: Submitting suspicious SQL injection on /database...");
+        await logDecoyEvent({
+          page: 'database',
+          action: 'sql_injection_attempt',
+          event_type: 'sql_injection',
+          payload: { query: "' OR '1'='1", pattern_detected: true }
+        });
+        await logDecoyEvent({
+          page: 'database',
+          action: 'suspicious_query',
+          event_type: 'sql_injection',
+          payload: { query: "' OR '1'='1", pattern_detected: true }
+        });
+        document.getElementById('step3').style.borderColor = 'var(--accent-green)';
+        appendLog('✓ Step 3 Complete: SQLi attempt dispatched. Triggered SQL_INJECTION pattern.\n');
+
+        // Step 4: Backup Vault Sensitive Access
+        document.getElementById('step4').style.borderColor = 'var(--accent-amber)';
+        appendLog('--> Step 4: Accessing sensitive backup archives on /backup...');
+        await logDecoyEvent({ page: 'backup', action: 'backup_access', event_type: 'sensitive_access', payload: { path: '/backup' } });
+        await logDecoyEvent({ page: 'backup', action: 'sensitive_file_access', event_type: 'sensitive_access', payload: { file_name: 'database_backup.sql', mode: 'download', pattern_detected: true } });
+        await logDecoyEvent({ page: 'backup', action: 'sensitive_file_access', event_type: 'sensitive_access', payload: { file_name: 'employees.csv', mode: 'download', pattern_detected: true } });
+        document.getElementById('step4').style.borderColor = 'var(--accent-green)';
+        appendLog('✓ Step 4 Complete: Accessed database_backup.sql & employees.csv. Triggered SENSITIVE_ACCESS pattern.\n');
+
+        // Step 5: Search Path Traversal
+        document.getElementById('step5').style.borderColor = 'var(--accent-amber)';
+        appendLog('--> Step 5: Submitting path traversal query on /search...');
+        await logDecoyEvent({
+          page: 'search',
+          action: 'path_traversal_attempt',
+          event_type: 'path_traversal',
+          payload: { search_term: '../../etc/passwd', pattern_detected: true }
+        });
+        document.getElementById('step5').style.borderColor = 'var(--accent-green)';
+        appendLog('✓ Step 5 Complete: Path traversal attempt dispatched. Triggered PATH_TRAVERSAL pattern.\n');
+
+        appendLog('=== FULL ATTACK DEMO SEQUENCE COMPLETE ===');
+        appendLog('Visual Attack Journey generated: LOGIN -> ADMIN -> DATABASE -> BACKUP -> SEARCH');
+        runBtn.disabled = false;
+      });
+    });
+  </script>
+</body>
+</html>
