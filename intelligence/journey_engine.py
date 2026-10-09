@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Optional, Set
 
 class JourneyEngine:
     """
-    Constructs an attacker journey timeline and tracks progression across MITRE-aligned deception stages:
+    Constructs an attacker journey timeline and tracks progression across kill-chain-inspired deception stages:
     RECONNAISSANCE -> SCANNING -> CREDENTIAL_ACCESS -> RESOURCE_DISCOVERY -> PRIVILEGE_ESCALATION -> DATA_ACCESS
     """
 

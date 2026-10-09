@@ -3,7 +3,8 @@ NetDecoy - Pattern-Based Next-Stage Prediction Engine
 Module: intelligence/prediction_engine.py
 
 Performs deterministic sequence modeling to estimate the attacker's next likely stage.
-Uses a transition matrix derived from predefined attack progression patterns (MITRE ATT&CK aligned).
+Uses a transition matrix derived from predefined attack progression patterns (kill-chain-inspired).
+Pattern confidence comes from a predefined transition table plus a depth heuristic, not a trained model.
 Never uses LLMs to hallucinate confidence percentages or claim future certainty.
 Outputs "Pattern confidence", emphasizing heuristic similarity rather than guaranteed forecasting.
 """
@@ -14,7 +15,8 @@ from typing import Any, Dict, List, Optional, Tuple
 class PredictionEngine:
     """
     Deterministic transition model estimating subsequent attack stages based on
-    observed attacker stage sequences.
+    observed attacker stage sequences. Confidence comes from a predefined transition table
+    plus a depth heuristic, not a trained model.
     """
 
     # Transition model mapping current_stage -> list of (next_stage, base_confidence, rationale)
