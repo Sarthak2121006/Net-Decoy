@@ -1,357 +1,100 @@
-# NetDecoy
+# NetDecoy — Security Operations Center (SOC) Dashboard
 
 ### From Attacker Activity to Actionable Threat Intelligence
 
-> **NetDecoy** is a controlled, AI-assisted deception and
-> threat-intelligence prototype. It observes simulated attacker
-> interactions, detects suspicious patterns, builds an attacker journey,
-> explains the evidence, and estimates a possible next attack stage.
+> **NetDecoy** is a controlled, AI-assisted deception and threat-intelligence platform. It observes simulated attacker interactions across synthetic traps, detects suspicious activity, calculates an explainable risk score, maps the chronological attacker journey, explains the telemetry with AI, and estimates the next likely attack stage.
 
+<<<<<<< HEAD
 **Project:** NetDecoy\
 **Event:** IEEE SYNAPSE 2026\
 **Status:** In Active Development / Integration (M1 Backend, M3 Intelligence, and M4 Traps)\
 **Safety model:** Controlled simulation using synthetic resources and
 data.
+=======
+**Project:** NetDecoy  
+**Event:** IEEE SYNAPSE 2026  
+**Lead Engineer:** M2 — Frontend & SOC Dashboard Lead  
+**Branch:** `frontend-development`  
+**Status:** MVP Prototype Built & Verified  
+>>>>>>> upstream/frontend-development
 
-## Table of Contents
+---
 
--   [Overview](#overview)
--   [Problem Statement](#problem-statement)
--   [Solution](#solution)
--   [Architecture](#architecture)
--   [How It Works](#how-it-works)
--   [Deception Modules](#deception-modules)
--   [Event Schema](#event-schema)
--   [Detection Engine](#detection-engine)
--   [Risk Scoring](#risk-scoring)
--   [Attacker Journey](#attacker-journey)
--   [AI Explanation](#ai-explanation)
--   [Next-Stage Estimation](#next-stage-estimation)
--   [Geolocation](#geolocation)
--   [SOC Dashboard](#soc-dashboard)
--   [Technology Stack](#technology-stack)
--   [Repository Structure](#repository-structure)
--   [API Reference](#api-reference)
--   [Team Responsibilities](#team-responsibilities)
--   [Hackathon Plan](#hackathon-plan)
--   [Getting Started](#getting-started)
--   [Demo Scenario](#demo-scenario)
--   [Testing Checklist](#testing-checklist)
--   [Security Boundaries](#security-boundaries)
--   [Limitations](#limitations)
--   [Future Scope](#future-scope)
--   [Git Workflow](#git-workflow)
--   [Demo Pitch](#demo-pitch)
+## 🛡️ Executive Overview & SOC Dashboard
 
-## Overview
+The SOC Dashboard is the primary visual operations center for NetDecoy. Designed for rapid threat comprehension, it provides security analysts and presentation judges with an immediate, high-level operational picture within 10 seconds of observation.
 
-Security systems can generate large amounts of events and alerts.
-Individual events do not always make it easy to understand how an
-attacker behaves or how separate actions relate to one another.
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 🛡️ NETDECOY — SECURITY OPERATIONS CENTER (SOC)                            │
+├───────────────┬───────────────────┬─────────────────────┬───────────────────┤
+│ Total Events  │ Threats Detected  │ High Risk Sessions  │ Active Sessions   │
+│ 148           │ 42                │ 3                   │ 5                 │
+├───────────────┴───────────────────┴─────────────────────┴───────────────────┤
+│ LIVE EVENT FEED                                                             │
+│ 14:31:04  /login     Failed Authentication                HIGH    185.220.101.5 │
+│ 14:31:08  /admin     Endpoint Enumeration Probed          MEDIUM  185.220.101.5 │
+│ 14:31:13  /database  SQL-Like Input Detected              CRITICAL 185.220.101.5│
+├──────────────────────────────────────┬──────────────────────────────────────┤
+│ THREAT RISK ASSESSMENT               │ ATTACKER ORIGIN GEOLOCATION MAP      │
+│ Score: 87 / 100 [CRITICAL]           │ Frankfurt, Germany (50.1109, 8.6821) │
+│ Breakdown: Brute Force (+20), SQLi(+30)│ Interactive Dark Leaflet Map Pin    │
+├──────────────────────────────────────┴──────────────────────────────────────┤
+│ ATTACKER CHRONOLOGICAL JOURNEY MAP                                          │
+│ [LOGIN] ➔ [ADMIN] ➔ [DATABASE] ➔ [BACKUP] ➔ [API]                           │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ 🧠 AI THREAT ANALYSIS ENGINE                                                 │
+│ Executive Summary: Attacker session sess_8832 initiated credential brute... │
+│ Evidence: Multiple failed logins, admin scanning, SQL injection payload     │
+│ Containment: Block IP 185.220.101.5, revoke session sess_8832                │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ 🔮 NEXT LIKELY ATTACK STAGE                                                 │
+│ Estimated Next Phase: PRIVILEGE ESCALATION (Pattern Confidence: 78%)        │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
 
-NetDecoy demonstrates a **behavior-to-intelligence pipeline**:
+---
 
-**Deceive → Observe → Detect → Score → Understand → Anticipate**
+## 🚀 Key Dashboard Features
 
-It presents six simulated enterprise resources. Interactions are
-recorded as structured events. A deterministic detection layer
-identifies configured suspicious patterns and calculates an explainable
-risk score. The system organizes observed activity into an attacker
-journey, uses AI to explain the evidence, and estimates a possible next
-stage using predefined behavior patterns.
+1. **Top Metrics Cards**: Real-time counters for Total Events, Threats Detected, High Risk Sessions, and Active Sessions (`GET /api/stats`).
+2. **Live Event Feed Table**: Filtering by severity (`CRITICAL`, `HIGH`, `MEDIUM`, `LOW`), showing ISO timestamps, trap routes, actions, and source IPs (`GET /api/events`).
+3. **Bounded Threat Risk Gauge**: 0–100 risk score meter with dynamic severity status bands (LOW: 0–29, MEDIUM: 30–59, HIGH: 60–79, CRITICAL: 80–100) and explicit points breakdown list (`GET /api/risk`).
+4. **Interactive Leaflet Geolocation Map**: Plots approximate attacker origin using dark CartoDB tiles and custom glowing map markers (`GET /api/geo`). Includes automatic fallback if IP geolocation is unavailable.
+5. **Attacker Chronological Journey Map**: Visual step-by-step node flow connecting attacker movement across traps (`GET /api/journey`).
+6. **AI Threat Analysis Panel**: Dedicated card displaying LLM-synthesized executive threat summary, structured telemetry evidence bullets, and recommended containment actions (`GET /api/analysis`).
+7. **Next Stage Prediction Card**: Pattern-based estimate of future attacker trajectory with pattern confidence bar (`GET /api/prediction`).
+8. **Judge Demo Simulator & Reset**: Built-in standalone demo sequence controls (`Brute-Force`, `Scan`, `SQLi`, `Full Attack Chain`) and state reset (`POST /api/reset`).
 
-NetDecoy is an educational hackathon prototype, not a replacement for a
-production SIEM, SOC, or professionally operated honeypot.
+---
 
-## Problem Statement
-
-Security analysts may need to determine what suspicious actions
-occurred, which actions belong to the same session, how serious the
-activity is, how it progressed across resources, what evidence supports
-an assessment, and what should be investigated next.
-
-A workflow focused only on collecting honeypot logs can leave the
-analyst to connect the dots manually.
-
-**Problem statement:** How can interactions with a controlled deceptive
-environment be converted into understandable, explainable, and useful
-threat intelligence?
-
-## Solution
-
-NetDecoy combines: 1. **Deception layer:** simulated login, admin,
-backup, database, API, and search/file resources. 2. **Event
-collector:** normalizes interactions into one shared event format. 3.
-**Detection engine:** uses deterministic rules to identify configured
-suspicious patterns. 4. **Threat intelligence:** calculates risk and
-organizes observed actions into a journey. 5. **AI and pattern
-analysis:** explains evidence and estimates a possible next stage. 6.
-**SOC dashboard:** presents events, risk, journey, approximate
-geolocation when available, explanation, and estimation.
-
-The key idea is to connect observed actions into an evolving profile
-rather than displaying isolated alerts.
-
-## Architecture
+## 🛠️ Architecture & Data Flow
 
 ``` mermaid
 flowchart TD
-    A[Simulated Attacker] --> B[Deception Layer]
-    B --> B1[Corporate Login]
-    B --> B2[Admin Dashboard]
-    B --> B3[Backup Portal]
-    B --> B4[Database Console]
-    B --> B5[Internal API Explorer]
-    B --> B6[Search / File Portal]
+    Attacker[Simulated Attacker] --> Traps[Deception Traps /login, /admin, /database, /backup]
+    Traps --> Collector[Central Event Collector]
+    Collector --> Storage[(Event Database)]
+    Storage --> Detection[Detection & Risk Engine]
+    Detection --> Journey[Attacker Journey Engine]
+    Detection --> AI[AI Threat Analysis]
+    Detection --> Predict[Next Stage Estimator]
+    
+    Storage --> API[Backend REST API]
+    Detection --> API
+    Journey --> API
+    AI --> API
+    Predict --> API
 
-    B1 --> C[Central Event Collector]
-    B2 --> C
-    B3 --> C
-    B4 --> C
-    B5 --> C
-    B6 --> C
-
-    C --> D[Event Validation and Storage]
-    D --> E[Deterministic Detection Engine]
-    E --> F[Risk Scoring Engine]
-    E --> G[Attack Journey Engine]
-    E --> H[Structured Evidence]
-    H --> I[AI Explanation Engine]
-    G --> J[Pattern-Based Next-Stage Estimation]
-    C --> K[Optional IP Geolocation]
-    D --> L[Backend API]
-    F --> L
-    G --> L
-    I --> L
-    J --> L
-    K --> L
-    L --> M[SOC Dashboard]
+    API --> Dashboard[SOC Dashboard frontend/dashboard.html]
 ```
 
-### Component responsibilities
+---
 
-  -----------------------------------------------------------------------
-  Component                           Responsibility
-  ----------------------------------- -----------------------------------
-  Deception layer                     Presents controlled fake resources
-                                      and records interactions
-
-  Event collector                     Validates and normalizes events
-
-  Event storage                       Makes events available for analysis
-                                      and dashboard queries
-
-  Detection engine                    Applies deterministic rules
-
-  Risk engine                         Calculates a bounded, explainable
-                                      score
-
-  Journey engine                      Organizes observed events into a
-                                      readable sequence
-
-  AI explanation engine               Summarizes evidence and suggests
-                                      investigation steps
-
-  Next-stage estimator                Uses predefined transitions to
-                                      estimate a possible next stage
-
-  Geolocation adapter                 Retrieves approximate location
-                                      where available
-
-  Backend API                         Exposes events and analysis to the
-                                      dashboard
-
-  SOC dashboard                       Presents the threat profile
-  -----------------------------------------------------------------------
-
-### Design principles
-
--   Keep detection separate from AI interpretation.
--   Use one shared event schema across all traps.
--   Let the frontend communicate with the backend API, not directly with
-    the database.
--   Make optional external services fail gracefully.
--   Make risk assessments explainable.
--   Prefer a small, testable end-to-end system over feature bloat.
-
-## How It Works
-
-1.  A user interacts with a simulated enterprise resource.
-2.  The resource sends a structured event to the collector.
-3.  The collector validates and stores the event.
-4.  The detection engine evaluates the event and relevant session
-    activity.
-5.  The risk engine updates the score using configured rules.
-6.  The journey engine updates the observed action sequence.
-7.  Structured evidence can be sent to the AI explanation engine.
-8.  The pattern-based estimator checks the observed stages against
-    predefined transitions.
-9.  The backend API exposes results.
-10. The dashboard refreshes and displays the updated profile.
-
-Periodic polling can be used for a simple prototype. WebSockets or
-streaming infrastructure can be considered later.
-
-## Deception Modules
-
-These are controlled decoys, not production systems.
-
-  --------------------------------------------------------------------------
-  Module            Example route     Example           Intended observation
-                                      interaction       
-  ----------------- ----------------- ----------------- --------------------
-  Corporate Login   `/login`          Repeated failed   Brute-force pattern
-                                      login attempts    
-
-  Admin Dashboard   `/admin`          Exploring         Scanning/resource
-                                      administrative    enumeration
-                                      sections          
-
-  Backup Portal     `/backup`         Opening a         Sensitive-resource
-                                      synthetic backup  access
-                                      resource          
-
-  Database Console  `/database`       Submitting        SQL-injection
-                                      suspicious        pattern
-                                      SQL-like text     
-
-  Internal API      `/api`            Probing fake      Endpoint enumeration
-  Explorer                            endpoints         
-
-  Search/File       `/search`         Submitting a      Path-traversal
-  Portal                              traversal-like    pattern
-                                      string            
-  --------------------------------------------------------------------------
-
-### Safety behavior
-
--   Login attempts are recorded; they do not authenticate against real
-    accounts.
--   Admin content and backup files are synthetic.
--   SQL-like input is detected and logged, never executed.
--   Traversal-like input is detected and logged, never used to access
-    the host filesystem.
--   Arbitrary commands are not executed.
-
-## Event Schema
-
-All traps should use a common schema. The backend may generate
-identifiers, timestamps, and source information where appropriate.
-
-``` json
-{
-  "event_id": "evt_001",
-  "session_id": "sess_001",
-  "timestamp": "2026-10-08T14:30:21Z",
-  "source_ip": "127.0.0.1",
-  "page": "login",
-  "action": "failed_login",
-  "event_type": "authentication",
-  "payload": {
-    "username": "admin"
-  }
-}
-```
-
-  -----------------------------------------------------------------------
-  Field                               Meaning
-  ----------------------------------- -----------------------------------
-  `event_id`                          Unique event identifier
-
-  `session_id`                        Identifier for grouping related
-                                      activity
-
-  `timestamp`                         Event time, preferably ISO 8601
-
-  `source_ip`                         Address observed by the
-                                      application; may be a proxy or
-                                      local address
-
-  `page`                              Resource where the event occurred
-
-  `action`                            Specific interaction
-
-  `event_type`                        Broad event category
-
-  `payload`                           Additional structured context; do
-                                      not put secrets here
-  -----------------------------------------------------------------------
-
-Keep action names consistent across traps, backend, and intelligence
-modules. Store the shared schema in `shared/event_schema.json`.
-
-## Detection Engine
-
-Detection is deterministic and rule-based for the supported patterns.
-
-  -----------------------------------------------------------------------
-  Category                Example evidence        Example logic
-  ----------------------- ----------------------- -----------------------
-  Brute force             Multiple failed logins  Count failed attempts
-                                                  per session or source
-                                                  in a configured
-                                                  interval
-
-  Scanning                Probing different       Count distinct
-                          resources               endpoints touched
-                                                  within a time window
-
-  SQL-injection pattern   Suspicious SQL-like     Match a documented set
-                          input                   of suspicious input
-                                                  patterns
-
-  Path-traversal pattern  Traversal-like sequence Detect the pattern
-                          such as `../`           without resolving or
-                                                  opening a path
-
-  Sensitive-resource      Interaction with a      Record the event and
-  access                  synthetic decoy         apply the configured
-                                                  rule
-  -----------------------------------------------------------------------
-
-These rules identify configured patterns; they do not prove malicious
-intent in every real-world situation. Thresholds should be documented
-and tested.
-
-**AI does not decide whether an attack occurred.** The detection engine
-produces evidence; AI explains it.
-
-## Risk Scoring
-
-NetDecoy uses a bounded score from **0 to 100**. The score should be
-deterministic and accompanied by reasons.
-
-The following are **illustrative starting weights**, not validated
-security measurements:
-
-  Signal                           Example points
-  ------------------------------ ----------------
-  Brute-force pattern                         +20
-  Scanning pattern                            +20
-  SQL-injection pattern                       +30
-  Path-traversal pattern                      +30
-  Sensitive-resource access                   +20
-  Repeated suspicious behavior                +10
-
-Cap the score at 100. Decide whether scoring is per event, per session,
-or both, and ensure repeated API reads do not accidentally increase it.
-
-Example severity bands:
-
-      Score Label
-  --------- ----------
-      0--29 Low
-     30--59 Medium
-     60--79 High
-    80--100 Critical
-
-These are prototype defaults, not an industry-standard scale.
-
-## Attacker Journey
-
-NetDecoy connects observed interactions into a sequence.
+## 📁 Repository Structure
 
 ``` text
+<<<<<<< HEAD
 LOGIN
   │  Multiple failed login attempts
   ▼
@@ -515,55 +258,45 @@ netdecoy/
 │   ├── api/
 │   ├── search/
 │   └── assets/
+=======
+Net-Decoy/
+>>>>>>> upstream/frontend-development
 ├── frontend/
-│   ├── dashboard.html
-│   ├── dashboard.css
-│   ├── dashboard.js
-│   └── components/
+│   ├── dashboard.html      # Main SOC Dashboard layout & markup
+│   ├── dashboard.css       # Dark cyber aesthetic styling & glassmorphism
+│   └── dashboard.js        # REST API polling & standalone simulation engine
 ├── shared/
-│   ├── event_schema.json
-│   ├── api_contract.md
-│   └── attack_types.json
-├── architecture.md
-├── README.md
-└── requirements.txt
+│   ├── api_contract.md     # Unified API specification contract
+│   └── event_schema.json   # Event payload schema
+├── M2_FRONTEND_DASHBOARD.md # M2 Lead Role specification
+└── README.md               # Main project documentation
 ```
 
-The actual repository may differ. Keep this section synchronized with
-the real project.
+---
 
-## API Reference
+## 🔌 API Integration Reference
 
-These are **planned endpoints**. Update the table to reflect implemented
-routes, request/response formats, and any authentication requirements.
+The SOC Dashboard consumes the following backend routes:
 
-  Method   Endpoint            Purpose
-  -------- ------------------- -----------------------------------------------
-  `GET`    `/health`           Check backend availability
-  `POST`   `/api/events`       Validate and record an event
-  `GET`    `/api/events`       Retrieve events
-  `GET`    `/api/stats`        Return dashboard statistics
-  `GET`    `/api/risk`         Return score and supporting signals
-  `GET`    `/api/journey`      Return observed journey
-  `GET`    `/api/analysis`     Return AI explanation or fallback
-  `GET`    `/api/prediction`   Return next-stage estimate
-  `GET`    `/api/geo`          Return approximate geolocation when available
-  `POST`   `/api/reset`        Reset demo state, if supported
+| Method | Endpoint | Purpose |
+| :--- | :--- | :--- |
+| `GET` | `/health` | Backend status check |
+| `GET` | `/api/stats` | Summary metric counts |
+| `GET` | `/api/events` | Recent event logs |
+| `GET` | `/api/risk` | Bounded risk score & breakdown |
+| `GET` | `/api/journey` | Step-by-step attacker journey |
+| `GET` | `/api/geo` | IP geolocation coordinates |
+| `GET` | `/api/analysis` | AI threat explanation |
+| `GET` | `/api/prediction` | Next likely attack stage |
+| `POST` | `/api/reset` | Reset demo session state |
 
-API principles: - Use the shared event schema. - Return consistent JSON
-and appropriate HTTP status codes. - Validate inputs on the server. -
-Never return secrets. - Optional AI/geolocation failures must not take
-down core endpoints. - Document empty, unavailable, and error responses.
+*Note: If the backend REST API is offline or not yet initialized, `dashboard.js` automatically activates its standalone simulation engine so the dashboard remains 100% functional for offline demos.*
 
-## Team Responsibilities
+---
 
-  -----------------------------------------------------------------------
-  Member                  Role                    Ownership
-  ----------------------- ----------------------- -----------------------
-  M1                      Backend and integration Backend, event
-                          lead                    collector, storage, API
-                                                  contracts, integration
+## 💻 Getting Started
 
+<<<<<<< HEAD
   M2                      Frontend and dashboard  Dashboard, event feed,
                           lead                    risk, journey, AI
                                                   panel, visualization
@@ -645,9 +378,35 @@ macOS/Linux:
 python3 -m venv .venv
 source .venv/bin/activate
 ```
+=======
+### 1. Clone & Switch to Frontend Branch
+```bash
+git clone https://github.com/Sarthak2121006/Net-Decoy.git
+cd Net-Decoy
+git checkout frontend-development
+```
 
-### 3. Install dependencies
+### 2. View Dashboard Locally
+Simply open `frontend/dashboard.html` in any modern web browser, or serve it using Python:
 
+```bash
+python -m http.server 8080
+```
+
+Then visit: `http://localhost:8080/frontend/dashboard.html`
+
+---
+
+## 👥 Role Responsibilities (M2 Lead)
+
+- **Owner**: M2 — Frontend & SOC Dashboard Lead
+- **Scope**: Single-page SOC Dashboard UI (`frontend/`), aesthetic theme, Leaflet map integration, API consumption, failure tolerance, judge demo simulator.
+- **Branch**: `frontend-development`
+>>>>>>> upstream/frontend-development
+
+---
+
+<<<<<<< HEAD
 ```bash
 pip install -r requirements.txt
 ```
@@ -879,3 +638,4 @@ observed activity easier to interpret and investigate.
 - **GitHub repository:** [https://github.com/Sarthak2121006/Net-Decoy](https://github.com/Sarthak2121006/Net-Decoy)
 - **Demo video:** Add link if created
 - **License:** MIT License
+
