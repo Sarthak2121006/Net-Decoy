@@ -1,0 +1,60 @@
+{
+  "attack_types": [
+    {
+      "id": "brute_force",
+      "name": "Brute Force Authentication",
+      "category": "authentication",
+      "severity": "MEDIUM",
+      "description": "Repeated login attempts using dictionary or password guessing."
+    },
+    {
+      "id": "credential_stuffing",
+      "name": "Credential Stuffing",
+      "category": "authentication",
+      "severity": "HIGH",
+      "description": "Automated login attempts using leaked credential pairs."
+    },
+    {
+      "id": "sql_injection",
+      "name": "SQL Injection (SQLi)",
+      "category": "exploitation",
+      "severity": "CRITICAL",
+      "description": "Malicious SQL syntax injected into input fields or URL parameters."
+    },
+    {
+      "id": "directory_traversal",
+      "name": "Path / Directory Traversal",
+      "category": "reconnaissance",
+      "severity": "HIGH",
+      "description": "Attempts to access files outside the intended root directory (e.g. ../../../etc/passwd)."
+    },
+    {
+      "id": "scanning",
+      "name": "Vulnerability / Port Scanning",
+      "category": "reconnaissance",
+      "severity": "LOW",
+      "description": "Automated probing of endpoints, admin interfaces, and common sensitive files."
+    },
+    {
+      "id": "privilege_escalation",
+      "name": "Privilege Escalation",
+      "category": "privilege_escalation",
+      "severity": "CRITICAL",
+      "description": "Attempts to elevate session permissions or bypass role checks."
+    },
+    {
+      "id": "command_injection",
+      "name": "Command Injection (RCE)",
+      "category": "exploitation",
+      "severity": "CRITICAL",
+      "description": "Injection of shell or OS command sequences in input parameters."
+    },
+    {
+      "id": "data_exfiltration",
+      "name": "Data Exfiltration Probe",
+      "category": "data_exfiltration",
+      "severity": "HIGH",
+      "description": "Attempts to download fake confidential honey-tokens, database dumps, or keys."
+    }
+  ]
+}

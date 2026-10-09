@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "NetDecoyEvent",
+  "description": "Standardized event schema for NetDecoy honeypot telemetry",
+  "type": "object",
+  "required": [
+    "event_id",
+    "session_id",
+    "timestamp",
+    "source_ip",
+    "page",
+    "action",
+    "event_type",
+    "payload"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "description": "Unique identifier for the event (e.g. evt_1712660000_a1b2c3)"
+    },
+    "session_id": {
+      "type": "string",
+      "description": "Attacker / visitor session identifier"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 formatted UTC timestamp"
+    },
+    "source_ip": {
+      "type": "string",
+      "description": "IP address of the origin visitor / attacker"
+    },
+    "page": {
+      "type": "string",
+      "description": "Trap or entry point name (e.g. login, admin_portal, phpmyadmin, env_leak, api_v1, ssh_portal)"
+    },
+    "action": {
+      "type": "string",
+      "description": "Observed action (e.g. failed_login, sqli_probe, directory_traversal, credential_stuffing, file_download, payload_injection)"
+    },
+    "event_type": {
+      "type": "string",
+      "description": "Category of the event (e.g. authentication, reconnaissance, exploitation, privilege_escalation, data_exfiltration)"
+    },
+    "payload": {
+      "type": "object",
+      "description": "Arbitrary captured payload data, parameters, form inputs, headers, or query strings",
+      "default": {}
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"],
+      "default": "LOW"
+    },
+    "geo": {
+      "type": "object",
+      "description": "Geographical enrichment data (city, country, latitude, longitude, isp)",
+      "properties": {
+        "city": { "type": "string" },
+        "country": { "type": "string" },
+        "country_code": { "type": "string" },
+        "latitude": { "type": "number" },
+        "longitude": { "type": "number" },
+        "isp": { "type": "string" },
+        "available": { "type": "boolean" }
+      }
+    }
+  },
+  "additionalProperties": true
+}
