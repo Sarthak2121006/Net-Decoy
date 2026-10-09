@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "NetDecoyEvent",
-  "description": "Standardized event schema for NetDecoy honeypot telemetry",
+  "description": "Standardized schema for all events emitted by NetDecoy deception resources and processed by the intelligence engine and backend.",
   "type": "object",
   "required": [
     "event_id",
@@ -10,42 +10,41 @@
     "source_ip",
     "page",
     "action",
-    "event_type",
-    "payload"
+    "event_type"
   ],
   "properties": {
     "event_id": {
       "type": "string",
-      "description": "Unique identifier for the event (e.g. evt_1712660000_a1b2c3)"
+      "description": "Unique identifier for this specific event (e.g. evt_001 or evt_1712660000_a1b2c3)."
     },
     "session_id": {
       "type": "string",
-      "description": "Attacker / visitor session identifier"
+      "description": "Identifier grouping related attacker interactions into a single session."
     },
     "timestamp": {
       "type": "string",
       "format": "date-time",
-      "description": "ISO-8601 formatted UTC timestamp"
+      "description": "ISO 8601 formatted timestamp of when interaction occurred."
     },
     "source_ip": {
       "type": "string",
-      "description": "IP address of the origin visitor / attacker"
+      "description": "Client IP address observed by the deception trap."
     },
     "page": {
       "type": "string",
-      "description": "Trap or entry point name (e.g. login, admin_portal, phpmyadmin, env_leak, api_v1, ssh_portal)"
+      "description": "Simulated resource or decoy endpoint where the interaction took place (e.g. login, admin, backup, database, api, search, env_leak)."
     },
     "action": {
       "type": "string",
-      "description": "Observed action (e.g. failed_login, sqli_probe, directory_traversal, credential_stuffing, file_download, payload_injection)"
+      "description": "Specific action performed (e.g. failed_login, endpoint_probe, query_submit, file_download, traversal_attempt, sql_injection)."
     },
     "event_type": {
       "type": "string",
-      "description": "Category of the event (e.g. authentication, reconnaissance, exploitation, privilege_escalation, data_exfiltration)"
+      "description": "Broad category describing the nature of the event (e.g. authentication, reconnaissance, exploitation, privilege_escalation, data_exfiltration, database_query, file_access, api_call)."
     },
     "payload": {
       "type": "object",
-      "description": "Arbitrary captured payload data, parameters, form inputs, headers, or query strings",
+      "description": "Contextual details associated with the interaction (e.g. usernames, query strings, requested paths). Must never contain real credentials.",
       "default": {}
     },
     "severity": {

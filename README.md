@@ -9,7 +9,7 @@
 
 **Project:** NetDecoy\
 **Event:** IEEE SYNAPSE 2026\
-**Status:** M1 Backend & Integration Lead implementation complete (Active API endpoints, SQLite persistence, session tracking, intelligence bridge, and 10/10 test suite passing).\
+**Status:** In Active Development / Integration (M1 Backend, M3 Intelligence, and M4 Traps)\
 **Safety model:** Controlled simulation using synthetic resources and
 data.
 
@@ -423,7 +423,7 @@ Estimated next stage: Privilege Escalation
 ```
 
 Show a **pattern confidence** value only if the implementation defines
-and documents how it is calculated. Do not invent percentages or
+and documents how it is calculated. Pattern confidence comes from a predefined transition table plus a depth heuristic, not a trained model. Do not invent percentages or
 describe a heuristic score as a calibrated probability. This is an
 estimate, not a guarantee.
 
@@ -617,8 +617,6 @@ Proposed six-hour schedule; adjust to the organizer's actual schedule.
 
 **MVP priority:** A reliable end-to-end pipeline matters more than
 optional features. If the core pipeline is unstable, postpone
-geolocation or advanced AI work.
-
 ## Getting Started
 
 ### Prerequisites
@@ -627,12 +625,11 @@ geolocation or advanced AI work.
 - Python 3.10+
 - Dependencies from `requirements.txt`
 
-### 1. Clone the repository & switch to the branch
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/Sarthak2121006/Net-Decoy.git
 cd Net-Decoy
-git checkout M1_BACKEND_INTEGRATION
 ```
 
 ### 2. Create and activate a virtual environment
@@ -660,12 +657,12 @@ pip install -r requirements.txt
 ```bash
 python backend/app.py
 ```
-*The backend starts at `http://localhost:5000` with CORS enabled across all origins for dashboard and trap integration.*
+*The backend runs on `http://localhost:5000` with CORS enabled across all origins for dashboard and trap integration.*
 
 ### 5. Run the Automated Test Suite
 
 ```bash
-python -m pytest tests/test_backend.py -v
+python -m pytest tests/ -v
 ```
 
 ### 6. Verify Core API Endpoints
@@ -695,6 +692,11 @@ client.emit_event(
 )
 ```
 
+### 8. Run the Attack Simulation Demo
+
+```bash
+python scripts/simulate_attack.py
+```
 ## Demo Scenario
 
 Use a controlled, repeatable sequence with synthetic data.
@@ -871,9 +873,9 @@ observed activity easier to interpret and investigate.
 
 ## Project Details
 
--   **Event:** IEEE SYNAPSE 2026
--   **Team name:** Add team name
--   **Team members:** Add member names and roles
--   **GitHub repository:** Add final repository URL
--   **Demo video:** Add link if created
--   **License:** Choose and add a license before public distribution
+- **Event:** IEEE SYNAPSE 2026
+- **Team name:** core-innovators
+- **Team members:** Sarthak Gaikwad, Chaitanya Sarkate, Vishvjeet Kamble, Ajit Bhandekar
+- **GitHub repository:** [https://github.com/Sarthak2121006/Net-Decoy](https://github.com/Sarthak2121006/Net-Decoy)
+- **Demo video:** Add link if created
+- **License:** MIT License
