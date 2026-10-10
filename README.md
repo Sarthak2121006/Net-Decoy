@@ -216,6 +216,35 @@ Watch the SOC Dashboard update instantly with live telemetry, MITRE heatmap tile
 
 ---
 
+## ☁️ Deploying to Render (Free Cloud Hosting)
+
+NetDecoy is pre-configured with a Render blueprint (`render.yaml`) for zero-friction cloud deployment.
+
+### Option A: 1-Click / Blueprint Deployment
+1. Log in to [Render.com](https://render.com).
+2. Click **New +** > **Blueprint**.
+3. Connect your GitHub repository (`Chaitanyasarkate/net-decoy` or your fork).
+4. Render will automatically detect `render.yaml` and configure the service:
+   - **Environment**: Python 3.11+
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `gunicorn backend.app:app`
+5. Click **Apply** to deploy your live honeypot.
+
+### Option B: Manual Web Service Setup
+1. On Render, click **New +** > **Web Service**.
+2. Select your repository.
+3. Configure the following settings:
+   - **Runtime**: `Python 3`
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `gunicorn backend.app:app`
+   - **Instance Type**: `Free`
+4. *(Optional)* Under **Environment Variables**, add:
+   - `GEMINI_API_KEY`: *(Your Google AI Gemini API Key if using live LLM synthesis)*
+5. Click **Create Web Service**. Your public URL (e.g., `https://netdecoy.onrender.com`) will be live in 2-3 minutes!
+
+---
+
+
 ## Running the Test Suite
 
 Run the automated test suite covering all backend APIs, detection heuristics, MITRE ATT&CK matrix evaluation, clustering, risk scoring, journey timelines, and schema contracts:

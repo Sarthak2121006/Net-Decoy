@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: netdecoy
+    runtime: python
+    plan: free
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn backend.app:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.8
+      - key: FLASK_ENV
+        value: production
+      - key: GEMINI_API_KEY
+        sync: false
