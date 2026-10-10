@@ -1,197 +1,238 @@
-# NetDecoy — AI-Driven Honeypot & Threat Intelligence Platform
+# NetDecoy — AI-Driven Honeypot & Cyber Threat Intelligence Platform
 
-### From Attacker Activity to Actionable Threat Intelligence
+<p align="center">
+  <strong>From Adversary Deception to Actionable Threat Intelligence</strong><br>
+  <em>IEEE SYNAPSE 2026 &bull; Team: core-innovators &bull; Safety Model: Controlled Synthetic Simulation</em>
+</p>
 
-> **NetDecoy** is a controlled, AI-assisted deception and threat-intelligence platform. It observes simulated attacker interactions across synthetic traps, detects suspicious activity, calculates an explainable risk score, maps the chronological attacker journey, correlates attack campaigns, visualizes the enterprise MITRE ATT&CK matrix in real time, and synthesizes executive threat intelligence and containment directives.
-
-- **Project:** NetDecoy
-- **Event:** IEEE SYNAPSE 2026
-- **Team Name:** core-innovators
-- **Safety Model:** Controlled simulation using synthetic resources and safe deception telemetry.
-- **Status:** Fully Integrated End-to-End (Backend, SOC Dashboard, AI Intelligence, Deception Traps, MITRE Heatmap)
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.10%2B-blue?style=for-the-badge&logo=python" alt="Python 3.10+" />
+  <img src="https://img.shields.io/badge/Framework-Flask%203.0-lightgrey?style=for-the-badge&logo=flask" alt="Flask 3.0" />
+  <img src="https://img.shields.io/badge/Intelligence-Google%20Gemini%20AI-blueviolet?style=for-the-badge&logo=google" alt="Google Gemini AI" />
+  <img src="https://img.shields.io/badge/Framework-MITRE%20ATT%26CK-red?style=for-the-badge" alt="MITRE ATT&CK" />
+  <img src="https://img.shields.io/badge/Tests-55%20Passing%20(100%25)-success?style=for-the-badge" alt="Tests 55 Passing" />
+  <img src="https://img.shields.io/badge/Deployment-Render%20Cloud-46E3B7?style=for-the-badge&logo=render" alt="Render Cloud" />
+  <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="MIT License" />
+</p>
 
 ---
 
-## Executive Overview & SOC Operations
+## 📑 Table of Contents
+1. [Executive Summary](#-executive-summary)
+2. [The 3 Interconnected Systems](#-the-3-interconnected-systems)
+3. [Core Capabilities & Architectural Pillars](#-core-capabilities--architectural-pillars)
+4. [MITRE ATT&CK Enterprise Matrix Integration](#-mitre-attck-enterprise-matrix-integration)
+5. [System Architecture & Data Pipeline](#-system-architecture--data-pipeline)
+6. [Technology Stack](#-technology-stack)
+7. [Synthetic Deception Trap Catalog](#-synthetic-deception-trap-catalog)
+8. [Complete REST API Contract](#-complete-rest-api-contract)
+9. [Local Quick Start Guide](#-local-quick-start-guide)
+10. [Cloud Deployment on Render](#-cloud-deployment-on-render)
+11. [Automated Test Suite & QA](#-automated-test-suite--qa)
+12. [Team & Project Attribution](#-team--project-attribution)
 
-The SOC Dashboard is the primary visual operations center for NetDecoy. Designed for rapid threat comprehension, it provides security analysts, SOC teams, and presentation judges with an immediate, high-level operational picture within seconds of observation.
+---
+
+## 🛡️ Executive Summary
+
+Modern cybersecurity operations face an asymmetric challenge: adversaries continuously probe infrastructure, weaponizing reconnaissance before defensive perimeters detect anomalous activity. Standard intrusion detection systems (IDS) generate vast volumes of noisy alerts without explaining **why** an adversary targeted a resource or **what step they will execute next**.
+
+**NetDecoy** solves this challenge by implementing an intelligent, closed-loop cyber deception platform. Rather than exposing production assets, NetDecoy serves realistic, synthetic enterprise traps across simulated corporate portals. When an attacker engages, NetDecoy:
+1. **Silently Captures Telemetry**: Ingests interaction vectors without alerting the adversary.
+2. **Quantifies Threat Posture**: Calculates an explainable, 0–100 bounded risk score.
+3. **Correlates Attack Campaigns**: Automatically clusters concurrent probing events into unified kill chains.
+4. **Maps the MITRE ATT&CK Matrix**: Visualizes active techniques in real-time with glowing heat intensity.
+5. **Synthesizes Intelligence with AI**: Leverages Google Gemini AI to author executive threat intelligence briefs and forensic incident reports.
+6. **Predicts Next Likely Moves**: Estimates the adversary's lateral trajectory with heuristic confidence.
+
+---
+
+## 🌐 The 3 Interconnected Systems
+
+NetDecoy is engineered as three tightly unified, real-time operating interfaces that communicate through a single persistent backend:
 
 ```text
-┌───────────────────────────────────────────────────────────────────────────────────┐
-│ NETDECOY — SECURITY OPERATIONS CENTER (SOC)                                       │
-├───────────────┬───────────────────┬─────────────────────┬─────────────────────────┤
-│ Total Events  │ Threats Detected  │ High Risk Sessions  │ Active Sessions         │
-│ 148           │ 42                │ 3                   │ 5                       │
-├───────────────┴───────────────────┴─────────────────────┴─────────────────────────┤
-│ LIVE EVENT FEED                                                                   │
-│ 14:31:04  /login     Failed Authentication                HIGH     185.220.101.5  │
-│ 14:31:08  /admin     Endpoint Enumeration Probed          MEDIUM   185.220.101.5  │
-│ 14:31:13  /database  SQL-Like Input Detected              CRITICAL 185.220.101.5  │
-├──────────────────────────────────────┬────────────────────────────────────────────┤
-│ THREAT RISK ASSESSMENT               │ ATTACKER ORIGIN GEOLOCATION MAP            │
-│ Score: 87 / 100 [CRITICAL]           │ Frankfurt, Germany (50.1109, 8.6821)       │
-│ Breakdown: Brute Force (+20), SQLi   │ Interactive Leaflet Dark Map with Ping     │
-├──────────────────────────────────────┴────────────────────────────────────────────┤
-│ INTERACTIVE MITRE ATT&CK HEATMAP MATRIX                                           │
-│ [Reconnaissance] [Initial Access] [Execution] [Credential Access] [Discovery] ... │
-│  T1595.002 (Heat)  T1190 (85% Crit) T1059 (0%)   T1110.003 (60% High) T1083 (40%)  │
-├───────────────────────────────────────────────────────────────────────────────────┤
-│ ATTACKER CHRONOLOGICAL JOURNEY TIMELINE                                           │
-│ [LOGIN] ➔ [ADMIN] ➔ [DATABASE] ➔ [BACKUP] ➔ [API]                                 │
-├───────────────────────────────────────────────────────────────────────────────────┤
-│ AI THREAT ANALYSIS ENGINE & NEXT STAGE PREDICTOR                                  │
-│ Executive Summary: Attacker session sess_8832 initiated credential brute force... │
-│ Evidence: Multiple failed logins, admin scanning, SQL injection payload           │
-│ Containment: Block IP 185.220.101.5, revoke session sess_8832                     │
-│ Estimated Next Phase: PRIVILEGE ESCALATION (Confidence: 82%)                      │
-└───────────────────────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────────────────────┐
+│                                NETDECOY PLATFORM CORE                                 │
+├──────────────────────────┬────────────────────────────┬───────────────────────────────┤
+│ SYSTEM 1: SOC DASHBOARD  │ SYSTEM 2: DECOY CORP SITE  │ SYSTEM 3: ATTACKER RED-TEAM   │
+│ Route: /dashboard        │ Route: /traps, /login, ... │ Route: /attacker, /demo       │
+│ Visual operations center │ Realistic victim company   │ Interactive offensive console │
+│ for security analysts to │ interface containing 6     │ allowing judges to trigger    │
+│ observe, correlate, and  │ weaponized traps that      │ multi-stage attack campaigns  │
+│ contain live campaigns.  │ silently log telemetry.    │ and observe instant response. │
+└──────────────────────────┴────────────────────────────┴───────────────────────────────┘
 ```
 
 ---
 
-## Core Capabilities & Features
+## 🚀 Core Capabilities & Architectural Pillars
 
-### 1. Interactive MITRE ATT&CK Matrix Heatmap Widget (`GET /api/mitre`)
-- **Real-Time Enterprise Matrix Mapping**: Evaluates honeypot events against **7 core MITRE tactics**:
-  - `TA0043` Reconnaissance (T1595.002, T1592)
-  - `TA0001` Initial Access (T1190, T1078.001)
-  - `TA0002` Execution (T1059)
-  - `TA0006` Credential Access (T1110.003, T1552.001)
-  - `TA0007` Discovery (T1083, T1046)
-  - `TA0004` Privilege Escalation (T1078.004)
-  - `TA0010` Exfiltration (T1567)
-- **Dynamic Heat Intensity**: Color-coded severity indicators with animated glow (`CRITICAL`, `HIGH`, `MEDIUM`, `INACTIVE`).
-- **Deep-Dive Technique Inspector Modal**: On-click technique modal displaying technical descriptions, intercepted evidence payloads, CISA/NIST containment directives, telemetry filter buttons, and official MITRE ATT&CK documentation links.
+### 1. Interactive MITRE ATT&CK Matrix Heatmap Widget
+- **7-Tactic Enterprise Matrix**: Live mapping across Reconnaissance, Initial Access, Execution, Credential Access, Discovery, Privilege Escalation, and Exfiltration.
+- **Dynamic Heat Scores (0%–100%)**: Color-coded tiles reflecting telemetry density with pulsing glowing states (`heat-crit`, `heat-high`, `heat-med`, `heat-inactive`).
+- **Technique Deep-Dive Modal**: Clicking any technique reveals technical abstracts, sub-techniques, intercepted raw payloads, NIST/CISA mitigations, and direct links to the official MITRE knowledge base.
 
-### 2. Campaign Clustering & Correlation (`GET /api/clusters`)
-- Groups concurrent individual events into unified multi-stage attack campaigns.
-- Summarizes target endpoints, affected attack vectors, severity levels, and automated containment directives per cluster.
+### 2. Explainable 0–100 Bounded Threat Risk Engine
+- Deterministic, additive risk scoring model avoiding opaque "black-box" outputs:
+  - **LOW (0–29)**: Benign navigation and preliminary asset exploration.
+  - **MEDIUM (30–59)**: Sustained reconnaissance and initial authentication anomalies.
+  - **HIGH (60–79)**: Credential spraying and administrative scanning.
+  - **CRITICAL (80–100)**: Exploitation payloads (SQL injection, path traversal, shell execution).
+- Each score includes an itemized points breakdown explaining exact contribution weights.
 
-### 3. Automated Incident Response & Forensic Report Export (`GET /api/report`)
-- Generates instant executive-level forensic incident reports.
-- Exports complete attack summaries, risk scoring breakdowns, chronological event timelines, MITRE tactic mapping, and actionable containment checklists.
+### 3. Coordinated Campaign Clustering (`GET /api/clusters`)
+- Time-windowed correlation engine that groups disparate telemetry events into distinct incident clusters.
+- Identifies target surfaces, assigns campaign severities, and generates automated containment directives.
 
-### 4. Bounded Explainable Threat Risk Gauge (`GET /api/risk`)
-- 0–100 bounded additive risk scoring engine with dynamic severity bands:
-  - **LOW**: 0–29
-  - **MEDIUM**: 30–59
-  - **HIGH**: 60–79
-  - **CRITICAL**: 80–100
-- Transparent point breakdown attributing specific score contributions to detected attack behaviors (e.g. SQLi +30, Brute Force +20, Path Traversal +25).
+### 4. Real-Time Geolocation Tracking & Leaflet SOC Map (`GET /api/geo`)
+- Real-time IP geolocation enrichment using IPInfo and secondary providers.
+- Plots attacker coordinates onto an interactive CartoDB Dark Matter Leaflet map with pulsing ping animations.
+- **Proxy-Aware Architecture**: Seamlessly extracts real public client IPs behind cloud reverse proxies (Render, Cloudflare, Nginx) using `X-Forwarded-For` and `CF-Connecting-IP`.
 
-### 5. Live Real-Time Attacker Geolocation Map (`GET /api/geo`)
-- Plots approximate attacker origin using dark CartoDB tiles and custom glowing map markers.
-- Integrates live public IP geolocation with automatic offline fallback.
+### 5. AI Threat Synthesis & Trajectory Prediction (`GET /api/analysis`, `/api/prediction`)
+- **Executive Threat Summaries**: Gemini AI synthesizes full-session telemetry into structured incident descriptions.
+- **Actionable Containment Directives**: Recommends immediate defensive actions (firewall rules, credential rotations).
+- **Next-Stage Predictor**: Probabilistic state-machine estimating the adversary's next lateral move with confidence percentages.
+- **Offline Fallback Engine**: If cloud AI APIs encounter network timeouts, a deterministic local heuristic engine provides instant fallback synthesis with zero system downtime.
 
-### 6. Attacker Chronological Journey Timeline (`GET /api/journey`)
-- Visual node-link workflow tracing the adversary's lateral movement across traps over time.
-- Categorizes each step by severity, timestamp, and target trap route.
+### 6. Automated Forensic Incident Response Reporting (`GET /api/report`)
+- Generates comprehensive incident reports with a single click.
+- Exports risk posture, chronological journey timelines, mapped MITRE techniques, and forensic evidence tables into executive-ready print/PDF formats.
 
-### 7. AI Threat Analysis & Next Stage Predictor (`GET /api/analysis`, `GET /api/prediction`)
-- LLM-synthesized executive threat summary with structured telemetry evidence bullets and recommended containment actions.
-- Heuristic and pattern-based estimation of future attacker trajectories with confidence scoring.
-
-### 8. Interactive Deception Trap Suite & Attack Simulators
-- **6 Synthetic Decoy Traps**:
-  - `/login`: SSO Authentication Trap (Brute-Force & Credential Stuffing)
-  - `/admin`: Admin Console Trap (Privilege Escalation & Endpoint Enumeration)
-  - `/database`: SQL Workbench Trap (SQL Injection & Union Exploitation)
-  - `/backup`: Corporate Backup Vault Trap (Decoy Data Exfiltration)
-  - `/api-explorer`: REST API Explorer Trap (Schema Probing & Token Forgery)
-  - `/search`: Internal Search Portal Trap (Path Traversal & Sensitive File Leakage)
-- **Attacker Console (`/traps/attacker.html`)**: Direct attack execution console for testing live responses.
-- **Judge Demo Runner (`/demo`)**: Standalone 5-stage automated attack chain simulator.
+### 7. Active Defense IP Quarantine (`POST /api/quarantine`)
+- SOC analysts can isolate compromised attacker IPs directly from the dashboard modal, instantly adding firewall containment rules across honeypot gateways.
 
 ---
 
-## Architecture & Data Flow
+## 🎯 MITRE ATT&CK Enterprise Matrix Integration
+
+NetDecoy systematically correlates honeypot activity against the industry-standard MITRE ATT&CK framework:
+
+| MITRE Tactic | Tactic ID | Mapped Techniques | Monitored Trap Vector | Live Evidence Payload Example |
+|---|---|---|---|---|
+| **Reconnaissance** | `TA0043` | `T1595.002` (Vulnerability Scanning)<br>`T1592` (Gather Victim Host Info) | `/admin`, `/api-explorer` | Directory probing, Swagger schema inspection |
+| **Initial Access** | `TA0001` | `T1190` (Exploit Public-Facing App)<br>`T1078.001` (Default Accounts) | `/database`, `/login` | `' OR 1=1 --`, default credential attempts |
+| **Execution** | `TA0002` | `T1059` (Command & Scripting Interpreter) | `/database`, `/search` | Shell escapes (`&& whoami`, `cat /etc/passwd`) |
+| **Credential Access** | `TA0006` | `T1110.003` (Password Spraying)<br>`T1552.001` (Credentials in Files) | `/login`, `/search` | Dictionary bursts, `.env` / `.aws/credentials` queries |
+| **Discovery** | `TA0007` | `T1083` (File & Directory Discovery)<br>`T1046` (Network Service Probing) | `/search`, `/api-explorer` | Directory traversal (`../../etc/passwd`) |
+| **Privilege Escalation** | `TA0004` | `T1078.004` (Role Override / Token Forgery) | `/admin`, `/api-explorer` | Session claims tampering, `admin_override=true` |
+| **Exfiltration** | `TA0010` | `T1567` (Exfiltration Over Web Service) | `/backup` | Bulk download requests for `.sql.gz` decoy dumps |
+
+---
+
+## 🏗️ System Architecture & Data Pipeline
 
 ```mermaid
 flowchart TD
-    Attacker[Simulated Attacker / Judge Console] --> Traps[Deception Traps /login, /admin, /database, /backup, etc.]
-    Traps --> Collector[Central Event Collector POST /api/events]
-    Collector --> Storage[(SQLite Event & Session DB)]
-    
-    Storage --> Detection[Deterministic Threat Engine]
-    Storage --> Risk[0-100 Bounded Risk Engine]
-    Storage --> Journey[Attacker Journey Engine]
-    Storage --> Clusters[Attack Campaign Clustering Engine]
-    Storage --> Mitre[MITRE ATT&CK Matrix Engine]
-    Storage --> AI[AI Threat Analysis & Prediction]
-    
-    Detection --> API[Backend REST API]
-    Risk --> API
-    Journey --> API
-    Clusters --> API
-    Mitre --> API
-    AI --> API
+    subgraph DeceptionLayer [System 2: Synthetic Deception Traps]
+        T1["SSO Login Trap (/login)"]
+        T2["Admin Console (/admin)"]
+        T3["SQL Workbench (/database)"]
+        T4["Backup Vault (/backup)"]
+        T5["API Explorer (/api-explorer)"]
+        T6["Document Search (/search)"]
+    end
 
-    API --> Dashboard[SOC Operations Dashboard frontend/dashboard.html]
+    subgraph SimulationLayer [System 3: Attacker Simulation]
+        AC["Attacker Console (/attacker)"]
+        DR["Judge Demo Runner (/demo)"]
+        CLI["Simulator Script (simulate_attack.py)"]
+    end
+
+    subgraph BackendCore [NetDecoy Flask Backend Core]
+        Collector["Central Event Collector (/api/events)"]
+        DB[("SQLite Event & Session Database")]
+        
+        ThreatEng["Deterministic Threat Heuristics"]
+        RiskEng["0-100 Bounded Risk Engine"]
+        JourneyEng["Attacker Journey Engine"]
+        ClusterEng["Campaign Clustering Engine"]
+        MitreEng["MITRE Heatmap Engine"]
+        AIEng["Gemini AI & Fallback Synthesis"]
+        PredictEng["Next-Stage Predictor"]
+    end
+
+    subgraph PresentationLayer [System 1: SOC Operations Dashboard]
+        Dash["SOC Dashboard (/dashboard)"]
+        Heatmap["MITRE Heatmap Matrix"]
+        GeoMap["Leaflet Origin Geo Map"]
+        Report["Forensic Incident Report Generator"]
+        Modal["Technique & Payload Inspector"]
+    end
+
+    DeceptionLayer -->|Silent POST Telemetry| Collector
+    SimulationLayer -->|Trigger Vectors| Collector
+    Collector --> DB
+    
+    DB --> ThreatEng & RiskEng & JourneyEng & ClusterEng & MitreEng & AIEng & PredictEng
+    
+    ThreatEng & RiskEng & JourneyEng & ClusterEng & MitreEng & AIEng & PredictEng --> PresentationLayer
 ```
 
 ---
 
-## Repository Structure
+## 💻 Technology Stack
 
-```text
-Net-Decoy/
-├── backend/
-│   ├── app.py                     # Flask application factory & unified web server
-│   ├── manage.py                  # CLI management tool (init, reset, seed, status)
-│   ├── routes/                    # REST API routes (events, risk, mitre, clusters, report, etc.)
-│   │   ├── events.py              # Ingestion & event filtering
-│   │   ├── risk.py                # Bounded risk assessment
-│   │   ├── mitre.py               # MITRE ATT&CK heatmap & technique inspector
-│   │   ├── clusters.py            # Attack campaign clustering
-│   │   ├── report.py              # Forensic incident report generation
-│   │   ├── journey.py             # Attacker lateral movement timeline
-│   │   ├── analysis.py            # AI threat synthesis
-│   │   ├── prediction.py          # Next likely stage prediction
-│   │   ├── geo.py                 # Attacker IP geolocation
-│   │   └── quarantine.py          # Active defense containment
-│   ├── services/                  # Collector, session, risk, journey, AI bridge
-│   └── database/                  # SQLite models, engine, and init scripts
-├── frontend/
-│   ├── dashboard.html             # Single-Page SOC Dashboard with MITRE Heatmap
-│   ├── dashboard.css              # Custom cybersecurity theme styling & animations
-│   └── dashboard.js               # Reactive polling, state management, Leaflet map, MITRE modal
-├── traps/
-│   ├── index.html                 # Apex Global Corporate Hub trap portal
-│   ├── login.html                 # SSO Login trap
-│   ├── admin.html                 # Admin console trap
-│   ├── backup.html                # Backup portal trap
-│   ├── database.html              # SQL workbench trap
-│   ├── api.html                   # API explorer trap
-│   ├── search.html                # Document search trap
-│   ├── attacker.html              # Interactive Attacker Simulation Console
-│   ├── demo_runner.html           # 5-Stage interactive attack sequence runner
-│   ├── collector_client.py        # Python SDK for trap event emission
-│   └── assets/                    # Shared styles & trap telemetry logger JS
-├── intelligence/
-│   ├── pipeline.py                # Unified intelligence analysis pipeline
-│   ├── threat_engine.py           # Deterministic heuristic attack detectors
-│   ├── risk_engine.py             # 0-100 bounded additive risk scoring
-│   ├── journey_engine.py          # Chronological timeline and stage mapper
-│   ├── ai_engine.py               # Gemini AI threat summarization & fallback
-│   └── prediction_engine.py       # Next-stage heuristic trajectory predictor
-├── scripts/
-│   └── simulate_attack.py         # Multi-stage live hackathon attack simulator
-├── shared/
-│   ├── event_schema.json          # Shared telemetry JSON schema definition
-│   └── api_contract.md            # Frontend-Backend API specification
-└── tests/                         # Full pytest test suite (55 tests, 100% passing)
-```
+| Layer | Technologies & Libraries | Key Responsibility |
+|---|---|---|
+| **Backend & Routing** | Python 3.10+, Flask 3.0, Gunicorn, Flask-CORS | Application factory, RESTful API endpoints, reverse-proxy support |
+| **Database & Persistence** | SQLAlchemy 2.0+, SQLite 3 | Connection pooling, session models, ACID event persistence |
+| **AI & Threat Analytics** | Google Gemini AI (`google-genai`), Regex Engines | Automated incident summaries, containment directives, offline fallback |
+| **Frontend UI** | HTML5, Vanilla CSS3, Modern ES6+ JavaScript | Modern SOC dashboard, glassmorphism UI, zero-dependency reactivity |
+| **Geospatial Mapping** | Leaflet.js, CartoDB Dark Matter, IPInfo REST API | Attacker origin mapping, animated ping markers, offline fallback |
+| **Offensive Simulation** | Custom Trap SDK, HTML5 Web Consoles | Red-team attack generator, 5-stage automated kill-chain runner |
+| **Testing & CI/CD** | Pytest 9.0+, AnyIO, Requests | 55 automated integration, contract, and heuristic tests |
 
 ---
 
-## Quick Start & Running Locally
+## 🪤 Synthetic Deception Trap Catalog
+
+| Trap Route | Target Persona | Simulated Vulnerability | Deception Mechanism |
+|---|---|---|---|
+| `/login` | Identity & Access Management | Brute Force & Credential Stuffing | Realistic delay counters, simulated lockout warnings |
+| `/admin` | Infrastructure Operations | Broken Object Level Authorization (BOLA) | Decoy privileged management tabs, role tampering vectors |
+| `/database` | Internal SQL Operations | SQL Injection (In-Band & Error-Based) | Mock SQL error outputs (`sqlite3.OperationalError`), syntax traps |
+| `/backup` | Disaster Recovery Vault | Decoy Data Exfiltration | Watermarked archive downloads (`apex_customers_2026.sql.gz`) |
+| `/api-explorer` | Developer Microservices | Broken Function Level Authorization | Simulated JWT token tampering, API schema documentation |
+| `/search` | Intranet Document Portal | Path Traversal & Local File Inclusion | Path normalization interception (`../../etc/passwd`, `.env`) |
+
+---
+
+## 📡 Complete REST API Contract
+
+| HTTP Method | Route | Description | Query / Body Parameters |
+|---|---|---|---|
+| `GET` | `/api/health` | Backend connectivity & SQLite database health check | None |
+| `POST` | `/api/events` | Ingest new honeypot telemetry event | Body: `{ page, action, event_type, payload }` |
+| `GET` | `/api/events` | Query telemetry event stream with filtering | `session_id`, `severity`, `event_type`, `limit` |
+| `GET` | `/api/stats` | Aggregated counters (Total, Threats, High Risk, Sessions) | None |
+| `GET` | `/api/mitre` | Live evaluation of events against 7 MITRE ATT&CK tactics | `session_id` (optional) |
+| `GET` | `/api/clusters` | Correlates concurrent events into multi-stage attack campaigns | `session_id` (optional) |
+| `GET` | `/api/risk` | 0–100 bounded risk score with itemized points breakdown | `session_id` (optional) |
+| `GET` | `/api/journey` | Chronological attacker movement node timeline | `session_id` (optional) |
+| `GET` | `/api/analysis` | AI-generated executive summary, evidence bullets, containment | `session_id` (optional) |
+| `GET` | `/api/prediction` | Probabilistic next-stage lateral trajectory estimation | `session_id` (optional) |
+| `GET` | `/api/geo` | Attacker IP geographical coordinates and city location | `ip` (optional, defaults to client/event IP) |
+| `GET` | `/api/report` | Comprehensive incident report and forensic export data | `session_id` (optional) |
+| `GET` | `/api/alerts` | Active high & critical severity security alerts | None |
+| `GET` | `/api/metrics` | Target surface distribution and top attacker IP breakdown | None |
+| `GET` | `/api/sessions` | Active and historical adversary session profiles | None |
+| `POST` | `/api/quarantine` | Active defense IP quarantine / gateway blocking | Body: `{ ip, reason }` |
+| `POST` | `/api/reset` | Resets database for clean hackathon judging demonstrations | None |
+
+---
+
+## ⚡ Local Quick Start Guide
 
 ### Prerequisites
-- Python 3.10+
-- Modern Web Browser (Chrome, Firefox, Edge, Safari)
+- Python 3.10 or higher
+- Modern web browser (Chrome, Edge, Firefox, Safari)
 
-### 1. Install Dependencies
+### 1. Clone & Install Dependencies
 ```bash
+git clone https://github.com/Chaitanyasarkate/net-decoy.git
+cd net-decoy
 pip install -r requirements.txt
 ```
 
@@ -199,96 +240,72 @@ pip install -r requirements.txt
 ```bash
 python backend/app.py
 ```
-*The server starts on `http://localhost:5000`.*
+*The unified server starts at `http://localhost:5000`.*
 
-### 3. Access the Dashboard and Traps
-- **SOC Operations Dashboard**: [`http://localhost:5000/dashboard`](http://localhost:5000/dashboard) (or [`http://localhost:5000/`](http://localhost:5000/))
-- **Honeypot Trap Portal**: [`http://localhost:5000/traps`](http://localhost:5000/traps)
-- **Interactive Attacker Console**: [`http://localhost:5000/traps/attacker.html`](http://localhost:5000/traps/attacker.html)
-- **Interactive Judge Demo Runner**: [`http://localhost:5000/demo`](http://localhost:5000/demo)
+### 3. Open the Interfaces
+- **SOC Operations Dashboard**: [`http://localhost:5000/dashboard`](http://localhost:5000/dashboard)
+- **Synthetic Deception Hub**: [`http://localhost:5000/traps`](http://localhost:5000/traps)
+- **Attacker Red-Team Console**: [`http://localhost:5000/attacker`](http://localhost:5000/attacker)
+- **Judge Automated Demo Runner**: [`http://localhost:5000/demo`](http://localhost:5000/demo)
 
-### 4. Run the Automated Attack Simulation (Terminal Demo)
-Open a separate terminal window and run:
+### 4. Run Headless Attack Simulation (Terminal Demo)
+Open a separate terminal window to execute the 5-stage automated attack chain:
 ```bash
 python scripts/simulate_attack.py
 ```
-Watch the SOC Dashboard update instantly with live telemetry, MITRE heatmap tiles glowing, risk scores updating, and AI threat profiles generating!
+Watch the SOC Dashboard light up in real time with glowing MITRE tiles, risk updates, and map pins!
 
 ---
 
-## ☁️ Deploying to Render (Free Cloud Hosting)
+## ☁️ Cloud Deployment on Render
 
-NetDecoy is pre-configured with a Render blueprint (`render.yaml`) for zero-friction cloud deployment.
+NetDecoy includes a pre-configured production blueprint (`render.yaml`) and Gunicorn WSGI server.
 
-### Option A: 1-Click / Blueprint Deployment
-1. Log in to [Render.com](https://render.com).
+### 1-Click Blueprint Deployment:
+1. Log in to [dashboard.render.com](https://dashboard.render.com).
 2. Click **New +** > **Blueprint**.
-3. Connect your GitHub repository (`Chaitanyasarkate/net-decoy` or your fork).
-4. Render will automatically detect `render.yaml` and configure the service:
-   - **Environment**: Python 3.11+
+3. Connect your GitHub repository (`net-decoy`).
+4. Render automatically reads `render.yaml`:
+   - **Runtime**: Python 3.11+
    - **Build Command**: `pip install -r requirements.txt`
    - **Start Command**: `gunicorn backend.app:app`
-5. Click **Apply** to deploy your live honeypot.
+5. Click **Apply**. Your public HTTPS link (e.g., `https://netdecoy.onrender.com`) will be active in under 3 minutes.
 
-### Option B: Manual Web Service Setup
-1. On Render, click **New +** > **Web Service**.
-2. Select your repository.
-3. Configure the following settings:
-   - **Runtime**: `Python 3`
-   - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `gunicorn backend.app:app`
-   - **Instance Type**: `Free`
-4. *(Optional)* Under **Environment Variables**, add:
-   - `GEMINI_API_KEY`: *(Your Google AI Gemini API Key if using live LLM synthesis)*
-5. Click **Create Web Service**. Your public URL (e.g., `https://netdecoy.onrender.com`) will be live in 2-3 minutes!
+*(Optional)* To enable live Google Gemini AI synthesis, add the environment variable `GEMINI_API_KEY` in the Render dashboard. If omitted, the platform uses its deterministic offline fallback engine.
 
 ---
 
+## 🧪 Automated Test Suite & QA
 
-## Running the Test Suite
-
-Run the automated test suite covering all backend APIs, detection heuristics, MITRE ATT&CK matrix evaluation, clustering, risk scoring, journey timelines, and schema contracts:
+NetDecoy maintains 100% test pass fidelity across all modules:
 
 ```bash
 python -m pytest tests/ -v
 ```
-*(All 55 test cases run and pass cleanly).*
+
+### Coverage Highlights:
+- **`test_ai_engine.py`**: Gemini client mocking, token handling, deterministic fallback validation.
+- **`test_api_contract.py`**: JSON schema verification and key guarantees for all REST responses.
+- **`test_backend.py`**: End-to-end integration tests for all 17 API endpoints, MITRE matrix, clustering, and quarantine.
+- **`test_threat_engine.py`**: Heuristics for SQLi obfuscation, brute-force sliding windows, and traversal normalization.
+- **`test_risk_engine.py`**: 0–100 boundary tests (29, 30, 59, 60, 79, 80) and explainability logic.
+- **`test_prediction_engine.py`**: Next-stage trajectory heuristic validation.
+
+**Result**: `55 passed in ~14s (100% Passing)`
 
 ---
 
-## REST API Endpoints Summary
+## 👥 Team & Project Attribution
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/api/health` | Backend and database health check |
-| `POST` | `/api/events` | Ingest trap interaction telemetry event |
-| `GET` | `/api/events` | List captured events with optional query filters |
-| `GET` | `/api/stats` | Aggregated metrics (total events, threats, sessions) |
-| `GET` | `/api/mitre` | Evaluates live events against 7 MITRE ATT&CK tactics & techniques |
-| `GET` | `/api/clusters` | Correlates concurrent events into attack campaigns |
-| `GET` | `/api/report` | Generates comprehensive incident & forensic export report |
-| `GET` | `/api/risk` | 0–100 bounded explainable risk score with breakdown |
-| `GET` | `/api/journey` | Chronological attacker lateral movement timeline |
-| `GET` | `/api/analysis` | AI-generated executive summary, evidence, actions |
-| `GET` | `/api/prediction` | Next likely attack stage estimation with confidence |
-| `GET` | `/api/geo` | Attacker IP geolocation coordinates & city location |
-| `GET` | `/api/alerts` | Real-time high and critical severity alert notifications |
-| `GET` | `/api/metrics` | Top target traps, top attacker IPs, distribution charts |
-| `GET` | `/api/sessions` | Active and historical session profiles |
-| `POST` | `/api/quarantine` | Active defense IP quarantine / containment trigger |
-| `POST` | `/api/reset` | Clean demo state reset |
+Developed with pride for **IEEE SYNAPSE 2026** by Team **`core-innovators`**:
+
+- **M1 — Backend Architecture & Integration Lead**: Chaitanya Sarkate
+- **M2 — Frontend Architecture & SOC Dashboard Lead**: Sarthak Gaikwad
+- **M3 — Intelligence, Risk & AI Lead**: Vishvjeet Kamble
+- **M4 — Deception Architecture & Trap Engineer**: Ajit Bhandekar
 
 ---
 
-## Team & Roles
+## 📄 License
 
-- **M1 — Backend & Integration Lead**: Chaitanya Sarkate
-- **M2 — Frontend & SOC Dashboard Lead**: Sarthak Gaikwad
-- **M3 — Intelligence & AI Lead**: Vishvjeet Kamble
-- **M4 — Deception & Trap Engineer**: Ajit Bhandekar
-
----
-
-## License
-
-This project is developed for IEEE SYNAPSE 2026 under the MIT License.
+This project is licensed under the **MIT License** — see the LICENSE file for details.
