@@ -11,13 +11,25 @@
   <img src="https://img.shields.io/badge/Intelligence-Google%20Gemini%20AI-blueviolet?style=for-the-badge&logo=google" alt="Google Gemini AI" />
   <img src="https://img.shields.io/badge/Framework-MITRE%20ATT%26CK-red?style=for-the-badge" alt="MITRE ATT&CK" />
   <img src="https://img.shields.io/badge/Tests-55%20Passing%20(100%25)-success?style=for-the-badge" alt="Tests 55 Passing" />
-  <img src="https://img.shields.io/badge/Deployment-Render%20Cloud-46E3B7?style=for-the-badge&logo=render" alt="Render Cloud" />
+  <img src="https://img.shields.io/badge/Deployment-Render%20Live-success?style=for-the-badge&logo=render" alt="Render Live" />
   <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="MIT License" />
+</p>
+
+<p align="center">
+  🌐 <strong>Live Production Deployment:</strong> <a href="https://netdecoy.onrender.com" target="_blank"><strong>https://netdecoy.onrender.com</strong></a>
+</p>
+
+<p align="center">
+  <a href="https://netdecoy.onrender.com/dashboard" target="_blank"><strong>🛡️ Live SOC Dashboard</strong></a> &bull;
+  <a href="https://netdecoy.onrender.com/traps" target="_blank"><strong>🏢 Victim Decoy Site</strong></a> &bull;
+  <a href="https://netdecoy.onrender.com/attacker" target="_blank"><strong>⚔️ Attacker Red-Team Console</strong></a> &bull;
+  <a href="https://netdecoy.onrender.com/demo" target="_blank"><strong>🎯 Judge Demo Runner</strong></a>
 </p>
 
 ---
 
 ## 📑 Table of Contents
+
 1. [Executive Summary](#-executive-summary)
 2. [The 3 Interconnected Systems](#-the-3-interconnected-systems)
 3. [Core Capabilities & Architectural Pillars](#-core-capabilities--architectural-pillars)
@@ -259,9 +271,16 @@ Watch the SOC Dashboard light up in real time with glowing MITRE tiles, risk upd
 
 ## ☁️ Cloud Deployment on Render
 
-NetDecoy includes a pre-configured production blueprint (`render.yaml`) and Gunicorn WSGI server.
+NetDecoy is pre-configured with a production blueprint (`render.yaml`) and Gunicorn WSGI server.
 
-### 1-Click Blueprint Deployment:
+### 🌐 Active Production URL
+> **Live Web Application**: **[https://netdecoy.onrender.com](https://netdecoy.onrender.com)**  
+> - **SOC Operations Dashboard**: [https://netdecoy.onrender.com/dashboard](https://netdecoy.onrender.com/dashboard)
+> - **Synthetic Deception Hub**: [https://netdecoy.onrender.com/traps](https://netdecoy.onrender.com/traps)
+> - **Attacker Red-Team Console**: [https://netdecoy.onrender.com/attacker](https://netdecoy.onrender.com/attacker)
+> - **Judge Automated Demo Runner**: [https://netdecoy.onrender.com/demo](https://netdecoy.onrender.com/demo)
+
+### 1-Click Blueprint Deployment (For Forks & New Clusters):
 1. Log in to [dashboard.render.com](https://dashboard.render.com).
 2. Click **New +** > **Blueprint**.
 3. Connect your GitHub repository (`net-decoy`).
@@ -269,7 +288,8 @@ NetDecoy includes a pre-configured production blueprint (`render.yaml`) and Guni
    - **Runtime**: Python 3.11+
    - **Build Command**: `pip install -r requirements.txt`
    - **Start Command**: `gunicorn backend.app:app`
-5. Click **Apply**. Your public HTTPS link (e.g., `https://netdecoy.onrender.com`) will be active in under 3 minutes.
+5. Click **Apply**.
+
 
 *(Optional)* To enable live Google Gemini AI synthesis, add the environment variable `GEMINI_API_KEY` in the Render dashboard. If omitted, the platform uses its deterministic offline fallback engine.
 
