@@ -10,6 +10,20 @@ import logging
 logger = logging.getLogger(__name__)
 events_bp = Blueprint("events", __name__)
 
+def get_real_client_ip():
+
+    """Extract real client IP behind reverse proxies (Render, Cloudflare, Nginx)."""
+    forwarded = request.headers.get("X-Forwarded-For")
+    if forwarded:
+        parts = [p.strip() for p in forwarded.split(",") if p.strip()]
+        if parts:
+            return parts[0]
+    real_ip = request.headers.get("CF-Connecting-IP") or request.headers.get("X-Real-IP")
+    if real_ip:
+        return real_ip.strip()
+    return request.remote_addr or "127.0.0.1"
+
+
 @events_bp.route("/api/events", methods=["POST"])
 def ingest_event():
     """
@@ -19,9 +33,14 @@ def ingest_event():
     try:
         data = request.get_json(silent=True) or {}
         
+        # If no IP supplied, or client sent 127.0.0.1/localhost fallback, resolve real IP from request
+        client_ip = data.get("source_ip")
+        if not client_ip or client_ip in ("127.0.0.1", "localhost", "::1", "0.0.0.0"):
+            client_ip = get_real_client_ip()
+
         event = log_event(
             session_id=data.get("session_id"),
-            source_ip=data.get("source_ip") or request.remote_addr,
+            source_ip=client_ip,
             page=data.get("page"),
             action=data.get("action"),
             event_type=data.get("event_type"),
@@ -31,6 +50,7 @@ def ingest_event():
             severity=data.get("severity"),
             geo=data.get("geo")
         )
+
 
         return jsonify({
             "status": "success",

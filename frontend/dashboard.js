@@ -318,7 +318,7 @@ function updateMapPosition(lat, lng, city, region, country, ip, isp = '') {
 
 async function fetchDashboardData() {
   try {
-    const healthRes = await fetch(`${CONFIG.apiBaseUrl}/api/health`, { signal: AbortSignal.timeout(1500) });
+    const healthRes = await fetch(`${CONFIG.apiBaseUrl}/api/health`, { signal: AbortSignal.timeout(6000) });
     if (healthRes.ok) {
       setBackendConnectedStatus(true);
       await fetchFromBackend();
@@ -326,7 +326,7 @@ async function fetchDashboardData() {
     }
   } catch (err) {
     try {
-      const healthResFallback = await fetch(`${CONFIG.apiBaseUrl}/health`, { signal: AbortSignal.timeout(1500) });
+      const healthResFallback = await fetch(`${CONFIG.apiBaseUrl}/health`, { signal: AbortSignal.timeout(6000) });
       if (healthResFallback.ok) {
         setBackendConnectedStatus(true);
         await fetchFromBackend();
@@ -338,6 +338,7 @@ async function fetchDashboardData() {
     }
   }
 }
+
 
 function setBackendConnectedStatus(isConnected) {
   state.isBackendConnected = isConnected;
@@ -1471,7 +1472,7 @@ function copyAtkPayload() {
 async function quarantineCurrentAttackIp() {
   const ip = activeInspectedIp || '185.220.101.5';
   try {
-    const res = await fetch('/api/quarantine', {
+    const res = await fetch(`${CONFIG.apiBaseUrl}/api/quarantine`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ip: ip, reason: `Active defense quarantine triggered for ${activeInspectedVector}` })
@@ -1484,6 +1485,7 @@ async function quarantineCurrentAttackIp() {
     closeAttackModal();
   }
 }
+
 
 function filterByCurrentAttackVector() {
   closeAttackModal();

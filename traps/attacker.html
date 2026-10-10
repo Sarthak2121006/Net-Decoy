@@ -741,14 +741,20 @@
 
   <script>
     // Configuration & Session State
+    const isHttp = (typeof window !== 'undefined' && window.location && window.location.protocol && window.location.protocol.startsWith('http') && !window.location.origin.includes(':5500'));
     const CONFIG = {
-      apiBaseUrl: (typeof window !== 'undefined' && window.location.origin && window.location.origin.startsWith('http') && window.location.port === '5000')
-        ? window.location.origin 
-        : 'http://localhost:5000'
+      apiBaseUrl: isHttp ? window.location.origin : 'http://localhost:5000'
     };
+
+    // Update target host visual indicator
+    const targetHostElem = document.getElementById('targetHostLabel');
+    if (targetHostElem) {
+      targetHostElem.textContent = CONFIG.apiBaseUrl;
+    }
 
     let activeSessionId = 'sess_redteam_' + Math.random().toString(36).substring(2, 8);
     document.getElementById('currentSessionLabel').textContent = activeSessionId;
+
 
     function getTimestamp() {
       return new Date().toTimeString().split(' ')[0];

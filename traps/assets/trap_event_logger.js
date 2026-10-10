@@ -22,7 +22,6 @@
       event_id: 'evt_' + Math.random().toString(36).substring(2, 10),
       session_id: window.NetDecoySessionId,
       timestamp: new Date().toISOString(),
-      source_ip: '127.0.0.1', // populated by backend
       page: page,
       action: action,
       event_type: event_type,
@@ -49,9 +48,9 @@
 
     // 2. Transmit to Central Event Collector API
     try {
-      const apiEndpoint = (typeof window !== 'undefined' && window.location.origin && window.location.origin.startsWith('http') && window.location.port === '5000')
-        ? '/api/events'
-        : 'http://localhost:5000/api/events';
+      // Dynamic endpoint detection: works in local dev, remote cloud (Render), and custom domains
+      const isHttp = (typeof window !== 'undefined' && window.location && window.location.protocol && window.location.protocol.startsWith('http') && !window.location.origin.includes(':5500'));
+      const apiEndpoint = isHttp ? '/api/events' : 'http://localhost:5000/api/events';
 
       await fetch(apiEndpoint, {
         method: 'POST',
@@ -62,6 +61,7 @@
       // Silent logging - never expose trap alert to potential attacker
       console.debug('[NetDecoy Silent Telemetry Captured]', event.action);
     }
+
 
     return event;
   };
