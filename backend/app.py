@@ -23,8 +23,17 @@ logging.basicConfig(
 )
 logger = logging.getLogger("netdecoy.backend")
 
-FRONTEND_DIR = os.path.join(PROJECT_ROOT, "frontend")
-TRAPS_DIR = os.path.join(PROJECT_ROOT, "traps")
+def _find_dir(dir_name):
+    cand1 = os.path.join(PROJECT_ROOT, dir_name)
+    if os.path.isdir(cand1):
+        return cand1
+    cand2 = os.path.join(os.getcwd(), dir_name)
+    if os.path.isdir(cand2):
+        return cand2
+    return cand1
+
+FRONTEND_DIR = _find_dir("frontend")
+TRAPS_DIR = _find_dir("traps")
 
 def create_app(test_config=None):
     """Application Factory for NetDecoy Flask Backend."""
@@ -44,18 +53,30 @@ def create_app(test_config=None):
 
     # Initialize Database Tables
     with app.app_context():
-        init_db()
-        logger.info("NetDecoy database initialized successfully.")
+        try:
+            init_db()
+            logger.info("NetDecoy database initialized successfully.")
+        except Exception as e:
+            logger.warning(f"Database init non-fatal warning: {e}")
 
     # Register API Endpoints
     register_routes(app)
 
+    def _safe_send(directory, filename):
+        target = os.path.join(directory, filename)
+        if os.path.exists(target):
+            return send_from_directory(directory, filename)
+        return jsonify({"status": "error", "message": f"{filename} not found"}), 404
+
     # Root & Health Endpoints
     @app.route("/", methods=["GET"])
     def root():
-        # If requested explicitly for HTML via browser, we can serve dashboard or provide JSON API discovery
+        # If requested explicitly for HTML via browser, serve dashboard
         if request.headers.get("Accept") and "text/html" in request.headers.get("Accept") and "application/json" not in request.headers.get("Accept"):
-            return send_from_directory(FRONTEND_DIR, "dashboard.html")
+            dashboard_file = os.path.join(FRONTEND_DIR, "dashboard.html")
+            if os.path.exists(dashboard_file):
+                return send_from_directory(FRONTEND_DIR, "dashboard.html")
+
         return jsonify({
             "service": "NetDecoy Honeypot Backend",
             "status": "online",
@@ -77,73 +98,73 @@ def create_app(test_config=None):
     @app.route("/dashboard", methods=["GET"])
     @app.route("/dashboard.html", methods=["GET"])
     def serve_dashboard():
-        return send_from_directory(FRONTEND_DIR, "dashboard.html")
+        return _safe_send(FRONTEND_DIR, "dashboard.html")
 
     @app.route("/dashboard.css", methods=["GET"])
     def serve_dashboard_css():
-        return send_from_directory(FRONTEND_DIR, "dashboard.css")
+        return _safe_send(FRONTEND_DIR, "dashboard.css")
 
     @app.route("/dashboard.js", methods=["GET"])
     def serve_dashboard_js():
-        return send_from_directory(FRONTEND_DIR, "dashboard.js")
+        return _safe_send(FRONTEND_DIR, "dashboard.js")
 
     @app.route("/frontend/<path:filename>", methods=["GET"])
     def serve_frontend_assets(filename):
-        return send_from_directory(FRONTEND_DIR, filename)
+        return _safe_send(FRONTEND_DIR, filename)
 
     # Static Assets for Traps and Decoys
     @app.route("/assets/<path:filename>", methods=["GET"])
     @app.route("/traps/assets/<path:filename>", methods=["GET"])
     def serve_trap_assets(filename):
         assets_dir = os.path.join(TRAPS_DIR, "assets")
-        return send_from_directory(assets_dir, filename)
+        return _safe_send(assets_dir, filename)
 
     # Honeypot Deception Traps Web Routes
     @app.route("/traps", methods=["GET"])
     @app.route("/traps/", methods=["GET"])
     @app.route("/traps/index.html", methods=["GET"])
     def serve_traps_hub():
-        return send_from_directory(TRAPS_DIR, "index.html")
+        return _safe_send(TRAPS_DIR, "index.html")
 
     @app.route("/traps/<path:filename>", methods=["GET"])
     def serve_traps_files(filename):
-        return send_from_directory(TRAPS_DIR, filename)
+        return _safe_send(TRAPS_DIR, filename)
 
     # Shortcut Traps URLs
     @app.route("/login", methods=["GET"])
     @app.route("/login.html", methods=["GET"])
     def serve_login_trap():
-        return send_from_directory(TRAPS_DIR, "login.html")
+        return _safe_send(TRAPS_DIR, "login.html")
 
     @app.route("/admin", methods=["GET"])
     @app.route("/admin.html", methods=["GET"])
     def serve_admin_trap():
-        return send_from_directory(TRAPS_DIR, "admin.html")
+        return _safe_send(TRAPS_DIR, "admin.html")
 
     @app.route("/backup", methods=["GET"])
     @app.route("/backup.html", methods=["GET"])
     def serve_backup_trap():
-        return send_from_directory(TRAPS_DIR, "backup.html")
+        return _safe_send(TRAPS_DIR, "backup.html")
 
     @app.route("/database", methods=["GET"])
     @app.route("/database.html", methods=["GET"])
     def serve_database_trap():
-        return send_from_directory(TRAPS_DIR, "database.html")
+        return _safe_send(TRAPS_DIR, "database.html")
 
     @app.route("/api-explorer", methods=["GET"])
     @app.route("/api.html", methods=["GET"])
     def serve_api_explorer_trap():
-        return send_from_directory(TRAPS_DIR, "api.html")
+        return _safe_send(TRAPS_DIR, "api.html")
 
     @app.route("/search", methods=["GET"])
     @app.route("/search.html", methods=["GET"])
     def serve_search_trap():
-        return send_from_directory(TRAPS_DIR, "search.html")
+        return _safe_send(TRAPS_DIR, "search.html")
 
     @app.route("/demo", methods=["GET"])
     @app.route("/demo_runner.html", methods=["GET"])
     def serve_demo_runner():
-        return send_from_directory(TRAPS_DIR, "demo_runner.html")
+        return _safe_send(TRAPS_DIR, "demo_runner.html")
 
     # System 3: Attacker Red-Team Console
     @app.route("/attacker", methods=["GET"])
@@ -151,13 +172,14 @@ def create_app(test_config=None):
     @app.route("/redteam", methods=["GET"])
     @app.route("/exploit", methods=["GET"])
     def serve_attacker_console():
-        return send_from_directory(TRAPS_DIR, "attacker.html")
+        return _safe_send(TRAPS_DIR, "attacker.html")
 
     # System 2: Decoy Fake Company Portal Aliases
     @app.route("/company", methods=["GET"])
     @app.route("/portal", methods=["GET"])
     def serve_company_portal():
-        return send_from_directory(TRAPS_DIR, "index.html")
+        return _safe_send(TRAPS_DIR, "index.html")
+
 
     # Error Handlers
     @app.errorhandler(404)
