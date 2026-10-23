@@ -2,7 +2,13 @@
   "version": 2,
   "functions": {
     "api/index.py": {
-      "includeFiles": "{frontend/**,traps/**,shared/**}"
+      "includeFiles": [
+        "backend/**",
+        "intelligence/**",
+        "frontend/**",
+        "traps/**",
+        "shared/**"
+      ]
     }
   },
   "rewrites": [
