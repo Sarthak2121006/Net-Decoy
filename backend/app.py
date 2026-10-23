@@ -70,6 +70,7 @@ def create_app(test_config=None):
 
     # Root & Health Endpoints
     @app.route("/", methods=["GET"])
+    @app.route("/api/index", methods=["GET"])
     def root():
         # If requested explicitly for HTML via browser, serve dashboard
         if request.headers.get("Accept") and "text/html" in request.headers.get("Accept") and "application/json" not in request.headers.get("Accept"):

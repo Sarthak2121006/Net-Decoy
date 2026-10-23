@@ -1,3 +1,7 @@
+"""
+NetDecoy - Vercel Serverless Function Entrypoint
+Routes all incoming serverless requests to the centralized NetDecoy Flask application.
+"""
 import os
 import sys
 import traceback
@@ -7,7 +11,6 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-# In serverless environments, also ensure current working directory is on sys.path
 cwd = os.getcwd()
 if cwd not in sys.path:
     sys.path.insert(0, cwd)
@@ -29,6 +32,10 @@ except Exception as e:
             "traceback": err_trace.splitlines(),
             "sys_path": sys.path,
             "cwd": cwd,
-            "project_root": PROJECT_ROOT,
-            "root_contents": os.listdir(PROJECT_ROOT) if os.path.exists(PROJECT_ROOT) else []
+            "project_root": PROJECT_ROOT
         }), 500
+
+__all__ = ["app"]
+
+if __name__ == "__main__":
+    app.run()
