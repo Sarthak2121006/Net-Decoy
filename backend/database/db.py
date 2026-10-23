@@ -6,8 +6,13 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from backend.database.models import Base
 
-DEFAULT_DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "netdecoy.db")
+if os.getenv("VERCEL"):
+    DEFAULT_DB_PATH = "/tmp/netdecoy.db"
+else:
+    DEFAULT_DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "netdecoy.db")
+
 DATABASE_URI = os.getenv("NETDECOY_DB_URI", f"sqlite:///{DEFAULT_DB_PATH}")
+
 
 engine = create_engine(
     DATABASE_URI,
