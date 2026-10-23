@@ -4,6 +4,3 @@ version = "1.0.0"
 description = "AI-Driven Honeypot & Cyber Threat Intelligence Platform"
 readme = "README.md"
 requires-python = ">=3.10"
-
-[tool.vercel]
-entrypoint = "api/index.py"
