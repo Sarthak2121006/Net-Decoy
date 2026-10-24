@@ -10,26 +10,30 @@ from backend.database.models import Base
 
 logger = logging.getLogger(__name__)
 
-def _get_database_uri():
-    custom_uri = os.getenv("NETDECOY_DB_URI")
-    if custom_uri:
-        return custom_uri
 
-    local_dir = os.path.dirname(os.path.abspath(__file__))
+def _get_database_uri():
+    custom = os.getenv("NETDECOY_DB_URI")
+    if custom:
+        return custom
+
     is_serverless = any([
         os.getenv("VERCEL"),
         os.getenv("VERCEL_ENV"),
         os.getenv("AWS_LAMBDA_FUNCTION_NAME"),
         os.getenv("LAMBDA_TASK_ROOT"),
-        not os.access(local_dir, os.W_OK)
     ])
 
     if is_serverless:
         tmp_dir = tempfile.gettempdir()
-        db_path = os.path.join(tmp_dir, "netdecoy.db")
-        return f"sqlite:///{db_path}"
+        db_file = os.path.join(tmp_dir, "netdecoy.db").replace("\\", "/")
+        if not db_file.startswith("/"):
+            return f"sqlite:///{db_file}"
+        return f"sqlite://{db_file}"
 
-    return f"sqlite:///{os.path.join(local_dir, 'netdecoy.db')}"
+    local_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "netdecoy.db").replace("\\", "/")
+    if not local_path.startswith("/"):
+        return f"sqlite:///{local_path}"
+    return f"sqlite://{local_path}"
 
 DATABASE_URI = _get_database_uri()
 
@@ -48,6 +52,7 @@ def init_db():
     except Exception as e:
         logger.warning(f"Database table init non-fatal warning: {e}")
 
+
 def get_db():
     """Yield a database session with automatic closure."""
     db = SessionLocal()
@@ -58,8 +63,5 @@ def get_db():
 
 def reset_db():
     """Drop and recreate all tables for a clean demo state."""
-    try:
-        Base.metadata.drop_all(bind=engine)
-        Base.metadata.create_all(bind=engine)
-    except Exception as e:
-        logger.warning(f"Database reset non-fatal warning: {e}")
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
