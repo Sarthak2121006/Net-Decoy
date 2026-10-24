@@ -1,29 +1,22 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
-    "index.py": {
+    "backend/app.py": {
       "includeFiles": [
-        "backend/**",
-        "intelligence/**",
         "frontend/**",
         "traps/**",
+        "intelligence/**",
         "shared/**"
       ]
     },
     "api/index.py": {
       "includeFiles": [
-        "backend/**",
-        "intelligence/**",
         "frontend/**",
         "traps/**",
-        "shared/**"
+        "intelligence/**",
+        "shared/**",
+        "backend/**"
       ]
     }
-  },
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.py"
-    }
-  ]
+  }
 }

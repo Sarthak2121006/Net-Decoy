@@ -5,6 +5,8 @@ import os
 import tempfile
 import logging
 from sqlalchemy import create_engine
+from sqlalchemy.engine.url import URL
+from sqlalchemy.pool import StaticPool
 from sqlalchemy.orm import sessionmaker, scoped_session
 from backend.database.models import Base
 
@@ -25,24 +27,39 @@ def _get_database_uri():
 
     if is_serverless:
         tmp_dir = tempfile.gettempdir()
-        db_file = os.path.join(tmp_dir, "netdecoy.db").replace("\\", "/")
-        if not db_file.startswith("/"):
-            return f"sqlite:///{db_file}"
-        return f"sqlite://{db_file}"
+        db_file = os.path.abspath(os.path.join(tmp_dir, "netdecoy.db"))
+        return URL.create(drivername="sqlite", database=db_file).render_as_string(hide_password=False)
 
-    local_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "netdecoy.db").replace("\\", "/")
-    if not local_path.startswith("/"):
-        return f"sqlite:///{local_path}"
-    return f"sqlite://{local_path}"
+    local_path = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "netdecoy.db"))
+    return URL.create(drivername="sqlite", database=local_path).render_as_string(hide_password=False)
+
 
 DATABASE_URI = _get_database_uri()
 
-engine = create_engine(
-    DATABASE_URI,
-    connect_args={"check_same_thread": False} if DATABASE_URI.startswith("sqlite") else {},
-    echo=False
-)
 
+def _create_engine():
+    global DATABASE_URI
+    try:
+        eng = create_engine(
+            DATABASE_URI,
+            connect_args={"check_same_thread": False} if DATABASE_URI.startswith("sqlite") else {},
+            echo=False
+        )
+        with eng.connect():
+            pass
+        return eng
+    except Exception as e:
+        logger.warning(f"Could not connect to database {DATABASE_URI}: {e}. Falling back to in-memory SQLite.")
+        DATABASE_URI = "sqlite:///:memory:"
+        return create_engine(
+            DATABASE_URI,
+            connect_args={"check_same_thread": False},
+            poolclass=StaticPool,
+            echo=False
+        )
+
+
+engine = _create_engine()
 SessionLocal = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
 
 def init_db():
